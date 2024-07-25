@@ -11,6 +11,6 @@ RUN pip install -r requirements.txt
 
 COPY bot .
 
-ENTRYPOINT python3 main.py
+ENTRYPOINT alembic upgrade head && python3 main.py
 
 

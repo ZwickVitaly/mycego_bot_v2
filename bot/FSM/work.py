@@ -10,6 +10,7 @@ class WorkGraf(StatesGroup):
 
 class WorkList(StatesGroup):
     choice_date = State()
+    choice_department = State()
     choice_work = State()
     input_num = State()
     send_comment = State()

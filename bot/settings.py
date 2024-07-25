@@ -5,7 +5,7 @@ from sys import stdout
 from loguru import logger
 
 # Set DEBUG for sqlite database and advanced logging
-DEBUG = True  # getenv("DEBUG", "0") == "1"
+DEBUG = getenv("DEBUG", "0") == "1"
 
 # logging configure
 logger.remove()
@@ -22,19 +22,24 @@ BOT_TOKEN = getenv("BOT_TOKEN2")
 # GPT token
 GPT_TOKEN = getenv("GPT_TOKEN")
 
-ADMINS = getenv("ADMINS")
+ADMINS = getenv("ADMINS") or "123"
 if not ADMINS:
     raise ValueError("Нет ни одного id админов")
 ADMINS = ADMINS.split(",")
 
 SUPPORT_ID = getenv("SUPPORT_ID")
 
+JSON_HEADERS = {"Content-Type": "application/json"}
+
+
 # Set databases
 
 SITE_DOMAIN = getenv("SITE_DOMAIN") or "https://mycego.ru"
 
 BASE_DIR = Path(__file__).parent
-DATABASE_NAME = str(BASE_DIR / "app_data" / "telegram_bot.db")
+DATABASE_NAME = f'sqlite+aiosqlite:///{BASE_DIR / "app_data" / "telegram_bot.db"}'
+
+COMMENTED_WORKS = dict()
 
 # Set True if you want webhook bot. Don't forget to edit variables down below
 # WEBHOOK_DISPATCHER = getenv("WEBHOOKS") == "1"

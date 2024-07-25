@@ -8,5 +8,6 @@ class Works(Base):
 
     id = Column(String, primary_key=True)
     name = Column(String)
+    department_name = Column(String)
     delivery = Column(Boolean, default=False)
     standard = Column(Integer, default=0)

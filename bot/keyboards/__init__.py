@@ -8,6 +8,8 @@ from .inline_keyboards import (
     generate_time_keyboard,
     generate_time_keyboard2,
     generate_works,
+    generate_pay_sheets,
+    generate_departments,
 )
 from .reply_keyboards import menu_keyboard, ready, second_menu, type_request
 
@@ -25,4 +27,6 @@ __all__ = [
     "call_back",
     "create_works_list",
     "delete_button",
+    "generate_pay_sheets",
+    "generate_departments",
 ]

@@ -9,6 +9,7 @@ from .routers import (
     work_graf_router,
     work_list_delivery_router,
     work_list_router,
+    pay_sheets_router
 )
 
 __all__ = [
@@ -23,4 +24,5 @@ __all__ = [
     "work_graf_router",
     "work_list_delivery_router",
     "requests_router",
+    "pay_sheets_router",
 ]

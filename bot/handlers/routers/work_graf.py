@@ -1,4 +1,4 @@
-from aiogram import Router
+from aiogram import Router, F
 from aiogram.fsm.context import FSMContext
 from aiogram.types import CallbackQuery
 from api_services import create_or_get_apport, delete_appointments
@@ -9,7 +9,7 @@ from keyboards import generate_time_keyboard, generate_time_keyboard2, menu_keyb
 work_graf_router = Router()
 
 
-@work_graf_router.callback_query(WorkGraf.choice_date)
+@work_graf_router.callback_query(WorkGraf.choice_date, F.data.startswith("nextdate"))
 async def process_date(callback_query: CallbackQuery, state: FSMContext):
     data = await state.get_data()
     await callback_query.message.delete()

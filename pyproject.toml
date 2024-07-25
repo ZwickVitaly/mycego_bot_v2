@@ -46,6 +46,7 @@ tqdm = "4.66.4"
 typing-extensions = "4.12.2"
 urllib3 = "2.2.2"
 yarl = "1.9.4"
+alembic = "^1.13.2"
 
 
 [build-system]

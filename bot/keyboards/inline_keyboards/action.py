@@ -21,7 +21,7 @@ async def generate_next_week_dates_keyboard():
         date = next_week_start + datetime.timedelta(days=i)
         exit_button = InlineKeyboardButton(
             text=date.strftime("%Y-%m-%d"),
-            callback_data=f"date_{date.strftime('%Y-%m-%d')}",
+            callback_data=f"nextdate_{date.strftime('%Y-%m-%d')}",
         )
         keyboard.add(exit_button)
 
@@ -38,7 +38,7 @@ async def generate_time_keyboard():
     for num in range(9, 21):
         numbers_button = InlineKeyboardButton(text=str(num), callback_data=f"{num}:00")
         keyboard.add(numbers_button)
-
+    keyboard.row(InlineKeyboardButton(text="Назад", callback_data="exit"))
     return keyboard.as_markup()
 
 
@@ -55,18 +55,34 @@ async def generate_time_keyboard2(chosen_hour: int):
                 text=str(num), callback_data=f"{num}:00"
             )
         keyboard.add(numbers_button)
-
+    keyboard.row(InlineKeyboardButton(text="Назад", callback_data="exit"))
     return keyboard.as_markup()
 
 
-async def generate_works(delivery=None):
+async def generate_departments():
+    async with async_session() as session:
+        async with session.begin():
+            works_q = await session.execute(select(Works.department_name).distinct().order_by(Works.department_name))
+            departments = works_q.all()
+
+    keyboard = InlineKeyboardBuilder()
+    keyboard.max_width = 2
+    for department in departments:
+        keyboard.add(InlineKeyboardButton(text=department[0], callback_data=department[0]))
+    send_button = InlineKeyboardButton(text="📬Отправить", callback_data="send")
+
+    keyboard.add(send_button)
+    return keyboard.as_markup()
+
+
+async def generate_works(department: str, delivery=None):
     async with async_session() as session:
         async with session.begin():
             if delivery:
-                q = select(Works).where(Works.delivery == True)
+                q = select(Works).where(Works.delivery == True, Works.department_name == department)
             else:
-                q = select(Works)
-            works_q = await session.execute(q)
+                q = select(Works).where(Works.department_name == department)
+            works_q = await session.execute(q.order_by(Works.name))
             all_works = works_q.scalars()
 
     keyboard = InlineKeyboardBuilder()
@@ -96,7 +112,7 @@ async def generate_current_week_works_dates():
         if date <= today:
             date_button = InlineKeyboardButton(
                 text=date.strftime("%Y-%m-%d"),
-                callback_data=f"date_{date.strftime('%Y-%m-%d')}",
+                callback_data=f"prevdate_{date.strftime('%Y-%m-%d')}",
             )
             keyboard.add(date_button)
 
@@ -138,6 +154,26 @@ async def delivery_keyboard():
         delivery_button = InlineKeyboardButton(text=str(i[1]), callback_data=f"{i[0]}")
         keyboard.add(delivery_button)
     exit_button = InlineKeyboardButton(text="Назад", callback_data="exit")
+    keyboard.add(exit_button)
+    return keyboard.as_markup()
+
+
+async def generate_pay_sheets(data):
+    keyboard = InlineKeyboardBuilder()
+    keyboard.max_width = 1
+    for i in data:
+        period = i.split("-")
+        if period[0] == 'month':
+            period_mes = f'За {period[2].split("_")[-1]} месяц {period[2].split("_")[0]} года\n'
+        else:
+            period_mes = f'За {period[2].split("_")[-1]} неделю {period[2].split("_")[0]} года\n'
+
+        pay_sheet_button = InlineKeyboardButton(
+            text=period_mes,
+            callback_data=f"{i}"
+        )
+        keyboard.add(pay_sheet_button)
+    exit_button = InlineKeyboardButton(text='Назад', callback_data='exit')
     keyboard.add(exit_button)
     return keyboard.as_markup()
 

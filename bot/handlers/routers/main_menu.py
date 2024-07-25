@@ -1,3 +1,5 @@
+from itertools import groupby
+
 from aiogram import Router, types
 from aiogram.fsm.context import FSMContext
 from aiogram.utils.keyboard import InlineKeyboardBuilder
@@ -7,17 +9,17 @@ from api_services import (
     get_data_delivery,
     get_request,
     get_statistic,
-    get_works_lists,
+    get_works_lists, get_pay_sheet,
 )
 from db import Message, Works, async_session
-from FSM import Requests, ViewWorkList, WorkGraf, WorkList, WorkListDelivery
+from FSM import Requests, ViewWorkList, WorkGraf, WorkList, WorkListDelivery, PaySheets
 from helpers import aget_user_by_id, get_message_counts_by_user
 from keyboards import (
     create_works_list,
     generate_current_week_works_dates,
     generate_next_week_dates_keyboard,
     menu_keyboard,
-    type_request,
+    type_request, generate_pay_sheets,
 )
 from settings import SUPPORT_ID, logger
 from sqlalchemy import select
@@ -88,56 +90,63 @@ async def main_menu_message_handler(message: types.Message, state: FSMContext):
                     "Ни чего не найдено",
                     reply_markup=menu_keyboard(message.from_user.id),
                 )
-        elif text == "🛠️Заполнить работы по поставке":
-            await message.answer(
-                "⚠️Заполните все работы проведенные по поставке, "
-                "Можно заполнить несколько поставок за день.⚠️"
-            )
-            mes = await message.answer(
-                "Выберите дату:", reply_markup=await generate_current_week_works_dates()
-            )
-            await state.update_data(data={"mes": mes})
-            await state.set_state(WorkListDelivery.choice_date)
-        elif text == "📦Мои поставки":
-            await state.set_state(ViewWorkList.del_work)
-            await message.answer(
-                "Ваши сдельные листы на поставки за неделю:",
-                reply_markup=menu_keyboard(message.from_user.id),
-            )
-            data_delivery = (await get_data_delivery(user_id_site)).get("data", None)
-            if data_delivery:
-                logger.success(data_delivery)
-                for key, value in data_delivery.items():
-                    message_bot = ""
-
-                    key_list = key.split(";")
-                    message_bot += f"\n{key_list[0]} - {key_list[1]}\n"
-                    for i, j in value.items():
-                        message_bot += f"    {i}: {j}\n"
-                    keyboard = InlineKeyboardBuilder()
-                    if key_list[3] == "False":
-                        delete_button = types.InlineKeyboardButton(
-                            text="🚫Удалить", callback_data=f"delete_{key_list[2]}"
-                        )
-                        keyboard.add(delete_button)
-                    else:
-                        message_bot += "✅ Проверенно"
-                    await message.answer(message_bot, reply_markup=keyboard.as_markup())
-            else:
-                await message.answer(
-                    "Не найдено за неделю",
-                    reply_markup=menu_keyboard(message.from_user.id),
-                )
+        # elif text == "🛠️Заполнить работы по поставке":
+        #     await message.answer(
+        #         "⚠️Заполните все работы проведенные по поставке, "
+        #         "Можно заполнить несколько поставок за день.⚠️"
+        #     )
+        #     mes = await message.answer(
+        #         "Выберите дату:", reply_markup=await generate_current_week_works_dates()
+        #     )
+        #     await state.update_data(data={"mes": mes})
+        #     await state.set_state(WorkListDelivery.choice_date)
+        # elif text == "📦Мои поставки":
+        #     await state.set_state(ViewWorkList.del_work)
+        #     await message.answer(
+        #         "Ваши сдельные листы на поставки за неделю:",
+        #         reply_markup=menu_keyboard(message.from_user.id),
+        #     )
+        #     data_delivery = (await get_data_delivery(user_id_site)).get("data", None)
+        #     if data_delivery:
+        #         logger.success(data_delivery)
+        #         for key, value in data_delivery.items():
+        #             message_bot = ""
+        #
+        #             key_list = key.split(";")
+        #             message_bot += f"\n{key_list[0]} - {key_list[1]}\n"
+        #             for i, j in value.items():
+        #                 message_bot += f"    {i}: {j}\n"
+        #             keyboard = InlineKeyboardBuilder()
+        #             if key_list[3] == "False":
+        #                 delete_button = types.InlineKeyboardButton(
+        #                     text="🚫Удалить", callback_data=f"delete_{key_list[2]}"
+        #                 )
+        #                 keyboard.add(delete_button)
+        #             else:
+        #                 message_bot += "✅ Проверенно"
+        #             await message.answer(message_bot, reply_markup=keyboard.as_markup())
+        #     else:
+        #         await message.answer(
+        #             "Не найдено за неделю",
+        #             reply_markup=menu_keyboard(message.from_user.id),
+        #         )
 
         elif text == "😵‍💫Нормативы":
             async with async_session() as session:
                 async with session.begin():
-                    standards_q = await session.execute(select(Works))
-                    standards = standards_q.unique().scalars()
-            mess = ""
-            for standard in standards:
-                mess += f"{standard.name}: {standard.standard}/час\n"
-            await message.answer(mess if mess else "Не найдено")
+                    standards_q = await session.execute(
+                        select(Works).order_by(Works.department_name, Works.name)
+                    )
+                    standards = standards_q.scalars()
+            mes = ""
+            if standards:
+                departments = {k: list(g) for k, g in groupby(standards, lambda w: w.department_name)}
+                for dep, works in departments.items():
+                    mes += f"{dep}:\n"
+                    for work in works:
+                        mes += f"\t- {work.name}: {work.standard}/час\n"
+                    mes += f"\n"
+            await message.answer(mes or "Нормативы не найдены")
         elif text == "📊Статистика":
             mess = ""
             await message.answer(
@@ -180,6 +189,21 @@ async def main_menu_message_handler(message: types.Message, state: FSMContext):
                     )
             await message.answer(f"Выберите тип заявки", reply_markup=type_request)
             await state.set_state(Requests.type)
+
+        elif text == '💰Расчетные листы':
+            data = await state.get_data()
+            api_data = (await get_pay_sheet(user_id_site)).get("data")
+            if not api_data:
+                await message.answer("Расчётные листы не найдены")
+            else:
+                data['api_data'] = api_data
+                await message.answer(
+                    '5 последних расчетных листов:',
+                    reply_markup=await generate_pay_sheets(api_data)
+                )
+
+                await state.update_data(data)
+                await state.set_state(PaySheets.choice_list)
 
         elif text == "Обновить список работ":
             await generate_works_base()

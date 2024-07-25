@@ -1,11 +1,10 @@
 from aiogram import Bot, F
 from aiogram.client.default import DefaultBotProperties
 from aiogram.enums import ParseMode
-from aiogram.filters import Command, CommandStart
+from aiogram.filters import CommandStart
 from aiogram.fsm.storage.memory import MemoryStorage
 from db import Base, async_session, engine
 from dispatchers.lifespan_dispatcher import DispatcherLifespan
-from FSM import AuthState
 from handlers import (
     auth_router,
     back_message_handler,
@@ -17,6 +16,7 @@ from handlers import (
     work_graf_router,
     work_list_delivery_router,
     work_list_router,
+    pay_sheets_router,
 )
 from lifespan.sqlalchemy_db_creation_manager import SQLAlchemyDBCreateAsyncManager
 from settings import BOT_TOKEN, logger
@@ -51,7 +51,7 @@ dp.callback_query.register(cancel_operations_handler, F.data == "exit")
 dp.include_router(work_list_router)
 
 # Роутер листа доставок
-dp.include_router(work_list_delivery_router)
+# dp.include_router(work_list_delivery_router)
 
 # Роутер просмотра работ
 dp.include_router(view_work_list_router)
@@ -61,6 +61,9 @@ dp.include_router(requests_router)
 
 # Роутер графика
 dp.include_router(work_graf_router)
+
+# Роутер расчётных листов
+dp.include_router(pay_sheets_router)
 
 # Аутентификация
 dp.include_router(auth_router)
