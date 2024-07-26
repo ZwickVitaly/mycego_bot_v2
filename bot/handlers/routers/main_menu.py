@@ -171,7 +171,7 @@ async def main_menu_message_handler(message: types.Message, state: FSMContext):
                     f"Средняя эффективность: "
                     f"{data['profile'][1] if data['profile'][1] else 'Нет работ за 7 дней'}"
                     f"{'%' if data['profile'][1] else ''}\n"
-                    f"Работы:\n"
+                    f"{'Работы:\n' if data['profile'][1] else ''}"
                 )
                 for key, value in data["work_summary"].items():
                     mess += f"    {key}: {value}\n"

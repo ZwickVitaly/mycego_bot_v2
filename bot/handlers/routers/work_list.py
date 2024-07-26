@@ -52,7 +52,7 @@ async def nums_works(message: Message, state: FSMContext):
         quantity = int(message.text)
         if quantity < 0:
             await message.answer("Ошибка: количество не может быть отрицательным.")
-        elif current_work in COMMENTED_WORKS and quantity > 720:
+        elif COMMENTED_WORKS[current_work].lower().startswith("другие работы") and quantity > 720:
             await message.answer(
                 "Ошибка: по этому виду работ нельзя указать больше 720 минут!"
             )
