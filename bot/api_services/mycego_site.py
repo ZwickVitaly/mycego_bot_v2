@@ -7,9 +7,9 @@ from settings import COMMENTED_WORKS, JSON_HEADERS, SITE_DOMAIN, logger
 from sqlalchemy import delete
 
 
-async def check_user_api(username, password):
+async def check_user_api(username, password, user_id):
     url = f"{SITE_DOMAIN}/api-auth/login/"
-    data = {"username": username, "password": password}
+    data = {"username": username, "password": password, "telegram_id": str(user_id)}
     async with ClientSession() as session:
         async with session.post(url=url, data=data) as response:
             if response.status == 200:

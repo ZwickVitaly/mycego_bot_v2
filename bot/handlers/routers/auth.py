@@ -21,7 +21,7 @@ async def process_login(message: Message, state: FSMContext):
 async def process_password(message: Message, state: FSMContext):
     login = (await state.get_data())["login"]
     password = message.text
-    user_valid = await check_user_api(login, password)
+    user_valid = await check_user_api(login, password, message.from_user.id)
     if user_valid:
         async with async_session() as session:
             async with session.begin():
