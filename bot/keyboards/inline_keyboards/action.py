@@ -7,6 +7,8 @@ from db import Works, async_session
 from loguru import logger
 from sqlalchemy import select
 
+from .buttons import back_inline_button, cancel_inline_button, send_inline_button
+
 
 async def generate_next_week_dates_keyboard():
     keyboard = InlineKeyboardBuilder()
@@ -25,8 +27,7 @@ async def generate_next_week_dates_keyboard():
         )
         keyboard.add(exit_button)
 
-    exit_button = InlineKeyboardButton(text="Назад", callback_data="exit")
-    keyboard.add(exit_button)
+    keyboard.row(cancel_inline_button)
     return keyboard.as_markup()
 
 
@@ -38,7 +39,8 @@ async def generate_time_keyboard():
     for num in range(9, 21):
         numbers_button = InlineKeyboardButton(text=str(num), callback_data=f"{num}:00")
         keyboard.add(numbers_button)
-    keyboard.row(InlineKeyboardButton(text="Назад", callback_data="exit"))
+    keyboard.row(back_inline_button)
+    keyboard.row(cancel_inline_button)
     return keyboard.as_markup()
 
 
@@ -55,23 +57,28 @@ async def generate_time_keyboard2(chosen_hour: int):
                 text=str(num), callback_data=f"{num}:00"
             )
         keyboard.add(numbers_button)
-    keyboard.row(InlineKeyboardButton(text="Назад", callback_data="exit"))
+    keyboard.row(back_inline_button)
+    keyboard.row(cancel_inline_button)
     return keyboard.as_markup()
 
 
 async def generate_departments():
     async with async_session() as session:
         async with session.begin():
-            works_q = await session.execute(select(Works.department_name).distinct().order_by(Works.department_name))
+            works_q = await session.execute(
+                select(Works.department_name).distinct().order_by(Works.department_name)
+            )
             departments = works_q.all()
 
     keyboard = InlineKeyboardBuilder()
-    keyboard.max_width = 2
+    keyboard.max_width = 1
     for department in departments:
-        keyboard.add(InlineKeyboardButton(text=department[0], callback_data=department[0]))
-    send_button = InlineKeyboardButton(text="📬Отправить", callback_data="send")
+        keyboard.add(
+            InlineKeyboardButton(text=department[0], callback_data=department[0])
+        )
 
-    keyboard.add(send_button)
+    keyboard.row(send_inline_button)
+    keyboard.row(cancel_inline_button)
     return keyboard.as_markup()
 
 
@@ -79,7 +86,9 @@ async def generate_works(department: str, delivery=None):
     async with async_session() as session:
         async with session.begin():
             if delivery:
-                q = select(Works).where(Works.delivery == True, Works.department_name == department)
+                q = select(Works).where(
+                    Works.delivery == True, Works.department_name == department
+                )
             else:
                 q = select(Works).where(Works.department_name == department)
             works_q = await session.execute(q.order_by(Works.name))
@@ -96,8 +105,9 @@ async def generate_works(department: str, delivery=None):
             keyboard.add(work_button)
         except Exception as e:
             logger.error(f"Work: {i} Error: {e.args}")
-    send_button = InlineKeyboardButton(text="📬Отправить", callback_data="send")
-    keyboard.add(send_button)
+    keyboard.row(send_inline_button)
+    keyboard.row(back_inline_button)
+    keyboard.row(cancel_inline_button)
 
     return keyboard.as_markup()
 
@@ -116,8 +126,7 @@ async def generate_current_week_works_dates():
             )
             keyboard.add(date_button)
 
-    exit_button = InlineKeyboardButton(text="Назад", callback_data="exit")
-    keyboard.add(exit_button)
+    keyboard.row(cancel_inline_button)
     return keyboard.as_markup()
 
 
@@ -130,8 +139,7 @@ async def create_works_list(lists):
             text=str(i[1]), callback_data=f"{i[0]}_{i[1]}_{i[2]}"
         )
         keyboard.add(works_button)
-    exit_button = InlineKeyboardButton(text="Назад", callback_data="exit")
-    keyboard.add(exit_button)
+    keyboard.row(cancel_inline_button)
     return keyboard.as_markup()
 
 
@@ -139,10 +147,9 @@ async def delete_button(data):
     keyboard = InlineKeyboardBuilder()
     keyboard.max_width = 2
     del_button = InlineKeyboardButton(text="Удалить", callback_data=f"del_{data}")
-    keyboard.add(del_button)
+    keyboard.row(del_button)
 
-    exit_button = InlineKeyboardButton(text="Назад", callback_data="exit")
-    keyboard.add(exit_button)
+    keyboard.row(cancel_inline_button)
     return keyboard.as_markup()
 
 
@@ -153,8 +160,7 @@ async def delivery_keyboard():
     for i in data:
         delivery_button = InlineKeyboardButton(text=str(i[1]), callback_data=f"{i[0]}")
         keyboard.add(delivery_button)
-    exit_button = InlineKeyboardButton(text="Назад", callback_data="exit")
-    keyboard.add(exit_button)
+    keyboard.row(cancel_inline_button)
     return keyboard.as_markup()
 
 
@@ -163,23 +169,22 @@ async def generate_pay_sheets(data):
     keyboard.max_width = 1
     for i in data:
         period = i.split("-")
-        if period[0] == 'month':
-            period_mes = f'За {period[2].split("_")[-1]} месяц {period[2].split("_")[0]} года\n'
+        if period[0] == "month":
+            period_mes = (
+                f'За {period[2].split("_")[-1]} месяц {period[2].split("_")[0]} года\n'
+            )
         else:
-            period_mes = f'За {period[2].split("_")[-1]} неделю {period[2].split("_")[0]} года\n'
+            period_mes = (
+                f'За {period[2].split("_")[-1]} неделю {period[2].split("_")[0]} года\n'
+            )
 
-        pay_sheet_button = InlineKeyboardButton(
-            text=period_mes,
-            callback_data=f"{i}"
-        )
+        pay_sheet_button = InlineKeyboardButton(text=period_mes, callback_data=f"{i}")
         keyboard.add(pay_sheet_button)
-    exit_button = InlineKeyboardButton(text='Назад', callback_data='exit')
-    keyboard.add(exit_button)
+    keyboard.row(cancel_inline_button)
     return keyboard.as_markup()
 
 
 call_back = InlineKeyboardBuilder()
 call_back.max_width = 2
-button = InlineKeyboardButton(text="Выйти", callback_data="exit")
-call_back.add(button)
+call_back.add(cancel_inline_button)
 call_back = call_back.as_markup()

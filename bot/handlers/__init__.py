@@ -4,12 +4,12 @@ from .message_handlers import back_message_handler
 from .routers import (
     auth_router,
     main_menu_router,
+    pay_sheets_router,
     requests_router,
     view_work_list_router,
     work_graf_router,
     work_list_delivery_router,
     work_list_router,
-    pay_sheets_router
 )
 
 __all__ = [

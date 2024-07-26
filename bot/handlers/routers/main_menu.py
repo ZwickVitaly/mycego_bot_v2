@@ -3,25 +3,32 @@ from itertools import groupby
 from aiogram import Router, types
 from aiogram.fsm.context import FSMContext
 from aiogram.utils.keyboard import InlineKeyboardBuilder
-from api_services import (
+from api_services import (  # get_data_delivery,
     generate_works_base,
     get_appointments,
-    get_data_delivery,
+    get_pay_sheet,
     get_request,
     get_statistic,
-    get_works_lists, get_pay_sheet,
+    get_works_lists,
 )
 from db import Message, Works, async_session
-from FSM import Requests, ViewWorkList, WorkGraf, WorkList, WorkListDelivery, PaySheets
+from FSM import (  # WorkListDelivery
+    PaySheets,
+    Requests,
+    ViewWorkList,
+    WorkGraf,
+    WorkList,
+)
 from helpers import aget_user_by_id, get_message_counts_by_user
 from keyboards import (
     create_works_list,
     generate_current_week_works_dates,
     generate_next_week_dates_keyboard,
+    generate_pay_sheets,
     menu_keyboard,
-    type_request, generate_pay_sheets,
+    type_request,
 )
-from settings import SUPPORT_ID, logger
+from settings import SUPPORT_ID
 from sqlalchemy import select
 
 main_menu_router = Router()
@@ -29,6 +36,7 @@ main_menu_router = Router()
 
 @main_menu_router.message()
 async def main_menu_message_handler(message: types.Message, state: FSMContext):
+    await state.clear()
     user = await aget_user_by_id(message.from_user.id)
     text = message.text
     if user:
@@ -140,7 +148,10 @@ async def main_menu_message_handler(message: types.Message, state: FSMContext):
                     standards = standards_q.scalars()
             mes = ""
             if standards:
-                departments = {k: list(g) for k, g in groupby(standards, lambda w: w.department_name)}
+                departments = {
+                    k: list(g)
+                    for k, g in groupby(standards, lambda w: w.department_name)
+                }
                 for dep, works in departments.items():
                     mes += f"{dep}:\n"
                     for work in works:
@@ -190,16 +201,16 @@ async def main_menu_message_handler(message: types.Message, state: FSMContext):
             await message.answer(f"Выберите тип заявки", reply_markup=type_request)
             await state.set_state(Requests.type)
 
-        elif text == '💰Расчетные листы':
+        elif text == "💰Расчетные листы":
             data = await state.get_data()
             api_data = (await get_pay_sheet(user_id_site)).get("data")
             if not api_data:
                 await message.answer("Расчётные листы не найдены")
             else:
-                data['api_data'] = api_data
+                data["api_data"] = api_data
                 await message.answer(
-                    '5 последних расчетных листов:',
-                    reply_markup=await generate_pay_sheets(api_data)
+                    "5 последних расчетных листов:",
+                    reply_markup=await generate_pay_sheets(api_data),
                 )
 
                 await state.update_data(data)
@@ -216,7 +227,6 @@ async def main_menu_message_handler(message: types.Message, state: FSMContext):
                 await message.answer(f"{result[0]}, Количество: {result[-1]}")
         else:
             await message.answer("Запрос не распознан. Используй команду /start")
-            await message.answer(text)
             # await bot_start(message, state)
 
         await message.bot.send_message(SUPPORT_ID, f"{user.username} - {message.text}")

@@ -10,13 +10,13 @@ from handlers import (
     back_message_handler,
     cancel_operations_handler,
     main_menu_router,
+    pay_sheets_router,
     requests_router,
     start_command_handler,
     view_work_list_router,
     work_graf_router,
     work_list_delivery_router,
     work_list_router,
-    pay_sheets_router,
 )
 from lifespan.sqlalchemy_db_creation_manager import SQLAlchemyDBCreateAsyncManager
 from settings import BOT_TOKEN, logger

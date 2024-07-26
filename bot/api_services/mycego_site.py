@@ -3,7 +3,7 @@ import json
 
 from aiohttp import ClientSession
 from db import Works, async_session
-from settings import SITE_DOMAIN, JSON_HEADERS, COMMENTED_WORKS, logger
+from settings import COMMENTED_WORKS, JSON_HEADERS, SITE_DOMAIN, logger
 from sqlalchemy import delete
 
 
@@ -122,6 +122,7 @@ async def get_data_delivery(user_id):
 
 async def generate_works_base():
     data: dict = (await get_works()).get("data")
+    needs_comment = ["другие работы", "обучение 3", "грузчик", "план"]
     if data:
         async with async_session() as session:
             async with session.begin():
@@ -137,8 +138,11 @@ async def generate_works_base():
                                 department_name=department,
                             )
                         )
-                        if name.lower().startswith("другие работы"):
-                            COMMENTED_WORKS[work.get("id")] = name
+                        if department == "Общий":
+                            if any(
+                                [name.lower().startswith(nc) for nc in needs_comment]
+                            ):
+                                COMMENTED_WORKS[work.get("id")] = name
                 await session.commit()
     else:
         logger.error("Не получилось обновить нормативы!")
@@ -174,8 +178,8 @@ async def post_request(user_id, type_r, comment):
 
 
 async def get_pay_sheet(user_id):
-    url = f'{SITE_DOMAIN}/api-auth/pay_sheet/'
-    data = {'user_id': user_id}
+    url = f"{SITE_DOMAIN}/api-auth/pay_sheet/"
+    data = {"user_id": user_id}
     json_data = json.dumps(data)
     async with ClientSession(headers=JSON_HEADERS) as session:
         async with session.get(url=url, data=json_data) as response:

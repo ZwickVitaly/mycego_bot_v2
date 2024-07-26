@@ -1,10 +1,16 @@
-from aiogram import Router, F
+from aiogram import F, Router
 from aiogram.fsm.context import FSMContext
 from aiogram.types import CallbackQuery
 from api_services import create_or_get_apport, delete_appointments
 from FSM import WorkGraf
 from helpers import aget_user_by_id
-from keyboards import generate_time_keyboard, generate_time_keyboard2, menu_keyboard
+from keyboards import (
+    generate_next_week_dates_keyboard,
+    generate_time_keyboard,
+    generate_time_keyboard2,
+)
+from keyboards.inline_keyboards.buttons import back_inline_button
+from settings import logger
 
 work_graf_router = Router()
 
@@ -25,6 +31,15 @@ async def process_date(callback_query: CallbackQuery, state: FSMContext):
 @work_graf_router.callback_query(WorkGraf.choice_time)
 async def process_time(callback_query: CallbackQuery, state: FSMContext):
     await callback_query.message.delete()
+    logger.debug(callback_query.data)
+    if callback_query.data == "back":
+        logger.debug("ОТМЕНА ПЕРВОГО ВРЕМЕНИ")
+        await callback_query.message.answer(
+            "Выберите дату для записи:",
+            reply_markup=await generate_next_week_dates_keyboard(),
+        )
+        await state.set_state(WorkGraf.choice_date)
+        return
     data = await state.get_data()
     start_time = callback_query.data
     data["start_time"] = start_time
@@ -43,6 +58,12 @@ async def process_time2(callback_query: CallbackQuery, state: FSMContext):
         return
     data = await state.get_data()
     await callback_query.message.delete()
+    if callback_query.data == "back":
+        await callback_query.message.answer(
+            "Выберите время начала:", reply_markup=await generate_time_keyboard()
+        )
+        await state.set_state(WorkGraf.choice_time)
+        return
     end_time = callback_query.data
     data["end_time"] = end_time
     user = await aget_user_by_id(callback_query.from_user.id)
@@ -55,7 +76,9 @@ async def process_time2(callback_query: CallbackQuery, state: FSMContext):
     if code == 401:
         await callback_query.message.answer(f"🛑Запись на этот день уже есть🛑")
     elif code == 200:
-        await callback_query.message.answer(f"✅Запись создана✅")
+        await callback_query.message.answer(
+            f"Выбранное время:\n{data["date"]} {data["start_time"]}- {data["end_time"]}\n✅Запись создана✅"
+        )
     elif code == 403:
         await callback_query.message.answer(f"❌Вы не работаете❌")
     elif code == 500:

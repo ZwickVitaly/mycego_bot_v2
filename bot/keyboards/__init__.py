@@ -4,12 +4,12 @@ from .inline_keyboards import (
     delete_button,
     delivery_keyboard,
     generate_current_week_works_dates,
+    generate_departments,
     generate_next_week_dates_keyboard,
+    generate_pay_sheets,
     generate_time_keyboard,
     generate_time_keyboard2,
     generate_works,
-    generate_pay_sheets,
-    generate_departments,
 )
 from .reply_keyboards import menu_keyboard, ready, second_menu, type_request
 

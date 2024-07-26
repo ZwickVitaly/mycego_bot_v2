@@ -10,14 +10,18 @@ pay_sheets_router = Router()
 @pay_sheets_router.callback_query(PaySheets.choice_list)
 async def process_date(callback_query: CallbackQuery, state: FSMContext):
     data = await state.get_data()
-    api_data = data['api_data'].get(callback_query.data, None)
-    mess = ''
+    api_data = data["api_data"].get(callback_query.data, None)
+    mess = ""
     if api_data:
         period = callback_query.data.split("-")
-        if period[0] == 'month':
-            period_mes = f'За {period[2].split("_")[-1]} месяц {period[2].split("_")[0]} года\n'
+        if period[0] == "month":
+            period_mes = (
+                f'За {period[2].split("_")[-1]} месяц {period[2].split("_")[0]} года\n'
+            )
         else:
-            period_mes = f'За {period[2].split("_")[-1]} неделю {period[2].split("_")[0]} года\n'
+            period_mes = (
+                f'За {period[2].split("_")[-1]} неделю {period[2].split("_")[0]} года\n'
+            )
         mess += period_mes
         mess += f'Должность: {api_data["role"]}\n'
         mess += f'Ставка: {api_data["role_salary"]} руб.\n'
@@ -25,7 +29,7 @@ async def process_date(callback_query: CallbackQuery, state: FSMContext):
         mess += f'Расчитано по ставке: {api_data["salary"]} руб.\n'
         mess += f'Дней по 12 часов: {api_data["count_of_12"]}\n'
         works = "\n\t\t\t".join(api_data["works"].split(";"))
-        mess += f'Выполненые работы:\n\t\t\t{works}\n'
+        mess += f"Выполненые работы:\n\t\t\t{works}\n"
         mess += f'Коэффицент: {api_data["kf"]}%\n'
         mess += f'Премия: {api_data["bonus"]} руб.\n'
         mess += f'Штраф: {api_data["penalty"]} руб.\n'
