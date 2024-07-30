@@ -42,9 +42,9 @@ def downgrade() -> None:
         batch_op.drop_column('department_name')
 
     with op.batch_alter_table('user', schema=None) as batch_op:
-        batch_op.drop_constraint(None, type_='unique')
-        batch_op.drop_constraint(None, type_='unique')
-        batch_op.drop_constraint(None, type_='unique')
+        batch_op.drop_constraint('telegram_id', type_='unique')
+        batch_op.drop_constraint('site_user_id', type_='unique')
+        batch_op.drop_constraint('username', type_='unique')
         batch_op.create_index('user_username', ['username'], unique=1)
         batch_op.create_index('user_telegram_id', ['telegram_id'], unique=1)
         batch_op.create_index('user_site_user_id', ['site_user_id'], unique=1)
