@@ -11,10 +11,8 @@ class Message(Base):
 
     id = Column(Integer, primary_key=True, autoincrement=True)
     user_id = Column(
-        ForeignKey(
-            "user.id",
-        ),
-        nullable=False
+        ForeignKey("user.id", ondelete="DO NOTHING"),
+        nullable=False,
     )
     text = Column(String, nullable=False)
     timestamp = Column(DateTime, default=datetime.now(), nullable=False)

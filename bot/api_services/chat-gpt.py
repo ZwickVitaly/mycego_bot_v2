@@ -1,4 +1,5 @@
 import openai
+
 from settings import GPT_TOKEN, logger
 
 openai.api_key = GPT_TOKEN

@@ -3,6 +3,8 @@ from itertools import groupby
 from aiogram import Router, types
 from aiogram.fsm.context import FSMContext
 from aiogram.utils.keyboard import InlineKeyboardBuilder
+from sqlalchemy import select
+
 from api_services import (  # get_data_delivery,
     generate_works_base,
     get_appointments,
@@ -19,7 +21,7 @@ from FSM import (  # WorkListDelivery
     WorkGraf,
     WorkList,
 )
-from helpers import aget_user_by_id, get_message_counts_by_user
+from helpers import aget_user_by_id, anotify_admins, get_message_counts_by_user
 from keyboards import (
     create_works_list,
     generate_current_week_works_dates,
@@ -28,8 +30,7 @@ from keyboards import (
     menu_keyboard,
     type_request,
 )
-from settings import SUPPORT_ID
-from sqlalchemy import select
+from settings import ADMINS
 
 main_menu_router = Router()
 
@@ -228,8 +229,7 @@ async def main_menu_message_handler(message: types.Message, state: FSMContext):
         else:
             await message.answer("Запрос не распознан. Используй команду /start")
             # await bot_start(message, state)
-
-        await message.bot.send_message(SUPPORT_ID, f"{user.username} - {message.text}")
+        await anotify_admins(message.bot, f"{user.username} - {message.text}", ADMINS)
 
     else:
         await message.answer("Вы не прошли регистрацию. Используйте команду /start")

@@ -3,6 +3,7 @@ import random
 
 from aiogram.fsm.context import FSMContext
 from aiogram.types import FSInputFile, Message
+
 from FSM import AuthState
 from helpers import aget_user_by_id
 from keyboards import menu_keyboard
@@ -31,13 +32,11 @@ async def start_command_handler(message: Message, state: FSMContext):
     user = await aget_user_by_id(message.from_user.id)
     if user:
         await message.answer(
-            "Добро пожаловать, {}!".format(message.from_user.first_name),
+            f"Добро пожаловать, {message.from_user.first_name}!",
             reply_markup=menu_keyboard(message.from_user.id),
         )
     else:
         await message.answer(
-            "Добро пожаловать, {}! Введите ваш логин:".format(
-                message.from_user.first_name
-            )
+            f"Добро пожаловать, {message.from_user.first_name}! Введите ваш логин:"
         )
         await state.set_state(AuthState.waiting_for_login)

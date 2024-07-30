@@ -5,7 +5,7 @@ from sys import stdout
 from loguru import logger
 
 # Set DEBUG for sqlite database and advanced logging
-DEBUG = getenv("DEBUG", "0") == "1"
+DEBUG = getenv("DEBUG", True)
 
 # logging configure
 logger.remove()
@@ -30,7 +30,6 @@ for admin_id in admins_list:
     except ValueError:
         pass
 
-SUPPORT_ID = getenv("SUPPORT_ID")
 
 JSON_HEADERS = {"Content-Type": "application/json"}
 

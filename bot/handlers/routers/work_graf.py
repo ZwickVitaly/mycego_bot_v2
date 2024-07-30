@@ -1,6 +1,7 @@
 from aiogram import F, Router
 from aiogram.fsm.context import FSMContext
 from aiogram.types import CallbackQuery
+
 from api_services import create_or_get_apport, delete_appointments
 from FSM import WorkGraf
 from helpers import aget_user_by_id
@@ -9,7 +10,6 @@ from keyboards import (
     generate_time_keyboard,
     generate_time_keyboard2,
 )
-from keyboards.inline_keyboards.buttons import back_inline_button
 from settings import logger
 
 work_graf_router = Router()

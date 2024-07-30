@@ -1,11 +1,11 @@
 from aiogram import Router
 from aiogram.fsm.context import FSMContext
 from aiogram.types import CallbackQuery, Message
+
 from api_services import post_works
 from FSM import WorkListDelivery
 from helpers import aget_user_by_id
 from keyboards import call_back, delivery_keyboard, generate_works, menu_keyboard
-from settings import logger
 
 work_list_delivery_router = Router()
 

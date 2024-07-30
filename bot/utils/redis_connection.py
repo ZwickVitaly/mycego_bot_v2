@@ -1,6 +1,7 @@
 from os import getenv
 
 from redis.asyncio import Redis, StrictRedis
+
 from settings import DEBUG
 
 if DEBUG:

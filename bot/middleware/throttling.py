@@ -2,8 +2,9 @@ from typing import Any, Awaitable, Callable
 
 from aiogram import BaseMiddleware
 from aiogram.types import CallbackQuery, Message, TelegramObject
-from helpers import get_username_or_name
 from redis import StrictRedis
+
+from helpers import get_username_or_name
 from settings import logger
 
 

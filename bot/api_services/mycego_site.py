@@ -2,9 +2,10 @@ import asyncio
 import json
 
 from aiohttp import ClientSession
+from sqlalchemy import delete
+
 from db import Works, async_session
 from settings import COMMENTED_WORKS, JSON_HEADERS, SITE_DOMAIN, logger
-from sqlalchemy import delete
 
 
 async def check_user_api(username, password, user_id):
@@ -13,7 +14,9 @@ async def check_user_api(username, password, user_id):
     async with ClientSession() as session:
         async with session.post(url=url, data=data) as response:
             if response.status == 200:
-                return await response.json()
+                user = await response.json()
+                if user.get("status_work") is True:
+                    return user
     return None
 
 
@@ -28,6 +31,14 @@ async def create_or_get_apport(date, start_time, end_time, user_id_site):
     async with ClientSession() as session:
         async with session.post(url=url, data=data) as response:
             return response.status
+
+
+async def get_users_statuses():
+    url = f"{SITE_DOMAIN}/api-auth/users-status/"
+    async with ClientSession(headers=JSON_HEADERS) as session:
+        async with session.get(url=url) as response:
+            if response.status == 200:
+                return await response.json()
 
 
 async def get_appointments(user_id_site):
@@ -188,4 +199,4 @@ async def get_pay_sheet(user_id):
 
 if __name__ == "__main__":
     # check_user_api('admin', 'fma160392')
-    logger.debug(asyncio.run(get_works()))
+    logger.debug(asyncio.run(get_users_statuses()))

@@ -11,6 +11,7 @@ from .mycego_site import (
     get_pay_sheet,
     get_request,
     get_statistic,
+    get_users_statuses,
     get_works,
     get_works_lists,
     post_request,
@@ -34,4 +35,5 @@ __all__ = [
     "post_request",
     "post_works",
     "get_pay_sheet",
+    "get_users_statuses",
 ]
