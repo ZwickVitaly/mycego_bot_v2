@@ -50,9 +50,10 @@ async def nums_works(message: Message, state: FSMContext):
         return
     try:
         quantity = int(message.text)
+        commented = COMMENTED_WORKS.get(current_work)
         if quantity < 0:
             await message.answer("Ошибка: количество не может быть отрицательным.")
-        elif COMMENTED_WORKS[current_work].lower().startswith("другие работы") and quantity > 720:
+        elif commented and commented.lower().startswith("другие работы") and quantity > 720:
             await message.answer(
                 "Ошибка: по этому виду работ нельзя указать больше 720 минут!"
             )
@@ -123,7 +124,7 @@ async def send_works(callback_query: CallbackQuery, state: FSMContext):
         for key, value in works.items():
             if key in COMMENTED_WORKS and COMMENTED_WORKS[key] not in comment:
                 await callback_query.message.answer(
-                    '⚠️Вы заполнили "Другие работы" необходимо указать комментарий, '
+                    f'⚠️Вы заполнили работы: "{COMMENTED_WORKS[key]}" необходимо указать комментарий, '
                     "что именно они в себя включали⚠️",
                     reply_markup=second_menu,
                 )

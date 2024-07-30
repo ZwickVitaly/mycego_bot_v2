@@ -46,9 +46,6 @@ services:
     container_name: bot
     build:
       dockerfile: ./Dockerfile
-    command:
-      - "python"
-      - "main.py"
     restart: on-failure
     volumes:
       - ./app_data:/bot/app_data

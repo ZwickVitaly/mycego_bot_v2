@@ -18,7 +18,7 @@ def menu_keyboard(user_id=None):
     menu_buttons.append(KeyboardButton(text="📊Статистика"))
     menu_buttons.append(KeyboardButton(text="🐧Заявка на изменение"))
     menu_buttons.append(KeyboardButton(text="💰Расчетные листы"))
-    if user_id and str(user_id) in ADMINS:
+    if user_id and user_id in ADMINS:
         # menu_buttons.append(KeyboardButton(text="Обновить список работ"))
         menu_buttons.append(KeyboardButton(text="Статистика запросов"))
     menu = ReplyKeyboardBuilder()

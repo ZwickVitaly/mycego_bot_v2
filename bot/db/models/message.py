@@ -7,16 +7,17 @@ from ..base import Base
 
 
 class Message(Base):
-    __tablename__ = "messages"
+    __tablename__ = "message"
 
     id = Column(Integer, primary_key=True, autoincrement=True)
     user_id = Column(
         ForeignKey(
-            "users.telegram_id",
-        )
+            "user.id",
+        ),
+        nullable=False
     )
-    text = Column(String)
-    timestamp = Column(DateTime, default=datetime.now())
+    text = Column(String, nullable=False)
+    timestamp = Column(DateTime, default=datetime.now(), nullable=False)
     user = relationship("User", back_populates="messages", lazy="joined")
 
     def __str__(self):

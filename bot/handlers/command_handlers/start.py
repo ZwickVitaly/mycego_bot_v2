@@ -21,7 +21,7 @@ async def start_command_handler(message: Message, state: FSMContext):
             message.text,
         )
     )
-    await state.set_state(None)
+    await state.clear()
     hello = os.listdir("stickers")
     sticker_path = "{}/stickers/{}".format(BASE_DIR, random.choice(hello))
     await message.bot.send_sticker(

@@ -22,10 +22,13 @@ BOT_TOKEN = getenv("BOT_TOKEN2")
 # GPT token
 GPT_TOKEN = getenv("GPT_TOKEN")
 
-ADMINS = getenv("ADMINS") or "123"
-if not ADMINS:
-    raise ValueError("Нет ни одного id админов")
-ADMINS = ADMINS.split(",")
+admins_list = (getenv("ADMINS", "")).split(",")
+ADMINS = []
+for admin_id in admins_list:
+    try:
+        ADMINS.append(int(admin_id))
+    except ValueError:
+        pass
 
 SUPPORT_ID = getenv("SUPPORT_ID")
 

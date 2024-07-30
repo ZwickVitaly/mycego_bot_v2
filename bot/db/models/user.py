@@ -1,13 +1,14 @@
-from sqlalchemy import Column, String
+from sqlalchemy import Column, String, Integer
 from sqlalchemy.orm import relationship
 
 from ..base import Base
 
 
 class User(Base):
-    __tablename__ = "users"
+    __tablename__ = "user"
 
-    telegram_id = Column(String, primary_key=True)
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    telegram_id = Column(String, unique=True, nullable=False)
     site_user_id = Column(String, unique=True, nullable=True)
     username = Column(String, unique=True, nullable=True)
     username_tg = Column(String, nullable=True)
