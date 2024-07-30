@@ -5,7 +5,7 @@ from sys import stdout
 from loguru import logger
 
 # Set DEBUG for sqlite database and advanced logging
-DEBUG = getenv("DEBUG", True)
+DEBUG = getenv("DEBUG", "1") == "1"
 
 # logging configure
 logger.remove()
