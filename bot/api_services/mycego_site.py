@@ -1,5 +1,6 @@
 import asyncio
 import json
+from copy import deepcopy
 
 from aiohttp import ClientSession
 from sqlalchemy import delete
@@ -35,7 +36,8 @@ async def create_or_get_apport(date, start_time, end_time, user_id_site):
 
 async def get_users_statuses():
     url = f"{SITE_DOMAIN}/api-auth/users-status/"
-    async with ClientSession(headers=JSON_HEADERS) as session:
+    headers = deepcopy(JSON_HEADERS)
+    async with ClientSession(headers=headers) as session:
         async with session.get(url=url) as response:
             if response.status == 200:
                 return await response.json()
@@ -83,7 +85,8 @@ async def post_works(date, user_id_site, works, delivery=None, comment=None):
         "comment": comment,
     }
     json_data = json.dumps(data)
-    async with ClientSession(headers=JSON_HEADERS) as session:
+    headers = deepcopy(JSON_HEADERS)
+    async with ClientSession(headers=headers) as session:
         async with session.post(url=url, data=json_data) as response:
             return response.status
 
@@ -92,7 +95,8 @@ async def get_works_lists(user_id_site):
     url = f"{SITE_DOMAIN}/api-auth/view_works/"
     data = {"user": user_id_site}
     json_data = json.dumps(data)
-    async with ClientSession(headers=JSON_HEADERS) as session:
+    headers = deepcopy(JSON_HEADERS)
+    async with ClientSession(headers=headers) as session:
         async with session.get(url=url, data=json_data) as response:
             return await response.json()
 
@@ -101,7 +105,9 @@ async def get_details_works_lists(work_id):
     url = f"{SITE_DOMAIN}/api-auth/view_detail_work/"
     data = {"work_id": work_id}
     json_data = json.dumps(data)
-    async with ClientSession(headers=JSON_HEADERS) as session:
+    headers = deepcopy(JSON_HEADERS)
+
+    async with ClientSession(headers=headers) as session:
         async with session.get(url=url, data=json_data) as response:
             return await response.json()
 
@@ -110,7 +116,8 @@ async def del_works_lists(work_id, user_id):
     url = f"{SITE_DOMAIN}/api-auth/view_detail_work/"
     data = {"work_id": work_id, "user_id": user_id}
     json_data = json.dumps(data)
-    async with ClientSession(headers=JSON_HEADERS) as session:
+    headers = deepcopy(JSON_HEADERS)
+    async with ClientSession(headers=headers) as session:
         async with session.post(url=url, data=json_data) as response:
             return response.status
 
@@ -126,7 +133,8 @@ async def get_data_delivery(user_id):
     url = f"{SITE_DOMAIN}/api-auth/get_list_delivery/"
     data = {"user_id": user_id}
     json_data = json.dumps(data)
-    async with ClientSession(headers=JSON_HEADERS) as session:
+    headers = deepcopy(JSON_HEADERS)
+    async with ClientSession(headers=headers) as session:
         async with session.get(url=url, data=json_data) as response:
             return await response.json()
 
@@ -134,7 +142,7 @@ async def get_data_delivery(user_id):
 async def generate_works_base():
     data: dict = (await get_works()).get("data")
     needs_comment = ["другие работы", "обучение 3", "грузчик", "план"]
-    if data:
+    if data and isinstance(data, dict):
         async with async_session() as session:
             async with session.begin():
                 await session.execute(delete(Works))

@@ -22,6 +22,7 @@ async def main_polling(
         )
     except Exception as e:
         await anotify_admins(active_bot, f"Бот сломался: {e}", admins)
+        raise
     finally:
         await anotify_admins(active_bot, "Бот остановлен", admins)
 
