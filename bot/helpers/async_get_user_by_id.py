@@ -7,7 +7,7 @@ from settings import logger
 from sqlalchemy import select
 
 
-async def aget_user_by_id(user_id: int) -> User | None:
+async def aget_user_by_id(user_id: str | int) -> User | None:
     """
     Function to extract user from database by id
     :param user_id: searched user's id

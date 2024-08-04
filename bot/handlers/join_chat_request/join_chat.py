@@ -1,8 +1,7 @@
 from aiogram.exceptions import TelegramBadRequest
 from aiogram.types import ChatJoinRequest
-from db import User, async_session
 from settings import logger
-from sqlalchemy import select
+from helpers import aget_user_by_id
 
 
 async def request_join_channel_handler(request: ChatJoinRequest):
@@ -10,12 +9,7 @@ async def request_join_channel_handler(request: ChatJoinRequest):
         logger.warning(
             f"User: {request.from_user.id} запрашивает подключение к чату: {request.chat.id}"
         )
-        async with async_session() as session:
-            async with session.begin():
-                user_q = await session.execute(
-                    select(User).where(User.id == str(request.from_user.id))
-                )
-                user = user_q.scalar_one_or_none()
+        user = await aget_user_by_id(str(request.from_user.id))
         try:
             if user:
                 logger.info(f"Пользователь: {request.from_user.id} добавлен в чат")

@@ -28,13 +28,13 @@ async def renew_users_base(bot: Bot):
                 async with async_session() as session:
                     async with session.begin():
                         q1 = await session.execute(
-                            select(User).where(User.id.in_(fired_ids))
+                            select(User).where(User.telegram_id.in_(fired_ids))
                         )
                         fired_users = list(q1.scalars())
                         if fired_users:
                             for user in fired_users:
                                 logger.info(user)
-                                banned_ids.append(user.id)
+                                banned_ids.append(user.telegram_id)
                             logger.info(f"Есть уволенные: {banned_ids}")
                         else:
                             logger.info("Уволенных не найдено")
@@ -62,7 +62,7 @@ async def renew_users_base(bot: Bot):
                                     )
                         async with session.begin():
                             await session.execute(
-                                delete(User).where(User.id.in_(banned_ids))
+                                delete(User).where(User.telegram_id.in_(banned_ids))
                             )
                     else:
                         logger.info(
