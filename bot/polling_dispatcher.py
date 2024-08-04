@@ -3,7 +3,6 @@ from aiogram.client.default import DefaultBotProperties
 from aiogram.enums import ParseMode
 from aiogram.filters import CommandStart
 from aiogram.fsm.storage.memory import MemoryStorage
-
 from db import Base, async_session, engine
 from dispatchers.lifespan_dispatcher import DispatcherLifespan
 from handlers import (  # work_list_delivery_router,
@@ -11,14 +10,14 @@ from handlers import (  # work_list_delivery_router,
     back_message_handler,
     cancel_operations_handler,
     main_menu_router,
+    my_chat_member_status_change_handler,
     pay_sheets_router,
+    request_join_channel_handler,
     requests_router,
     start_command_handler,
     view_work_list_router,
     work_graf_router,
     work_list_router,
-    request_join_channel_handler,
-    my_chat_member_status_change_handler,
 )
 from lifespan.sqlalchemy_db_creation_manager import SQLAlchemyDBCreateAsyncManager
 from settings import BOT_TOKEN, logger

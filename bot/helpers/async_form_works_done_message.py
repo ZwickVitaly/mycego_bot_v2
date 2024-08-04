@@ -1,6 +1,5 @@
-from sqlalchemy import select
-
 from db import Works, async_session
+from sqlalchemy import select
 
 
 async def aform_works_done_message(works: dict):

@@ -1,7 +1,6 @@
 from aiogram import F, Router
 from aiogram.fsm.context import FSMContext
 from aiogram.types import CallbackQuery
-
 from api_services import create_or_get_apport, delete_appointments
 from FSM import WorkGraf
 from helpers import aget_user_by_id, anotify_admins
@@ -10,7 +9,7 @@ from keyboards import (
     generate_time_keyboard,
     generate_time_keyboard2,
 )
-from settings import logger, ADMINS
+from settings import ADMINS, logger
 
 work_graf_router = Router()
 
@@ -35,7 +34,7 @@ async def process_date(callback_query: CallbackQuery, state: FSMContext):
             callback_query.bot,
             f"Ошибка обработки: график - дата; пользователь: "
             f"{callback_query.from_user.id}; данные: {callback_query.data}, причина: {e}",
-            admins_list=ADMINS
+            admins_list=ADMINS,
         )
 
 
@@ -68,7 +67,7 @@ async def process_time(callback_query: CallbackQuery, state: FSMContext):
             callback_query.bot,
             f"Ошибка обработки: график - время начала; пользователь: "
             f"{callback_query.from_user.id}; данные: {callback_query.data}, причина: {e}",
-            admins_list=ADMINS
+            admins_list=ADMINS,
         )
 
 
@@ -113,7 +112,7 @@ async def process_time2(callback_query: CallbackQuery, state: FSMContext):
             callback_query.bot,
             f"Ошибка обработки: график - время завершения; пользователь: "
             f"{callback_query.from_user.id}; данные: {callback_query.data}, причина: {e}",
-            admins_list=ADMINS
+            admins_list=ADMINS,
         )
 
 
@@ -136,5 +135,5 @@ async def del_row(callback_query: CallbackQuery, state: FSMContext):
             callback_query.bot,
             f"Ошибка обработки: график - удаление; пользователь: "
             f"{callback_query.from_user.id}; данные: {callback_query.data}, причина: {e}",
-            admins_list=ADMINS
+            admins_list=ADMINS,
         )

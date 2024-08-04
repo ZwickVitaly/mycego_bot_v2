@@ -1,5 +1,4 @@
 from aiogram import Dispatcher
-
 from settings import logger
 
 

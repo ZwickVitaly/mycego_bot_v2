@@ -3,10 +3,9 @@ import json
 from copy import deepcopy
 
 from aiohttp import ClientSession
-from sqlalchemy import delete
-
 from db import Works, async_session
 from settings import COMMENTED_WORKS, JSON_HEADERS, SITE_DOMAIN, logger
+from sqlalchemy import delete
 
 
 async def check_user_api(username, password, user_id):

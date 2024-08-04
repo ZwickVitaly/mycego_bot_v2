@@ -3,7 +3,6 @@ import random
 
 from aiogram.fsm.context import FSMContext
 from aiogram.types import FSInputFile, Message
-
 from FSM import AuthState
 from helpers import aget_user_by_id
 from keyboards import menu_keyboard

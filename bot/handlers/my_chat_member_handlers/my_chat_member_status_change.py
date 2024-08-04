@@ -1,8 +1,7 @@
 from aiogram.types import ChatMemberUpdated
-
-from db import async_session, Chat
-from settings import logger, ADMINS
-from helpers import kick_fired_on_admin, anotify_admins
+from db import Chat, async_session
+from helpers import anotify_admins, kick_fired_on_admin
+from settings import ADMINS, logger
 
 
 async def my_chat_member_status_change_handler(message: ChatMemberUpdated):
@@ -14,7 +13,9 @@ async def my_chat_member_status_change_handler(message: ChatMemberUpdated):
         chat_id = str(message.chat.id)
         async with async_session() as session:
             async with session.begin():
-                logger.info(f"Обновление чата! Chat_id: {chat_id} Chat_name:{message.chat.title} Status: {new_status}")
+                logger.info(
+                    f"Обновление чата! Chat_id: {chat_id} Chat_name:{message.chat.title} Status: {new_status}"
+                )
                 if new_status == "administrator":
                     chat_info = await message.bot.get_chat(chat_id)
                     logger.info(f"{chat_info}")
@@ -27,4 +28,6 @@ async def my_chat_member_status_change_handler(message: ChatMemberUpdated):
                 await session.commit()
     except Exception as e:
         logger.error(f"{e}")
-        await anotify_admins(message.bot, f"Ошибка смены статуса бота в чате: {e}", ADMINS)
+        await anotify_admins(
+            message.bot, f"Ошибка смены статуса бота в чате: {e}", ADMINS
+        )

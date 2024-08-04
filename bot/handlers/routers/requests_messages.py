@@ -1,12 +1,11 @@
-from aiogram import Router, F
+from aiogram import F, Router
 from aiogram.fsm.context import FSMContext
 from aiogram.types import Message
-
 from api_services import post_request
 from FSM import Requests
 from helpers import aget_user_by_id, anotify_admins
 from keyboards import menu_keyboard, second_menu
-from settings import logger, ADMINS
+from settings import ADMINS, logger
 
 requests_router = Router()
 
@@ -32,7 +31,7 @@ async def type_request_user(message: Message, state: FSMContext):
             message.bot,
             f"Ошибка обработки: запросы; пользователь: "
             f"{message.from_user.id}; текст: {message.text} , причина: {e}",
-            admins_list=ADMINS
+            admins_list=ADMINS,
         )
 
 
@@ -60,5 +59,5 @@ async def comment_request(message: Message, state: FSMContext):
             message.bot,
             f"Ошибка обработки: отправка запроса; пользователь: "
             f"{message.from_user.id}; текст: {message.text}, причина: {e}",
-            admins_list=ADMINS
+            admins_list=ADMINS,
         )

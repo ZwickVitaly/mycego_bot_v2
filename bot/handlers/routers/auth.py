@@ -1,18 +1,17 @@
 from datetime import timedelta
 
-from aiogram import Router, F
+from aiogram import F, Router
 from aiogram.exceptions import TelegramBadRequest
 from aiogram.fsm.context import FSMContext
 from aiogram.types import Message
+from api_services import check_user_api
+from db import Chat, User, async_session
+from FSM import AuthState
+from helpers import anotify_admins
+from keyboards import menu_keyboard
+from settings import ADMINS, logger
 from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError
-
-from api_services import check_user_api
-from db import User, Chat, async_session
-from FSM import AuthState
-from keyboards import menu_keyboard
-from settings import logger, ADMINS
-from helpers import anotify_admins
 
 auth_router = Router()
 
@@ -28,7 +27,9 @@ async def process_login(message: Message, state: FSMContext):
         await state.clear()
         await message.answer("Возникла ошибка. Админы в курсе.")
         await anotify_admins(
-            message.bot, f"Ошибка обработки логина пользователя: {message.from_user.id}", admins_list=ADMINS
+            message.bot,
+            f"Ошибка обработки логина пользователя: {message.from_user.id}",
+            admins_list=ADMINS,
         )
 
 
@@ -60,7 +61,7 @@ async def process_password(message: Message, state: FSMContext):
                     message.bot,
                     f"Не получилось зарегистрировать пользователя {user_valid}, подобные данные уже есть бд"
                     f"(ошибка: {e})",
-                    ADMINS
+                    ADMINS,
                 )
                 await message.answer(
                     "Не получилось зарегистрировать Вас в телеграм-боте. "
@@ -93,7 +94,9 @@ async def process_password(message: Message, state: FSMContext):
                         )
                         await message.answer(f"{link.invite_link}")
                     except TelegramBadRequest as e:
-                        logger.error(f"Не получилось создать ссылку на канал {chat}, причина: {e}")
+                        logger.error(
+                            f"Не получилось создать ссылку на канал {chat}, причина: {e}"
+                        )
             await state.clear()
         else:
             await message.answer("Неверный логин или пароль. Попробуйте еще раз.")
@@ -102,9 +105,11 @@ async def process_password(message: Message, state: FSMContext):
     except Exception as e:
         logger.exception(e)
         await state.clear()
-        await message.answer("Возникла ошибка. Админы в курсе. Пожалуйста, попробуйте ещё раз.")
+        await message.answer(
+            "Возникла ошибка. Админы в курсе. Пожалуйста, попробуйте ещё раз."
+        )
         await anotify_admins(
             message.bot,
             f"Ошибка обработки пароля пользователя: {message.from_user.id}, причина: {e}",
-            admins_list=ADMINS
+            admins_list=ADMINS,
         )

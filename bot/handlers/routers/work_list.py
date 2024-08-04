@@ -1,7 +1,6 @@
 from aiogram import F, Router
 from aiogram.fsm.context import FSMContext
 from aiogram.types import CallbackQuery, Message
-
 from api_services import post_works
 from custom_filters import not_digits_filter
 from FSM import WorkList
@@ -13,7 +12,7 @@ from keyboards import (
     menu_keyboard,
     second_menu,
 )
-from settings import COMMENTED_WORKS, logger, ADMINS
+from settings import ADMINS, COMMENTED_WORKS, logger
 
 work_list_router = Router()
 
@@ -43,11 +42,13 @@ async def choose_department(callback_query: CallbackQuery, state: FSMContext):
             callback_query.bot,
             f"Ошибка обработки: лист работ - дата; пользователь: "
             f"{callback_query.from_user.id}; данные: {callback_query.data}, причина: {e}",
-            admins_list=ADMINS
+            admins_list=ADMINS,
         )
 
 
-@work_list_router.message(not_digits_filter, WorkList.input_num, F.chat.type == "private")
+@work_list_router.message(
+    not_digits_filter, WorkList.input_num, F.chat.type == "private"
+)
 async def process_amount_invalid(message: Message):
     await message.answer("Введите число, пожалуйста.")
 
@@ -128,7 +129,7 @@ async def nums_works(message: Message, state: FSMContext):
             message.bot,
             f"Ошибка обработки: лист работ - количество работ; пользователь: "
             f"{message.from_user.id}; данные: {message.text}, причина: {e}",
-            admins_list=ADMINS
+            admins_list=ADMINS,
         )
 
 
@@ -182,7 +183,7 @@ async def send_works(callback_query: CallbackQuery, state: FSMContext):
             callback_query.bot,
             f"Ошибка обработки: лист работ - отправить; пользователь: "
             f"{callback_query.from_user.id}; данные: {callback_query.data}, причина: {e}",
-            admins_list=ADMINS
+            admins_list=ADMINS,
         )
 
 
@@ -199,7 +200,9 @@ async def add_works(callback_query: CallbackQuery, state: FSMContext):
                 comment = data.get("comment")
                 if comment:
                     works_msg = (
-                        works_msg + f"Комментарий:\n{comment.replace('; ', '\n')}" + "\n\n"
+                        works_msg
+                        + f"Комментарий:\n{comment.replace('; ', '\n')}"
+                        + "\n\n"
                     )
                 message = works_msg + message
 
@@ -228,7 +231,7 @@ async def add_works(callback_query: CallbackQuery, state: FSMContext):
             callback_query.bot,
             f"Ошибка обработки: лист работ - выбор работ; пользователь: "
             f"{callback_query.from_user.id}; данные: {callback_query.data}, причина: {e}",
-            admins_list=ADMINS
+            admins_list=ADMINS,
         )
 
 
@@ -260,7 +263,7 @@ async def add_work_list(callback_query: CallbackQuery, state: FSMContext):
             callback_query.bot,
             f"Ошибка обработки: лист работ - выбор департамента; пользователь: "
             f"{callback_query.from_user.id}; данные: {callback_query.data}, причина: {e}",
-            admins_list=ADMINS
+            admins_list=ADMINS,
         )
 
 
@@ -304,5 +307,5 @@ async def comment_work(message: Message, state: FSMContext):
             message.bot,
             f"Ошибка обработки: расчётные листы - комментарий; пользователь: "
             f"{message.from_user.id}; данные: {message.text}, причина: {e}",
-            admins_list=ADMINS
+            admins_list=ADMINS,
         )

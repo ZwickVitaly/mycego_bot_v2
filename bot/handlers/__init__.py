@@ -1,6 +1,8 @@
 from .callback_handlers import cancel_operations_handler
 from .command_handlers import help_command_handler, start_command_handler
+from .join_chat_request import request_join_channel_handler
 from .message_handlers import back_message_handler
+from .my_chat_member_handlers import my_chat_member_status_change_handler
 from .routers import (
     auth_router,
     main_menu_router,
@@ -11,9 +13,6 @@ from .routers import (
     work_list_delivery_router,
     work_list_router,
 )
-from .my_chat_member_handlers import my_chat_member_status_change_handler
-from .join_chat_request import request_join_channel_handler
-
 
 __all__ = [
     "start_command_handler",

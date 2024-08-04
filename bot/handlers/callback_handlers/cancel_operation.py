@@ -4,7 +4,6 @@ Module for processing user's callback data cancelling operations
 
 from aiogram.fsm.context import FSMContext
 from aiogram.types import CallbackQuery
-
 from keyboards import menu_keyboard
 
 

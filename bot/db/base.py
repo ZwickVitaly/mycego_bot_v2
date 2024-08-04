@@ -1,7 +1,6 @@
+from settings import DATABASE_NAME, logger
 from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
 from sqlalchemy.orm import declarative_base
-
-from settings import DATABASE_NAME, logger
 
 logger.debug("Creating engine")
 engine = create_async_engine(

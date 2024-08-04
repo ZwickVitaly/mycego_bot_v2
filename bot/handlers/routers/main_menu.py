@@ -1,10 +1,8 @@
 from itertools import groupby
 
-from aiogram import Router, types, F
+from aiogram import F, Router, types
 from aiogram.fsm.context import FSMContext
 from aiogram.utils.keyboard import InlineKeyboardBuilder
-from sqlalchemy import select
-
 from api_services import (  # get_data_delivery,
     generate_works_base,
     get_appointments,
@@ -31,6 +29,7 @@ from keyboards import (
     type_request,
 )
 from settings import ADMINS, logger
+from sqlalchemy import select
 
 main_menu_router = Router()
 
@@ -81,7 +80,8 @@ async def main_menu_message_handler(message: types.Message, state: FSMContext):
                     "Можно заполнить только 1 раз за день.⚠️"
                 )
                 mes = await message.answer(
-                    "Выберите дату:", reply_markup=await generate_current_week_works_dates()
+                    "Выберите дату:",
+                    reply_markup=await generate_current_week_works_dates(),
                 )
                 await state.update_data(data={"mes": mes})
                 await state.set_state(WorkList.choice_date)
@@ -230,7 +230,9 @@ async def main_menu_message_handler(message: types.Message, state: FSMContext):
             else:
                 await message.answer("Запрос не распознан. Используй команду /start")
                 # await bot_start(message, state)
-            await anotify_admins(message.bot, f"{user.username} - {message.text}", ADMINS)
+            await anotify_admins(
+                message.bot, f"{user.username} - {message.text}", ADMINS
+            )
 
         else:
             await message.answer("Вы не прошли регистрацию. Используйте команду /start")
@@ -247,5 +249,5 @@ async def main_menu_message_handler(message: types.Message, state: FSMContext):
             message.bot,
             f"Ошибка обработки: главное меню; пользователь: "
             f"{message.from_user.id}; текст: {message.text}, причина: {e}",
-            admins_list=ADMINS
+            admins_list=ADMINS,
         )

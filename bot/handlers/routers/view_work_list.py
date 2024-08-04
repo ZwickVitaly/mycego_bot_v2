@@ -1,12 +1,11 @@
-from aiogram import Router, F
+from aiogram import F, Router
 from aiogram.fsm.context import FSMContext
 from aiogram.types import CallbackQuery
-
 from api_services import del_works_lists, get_details_works_lists
 from FSM import ViewWorkList
 from helpers import aget_user_by_id, anotify_admins
 from keyboards import delete_button, menu_keyboard
-from settings import logger, ADMINS
+from settings import ADMINS, logger
 
 view_work_list_router = Router()
 
@@ -42,7 +41,7 @@ async def view_work(callback_query: CallbackQuery, state: FSMContext):
             callback_query.bot,
             f"Ошибка обработки: посмотреть лист работ; пользователь: "
             f"{callback_query.from_user.id}; данные: {callback_query.data}, причина: {e}",
-            admins_list=ADMINS
+            admins_list=ADMINS,
         )
 
 
@@ -72,5 +71,5 @@ async def del_work(callback_query: CallbackQuery, state: FSMContext):
             callback_query.bot,
             f"Ошибка обработки: удалить лист работ; пользователь: "
             f"{callback_query.from_user.id}; данные: {callback_query.data}",
-            admins_list=ADMINS
+            admins_list=ADMINS,
         )

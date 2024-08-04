@@ -2,10 +2,9 @@
 Module for aget_user_by_id function
 """
 
-from sqlalchemy import select
-
 from db import User, async_session
 from settings import logger
+from sqlalchemy import select
 
 
 async def aget_user_by_id(user_id: int) -> User | None:
