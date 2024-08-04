@@ -21,6 +21,7 @@ work_list_router = Router()
 @work_list_router.callback_query(WorkList.choice_date, F.data.startswith("prevdate"))
 async def choose_department(callback_query: CallbackQuery, state: FSMContext):
     try:
+        logger.warning(callback_query.message.chat.type)
         data = await state.get_data()
         await callback_query.message.delete()
         date = callback_query.data.split("_")[1]
@@ -41,17 +42,17 @@ async def choose_department(callback_query: CallbackQuery, state: FSMContext):
         await anotify_admins(
             callback_query.bot,
             f"Ошибка обработки: лист работ - дата; пользователь: "
-            f"{callback_query.from_user.id}; данные: {callback_query.data}",
+            f"{callback_query.from_user.id}; данные: {callback_query.data}, причина: {e}",
             admins_list=ADMINS
         )
 
 
-@work_list_router.message(not_digits_filter, WorkList.input_num)
+@work_list_router.message(not_digits_filter, WorkList.input_num, F.chat.type == "private")
 async def process_amount_invalid(message: Message):
     await message.answer("Введите число, пожалуйста.")
 
 
-@work_list_router.message(WorkList.input_num)
+@work_list_router.message(WorkList.input_num, F.chat.type == "private")
 async def nums_works(message: Message, state: FSMContext):
     try:
         data = await state.get_data()
@@ -126,7 +127,7 @@ async def nums_works(message: Message, state: FSMContext):
         await anotify_admins(
             message.bot,
             f"Ошибка обработки: лист работ - количество работ; пользователь: "
-            f"{message.from_user.id}; данные: {message.text}",
+            f"{message.from_user.id}; данные: {message.text}, причина: {e}",
             admins_list=ADMINS
         )
 
@@ -180,7 +181,7 @@ async def send_works(callback_query: CallbackQuery, state: FSMContext):
         await anotify_admins(
             callback_query.bot,
             f"Ошибка обработки: лист работ - отправить; пользователь: "
-            f"{callback_query.from_user.id}; данные: {callback_query.data}",
+            f"{callback_query.from_user.id}; данные: {callback_query.data}, причина: {e}",
             admins_list=ADMINS
         )
 
@@ -209,10 +210,16 @@ async def add_works(callback_query: CallbackQuery, state: FSMContext):
         else:
             data = await state.get_data()
             work_id = callback_query.data.split("_")
-            data["current_work"] = int(work_id[1])
-            await state.update_data(data=data)
-            await callback_query.message.answer(f"Теперь введите количество:")
-            await state.set_state(WorkList.input_num)
+            try:
+                data["current_work"] = int(work_id[1])
+                await state.update_data(data=data)
+                await callback_query.message.answer(f"Теперь введите количество:")
+                await state.set_state(WorkList.input_num)
+            except (ValueError, IndexError):
+                await callback_query.message.answer(
+                    f"При выборе работы что-то пошло не так. Может быть Вы нажали на кнопку выбора департамента "
+                    f"несколько раз подряд? Пожалуйста, не торопитесь."
+                )
     except Exception as e:
         logger.exception(e)
         await state.clear()
@@ -220,7 +227,7 @@ async def add_works(callback_query: CallbackQuery, state: FSMContext):
         await anotify_admins(
             callback_query.bot,
             f"Ошибка обработки: лист работ - выбор работ; пользователь: "
-            f"{callback_query.from_user.id}; данные: {callback_query.data}",
+            f"{callback_query.from_user.id}; данные: {callback_query.data}, причина: {e}",
             admins_list=ADMINS
         )
 
@@ -252,12 +259,12 @@ async def add_work_list(callback_query: CallbackQuery, state: FSMContext):
         await anotify_admins(
             callback_query.bot,
             f"Ошибка обработки: лист работ - выбор департамента; пользователь: "
-            f"{callback_query.from_user.id}; данные: {callback_query.data}",
+            f"{callback_query.from_user.id}; данные: {callback_query.data}, причина: {e}",
             admins_list=ADMINS
         )
 
 
-@work_list_router.message(WorkList.send_comment)
+@work_list_router.message(WorkList.send_comment, F.chat.type == "private")
 async def comment_work(message: Message, state: FSMContext):
     try:
         data = await state.get_data()
@@ -296,6 +303,6 @@ async def comment_work(message: Message, state: FSMContext):
         await anotify_admins(
             message.bot,
             f"Ошибка обработки: расчётные листы - комментарий; пользователь: "
-            f"{message.from_user.id}; данные: {message.text}",
+            f"{message.from_user.id}; данные: {message.text}, причина: {e}",
             admins_list=ADMINS
         )

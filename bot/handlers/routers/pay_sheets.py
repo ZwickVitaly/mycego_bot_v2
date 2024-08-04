@@ -1,4 +1,4 @@
-from aiogram import Router
+from aiogram import Router, F
 from aiogram.fsm.context import FSMContext
 from aiogram.types import CallbackQuery
 
@@ -49,6 +49,6 @@ async def process_date(callback_query: CallbackQuery, state: FSMContext):
         await anotify_admins(
             callback_query.bot,
             f"Ошибка обработки: расчётные листы; пользователь: "
-            f"{callback_query.from_user.id}; данные: {callback_query.data}",
+            f"{callback_query.from_user.id}; данные: {callback_query.data}, причина: {e}",
             admins_list=ADMINS
         )

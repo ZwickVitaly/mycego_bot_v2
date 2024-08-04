@@ -1,6 +1,6 @@
 from itertools import groupby
 
-from aiogram import Router, types
+from aiogram import Router, types, F
 from aiogram.fsm.context import FSMContext
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 from sqlalchemy import select
@@ -35,7 +35,7 @@ from settings import ADMINS, logger
 main_menu_router = Router()
 
 
-@main_menu_router.message()
+@main_menu_router.message(F.chat.type == "private")
 async def main_menu_message_handler(message: types.Message, state: FSMContext):
     try:
         await state.clear()
@@ -245,6 +245,7 @@ async def main_menu_message_handler(message: types.Message, state: FSMContext):
         await message.answer("Возникла ошибка. Админы в курсе.")
         await anotify_admins(
             message.bot,
-            f"Ошибка обработки: главное меню; пользователь: {message.from_user.id}; текст: {message.text}",
+            f"Ошибка обработки: главное меню; пользователь: "
+            f"{message.from_user.id}; текст: {message.text}, причина: {e}",
             admins_list=ADMINS
         )

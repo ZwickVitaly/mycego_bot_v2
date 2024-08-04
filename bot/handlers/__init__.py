@@ -11,6 +11,9 @@ from .routers import (
     work_list_delivery_router,
     work_list_router,
 )
+from .my_chat_member_handlers import my_chat_member_status_change_handler
+from .join_chat_request import request_join_channel_handler
+
 
 __all__ = [
     "start_command_handler",

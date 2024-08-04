@@ -1,4 +1,4 @@
-from aiogram import Router
+from aiogram import Router, F
 from aiogram.fsm.context import FSMContext
 from aiogram.types import CallbackQuery, Message
 
@@ -76,7 +76,7 @@ async def add_works_delivery(callback_query: CallbackQuery, state: FSMContext):
         await state.set_state(WorkListDelivery.input_num)
 
 
-@work_list_delivery_router.message(WorkListDelivery.input_num)
+@work_list_delivery_router.message(WorkListDelivery.input_num, F.chat.type == "private")
 async def nums_works(message: Message, state: FSMContext):
     data = await state.get_data()
     current_work = data.get("current_work")

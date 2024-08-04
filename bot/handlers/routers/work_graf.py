@@ -34,7 +34,7 @@ async def process_date(callback_query: CallbackQuery, state: FSMContext):
         await anotify_admins(
             callback_query.bot,
             f"Ошибка обработки: график - дата; пользователь: "
-            f"{callback_query.from_user.id}; данные: {callback_query.data}",
+            f"{callback_query.from_user.id}; данные: {callback_query.data}, причина: {e}",
             admins_list=ADMINS
         )
 
@@ -67,7 +67,7 @@ async def process_time(callback_query: CallbackQuery, state: FSMContext):
         await anotify_admins(
             callback_query.bot,
             f"Ошибка обработки: график - время начала; пользователь: "
-            f"{callback_query.from_user.id}; данные: {callback_query.data}",
+            f"{callback_query.from_user.id}; данные: {callback_query.data}, причина: {e}",
             admins_list=ADMINS
         )
 
@@ -112,7 +112,7 @@ async def process_time2(callback_query: CallbackQuery, state: FSMContext):
         await anotify_admins(
             callback_query.bot,
             f"Ошибка обработки: график - время завершения; пользователь: "
-            f"{callback_query.from_user.id}; данные: {callback_query.data}",
+            f"{callback_query.from_user.id}; данные: {callback_query.data}, причина: {e}",
             admins_list=ADMINS
         )
 
@@ -135,6 +135,6 @@ async def del_row(callback_query: CallbackQuery, state: FSMContext):
         await anotify_admins(
             callback_query.bot,
             f"Ошибка обработки: график - удаление; пользователь: "
-            f"{callback_query.from_user.id}; данные: {callback_query.data}",
+            f"{callback_query.from_user.id}; данные: {callback_query.data}, причина: {e}",
             admins_list=ADMINS
         )

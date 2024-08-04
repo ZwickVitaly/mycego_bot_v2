@@ -1,4 +1,4 @@
-from aiogram import Router
+from aiogram import Router, F
 from aiogram.fsm.context import FSMContext
 from aiogram.types import Message
 
@@ -11,7 +11,7 @@ from settings import logger, ADMINS
 requests_router = Router()
 
 
-@requests_router.message(Requests.type)
+@requests_router.message(Requests.type, F.chat.type == "private")
 async def type_request_user(message: Message, state: FSMContext):
     try:
         data = await state.get_data()
@@ -30,12 +30,13 @@ async def type_request_user(message: Message, state: FSMContext):
         await message.answer("☣️Возникла ошибка☣️")
         await anotify_admins(
             message.bot,
-            f"Ошибка обработки: запросы; пользователь: {message.from_user.id}; текст: {message.text}",
+            f"Ошибка обработки: запросы; пользователь: "
+            f"{message.from_user.id}; текст: {message.text} , причина: {e}",
             admins_list=ADMINS
         )
 
 
-@requests_router.message(Requests.comment)
+@requests_router.message(Requests.comment, F.chat.type == "private")
 async def comment_request(message: Message, state: FSMContext):
     try:
         data = await state.get_data()
@@ -57,6 +58,7 @@ async def comment_request(message: Message, state: FSMContext):
         await message.answer("☣️Возникла ошибка☣️")
         await anotify_admins(
             message.bot,
-            f"Ошибка обработки: отправка запроса; пользователь: {message.from_user.id}; текст: {message.text}",
+            f"Ошибка обработки: отправка запроса; пользователь: "
+            f"{message.from_user.id}; текст: {message.text}, причина: {e}",
             admins_list=ADMINS
         )

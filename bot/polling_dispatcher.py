@@ -17,6 +17,8 @@ from handlers import (  # work_list_delivery_router,
     view_work_list_router,
     work_graf_router,
     work_list_router,
+    request_join_channel_handler,
+    my_chat_member_status_change_handler,
 )
 from lifespan.sqlalchemy_db_creation_manager import SQLAlchemyDBCreateAsyncManager
 from settings import BOT_TOKEN, logger
@@ -41,10 +43,10 @@ dp: DispatcherLifespan = DispatcherLifespan(
 logger.debug("Registering bot reply functions")
 
 # Команды
-dp.message.register(start_command_handler, CommandStart())
+dp.message.register(start_command_handler, CommandStart(), F.chat.type == "private")
 
 # Отмена
-dp.message.register(back_message_handler, F.text == "Назад")
+dp.message.register(back_message_handler, F.text == "Назад", F.chat.type == "private")
 dp.callback_query.register(cancel_operations_handler, F.data == "exit")
 
 # Роутер листа работ
@@ -70,3 +72,7 @@ dp.include_router(auth_router)
 
 # Главное меню
 dp.include_router(main_menu_router)
+
+dp.chat_join_request.register(request_join_channel_handler)
+
+dp.my_chat_member.register(my_chat_member_status_change_handler)
