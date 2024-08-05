@@ -7,6 +7,7 @@ from settings import ADMINS
 
 
 def menu_keyboard(user_id=None):
+    """Клавиатура главного меню"""
     menu_buttons = list()
     menu_buttons.append(KeyboardButton(text="🗓Заявка в график"))
     menu_buttons.append(KeyboardButton(text="📕Мои записи"))
@@ -26,26 +27,10 @@ def menu_keyboard(user_id=None):
     return menu.as_markup()
 
 
+# Кнопка "назад" для различных ситуаций
 second_menu = ReplyKeyboardMarkup(
     keyboard=[
         [KeyboardButton(text="Назад")],
-    ],
-    resize_keyboard=True,
-)
-
-
-type_request_buttons = list()
-type_request_buttons.append(KeyboardButton(text="График"))
-type_request_buttons.append(KeyboardButton(text="Лист работ"))
-type_request_buttons.append(KeyboardButton(text="Отпуск"))
-type_request_buttons.append(KeyboardButton(text="Назад"))
-type_request = ReplyKeyboardBuilder()
-type_request.row(*type_request_buttons, width=2)
-type_request = type_request.as_markup()
-
-ready = ReplyKeyboardMarkup(
-    keyboard=[
-        [KeyboardButton(text="Отправить")],
     ],
     resize_keyboard=True,
 )

@@ -1,3 +1,7 @@
+"""
+Состояния аутентификации
+"""
+
 from aiogram.fsm.state import State, StatesGroup
 
 

@@ -8,6 +8,10 @@ from settings import logger
 
 
 class ThrottlingRedisMiddleware(BaseMiddleware):
+    """
+    Миддлварь для ограничения единовременных запросов к боту от пользователя
+    ТРЕБУЕТ НАЛИЧИЯ ПАКЕТА redis и РАБОТАЮЩЕГО REDIS
+    """
 
     def __init__(
         self,

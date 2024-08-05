@@ -1,3 +1,7 @@
+"""
+Состояния запроса расчетных листов
+"""
+
 from aiogram.fsm.state import State, StatesGroup
 
 

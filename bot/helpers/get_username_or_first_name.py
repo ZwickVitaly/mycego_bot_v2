@@ -8,7 +8,8 @@ from settings import logger
 
 def get_username_or_name(message: Message | CallbackQuery) -> str:
     """
-    Function to get username from message. If not found - gets first_name
+    Функция для получения username или first_name пользователя
+    У некоторых пользователей telegram может не быть username
     :param message: Message or CallbackQuery instance
     :return: @username or first_name of user
     """

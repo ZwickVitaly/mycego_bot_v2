@@ -1,7 +1,3 @@
-"""
-Module for seconds_to_midnight function
-"""
-
 from datetime import datetime, timedelta
 
 from settings import logger
@@ -9,7 +5,7 @@ from settings import logger
 
 def seconds_to_midnight() -> int:
     """
-    Function to calculate seconds left to midnight
+    Функция для расчёта оставшихся секунд до полуночи
     :return: int amount of seconds to midnight
     """
     now = datetime.now()

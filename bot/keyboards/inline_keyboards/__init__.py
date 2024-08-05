@@ -1,14 +1,16 @@
-from .action import (
-    call_back,
+from .cancel_keyboard import call_back
+from .pay_sheets_keyboards import generate_pay_sheets
+from .work_graf_keyboards import (
+    generate_next_week_dates_keyboard,
+    generate_time_keyboard,
+    generate_time_keyboard2,
+)
+from .work_list_keyboards import (
     create_works_list,
     delete_button,
     delivery_keyboard,
     generate_current_week_works_dates,
     generate_departments,
-    generate_next_week_dates_keyboard,
-    generate_pay_sheets,
-    generate_time_keyboard,
-    generate_time_keyboard2,
     generate_works,
 )
 

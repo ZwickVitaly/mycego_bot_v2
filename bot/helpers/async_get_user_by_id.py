@@ -9,8 +9,8 @@ from sqlalchemy import select
 
 async def aget_user_by_id(user_id: str | int) -> User | None:
     """
-    Function to extract user from database by id
-    :param user_id: searched user's id
+    Функция чтобы достать из бд User или None
+    :param user_id: user's id
     :return: User | None
     """
     logger.debug(f"User id: {user_id}. Getting user by id from database")

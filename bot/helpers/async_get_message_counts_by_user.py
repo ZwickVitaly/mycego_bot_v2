@@ -1,10 +1,11 @@
-from datetime import datetime
-
 from db import Message, async_session
 from sqlalchemy import func, select
 
 
-async def get_message_counts_by_user():
+async def get_message_counts_by_group():
+    """
+    Получаем статистику по запросам в главное меню
+    """
     # Запрос, который группирует записи по полю text и считает количество записей в каждой группе
     async with async_session() as session:
         async with session.begin():
@@ -33,6 +34,7 @@ async def get_message_counts_by_user():
     # max_date = Message.select(fn.date_trunc('day', fn.Max(Message.timestamp))).scalar()
 
     # Форматирование даты в строку
+    # sqlalchemy сразу переводит timestamp, datetime, time, date в объекты datetime
     min_date_str = min_date.strftime("%Y-%m-%d")
     max_date_str = max_date.strftime("%Y-%m-%d")
     return query, min_date_str, max_date_str

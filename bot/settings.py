@@ -4,10 +4,10 @@ from sys import stdout
 
 from loguru import logger
 
-# Set DEBUG for sqlite database and advanced logging
+# Дебаг - для более развёрнутых логов
 DEBUG = getenv("DEBUG", "1") == "1"
 
-# logging configure
+# конфигурируем логгер
 logger.remove()
 logger.add(
     "app_data/logs/debug_logs.log" if DEBUG else "app_data/logs/bot.log",
@@ -16,12 +16,13 @@ logger.add(
 )
 logger.add(stdout, level="DEBUG" if DEBUG else "INFO")
 
-# Get bot token from @BotFather
+# Токен бота
 BOT_TOKEN = getenv("BOT_TOKEN2")
 
-# GPT token
+# Токен GPT
 GPT_TOKEN = getenv("GPT_TOKEN")
 
+# Список админов
 admins_list = (getenv("ADMINS", "")).split(",")
 ADMINS = []
 for admin_id in admins_list:
@@ -30,17 +31,19 @@ for admin_id in admins_list:
     except ValueError:
         pass
 
-
+# json заголовки
 JSON_HEADERS = {"Content-Type": "application/json"}
 
-
-# Set databases
-
+# Домен сайта
 SITE_DOMAIN = getenv("SITE_DOMAIN") or "https://mycego.ru"
 
+# Базовая директория
 BASE_DIR = Path(__file__).parent
+
+# Ссылка на базу данных
 DATABASE_NAME = f'sqlite+aiosqlite:///{BASE_DIR / "app_data" / "telegram_bot.db"}'
 
+# Словарь комментируемых работ
 COMMENTED_WORKS = dict()
 
 # Set True if you want webhook bot. Don't forget to edit variables down below

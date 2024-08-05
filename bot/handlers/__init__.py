@@ -27,4 +27,6 @@ __all__ = [
     "work_list_delivery_router",
     "requests_router",
     "pay_sheets_router",
+    "my_chat_member_status_change_handler",
+    "request_join_channel_handler",
 ]

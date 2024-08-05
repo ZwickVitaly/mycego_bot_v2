@@ -3,6 +3,12 @@ from settings import logger
 
 
 async def anotify_admins(bot: Bot, message: str, admins_list: list[str] | None = None):
+    """
+    Функция чтобы послать уведомление админам
+    :param bot: инастанс активного бота
+    :param message: сообщение
+    :param admins_list: список id админов
+    """
     if admins_list:
         for admin in admins_list:
             try:

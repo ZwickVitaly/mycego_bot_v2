@@ -1,3 +1,7 @@
+"""
+# TODO Модуль не перерабатывался после временной отмены
+"""
+
 from aiogram import F, Router
 from aiogram.fsm.context import FSMContext
 from aiogram.types import CallbackQuery, Message

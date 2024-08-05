@@ -1,7 +1,15 @@
+"""
+Состояния заявок в график, заполнения рабочих листов, доставки и просмотра рабочих листов
+"""
+
 from aiogram.fsm.state import State, StatesGroup
 
 
 class WorkGraf(StatesGroup):
+    """
+    Состояния заявки в график
+    """
+
     choice_date = State()
     choice_time = State()
     choice_time2 = State()
@@ -9,6 +17,10 @@ class WorkGraf(StatesGroup):
 
 
 class WorkList(StatesGroup):
+    """
+    Состояния заполнения листа работ
+    """
+
     choice_date = State()
     choice_department = State()
     choice_work = State()
@@ -17,6 +29,10 @@ class WorkList(StatesGroup):
 
 
 class WorkListDelivery(StatesGroup):
+    """
+    Состояния заполнения листа работ ДОСТАВКИ
+    """
+
     choice_date = State()
     choice_delivery = State()
     choice_work = State()
@@ -24,5 +40,9 @@ class WorkListDelivery(StatesGroup):
 
 
 class ViewWorkList(StatesGroup):
+    """
+    Состояния просмотра заполненных рабочих листов
+    """
+
     view_work = State()
     del_work = State()

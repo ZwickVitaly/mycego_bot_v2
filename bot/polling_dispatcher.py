@@ -19,8 +19,8 @@ from handlers import (  # work_list_delivery_router,
     work_graf_router,
     work_list_router,
 )
-from lifespan.sqlalchemy_db_creation_manager import SQLAlchemyDBCreateAsyncManager
-from settings import BOT_TOKEN, logger
+from lifespan import NotifyAdminsAsyncManager
+from settings import ADMINS, BOT_TOKEN, logger
 
 logger.debug("Initializing bot instance")
 # Создаём бота
@@ -33,8 +33,11 @@ storage = MemoryStorage()
 logger.debug("Initializing dispatcher")
 # Создаём диспетчер с контекстным менеджером на время работы
 dp: DispatcherLifespan = DispatcherLifespan(
-    lifespan=SQLAlchemyDBCreateAsyncManager(
-        async_db_engine=engine, async_db_session=async_session, db_base=Base
+    lifespan=NotifyAdminsAsyncManager(
+        bot=bot,
+        start_message="Бот запущен",
+        stop_message="Бот остановлен",
+        admins=ADMINS,
     ),
     storage=storage,
 )

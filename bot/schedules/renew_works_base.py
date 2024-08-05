@@ -5,6 +5,7 @@ from settings import logger
 
 
 async def renew_works_base():
+    """Функция для обновления нормативов"""
     while True:
         logger.warning("Обновляем работы")
         try:

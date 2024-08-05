@@ -8,4 +8,5 @@ async def back_message_handler(message: Message, state: FSMContext):
     await message.answer(
         "Главное меню.", reply_markup=menu_keyboard(message.from_user.id)
     )
+    # очищаем машину состояний
     await state.clear()

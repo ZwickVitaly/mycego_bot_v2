@@ -12,7 +12,6 @@ async def main_polling(
     dispatcher: DispatcherLifespan, active_bot: Bot, admins: list[int] | None = None
 ):
     logger.debug("Initializing long polling")
-    await anotify_admins(active_bot, "Бот запущен", admins)
     try:
         await asyncio.gather(
             renew_works_base(),
@@ -22,8 +21,6 @@ async def main_polling(
     except Exception as e:
         await anotify_admins(active_bot, f"Бот сломался: {e}", admins)
         raise
-    finally:
-        await anotify_admins(active_bot, "Бот остановлен", admins)
 
 
 if __name__ == "__main__":
