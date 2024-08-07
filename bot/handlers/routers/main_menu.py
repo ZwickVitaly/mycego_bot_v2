@@ -171,23 +171,16 @@ async def main_menu_message_handler(message: types.Message, state: FSMContext):
                 async with async_session() as session:
                     async with session.begin():
                         standards_q = await session.execute(
-                            select(Works).order_by(Works.department_name, Works.name)
+                            select(Works).order_by(Works.name)
                         )
                         standards = list(standards_q.scalars())
 
                 mes = ""
                 if standards:
                     # нормативы найдены, группируем по отделам
-                    departments = {
-                        k: list(g)
-                        for k, g in groupby(standards, lambda w: w.department_name)
-                    }
                     # формируем сообщение
-                    for dep, works in departments.items():
-                        mes += f"{dep}:\n"
-                        for work in works:
-                            mes += f"\t- {work.name}: {work.standard}/час\n"
-                        mes += f"\n"
+                    for work in standards:
+                        mes += f"\t- {work.name}: {work.standard}/час\n"
                 # информируем пользователя
                 await message.answer(mes or "Нормативы не найдены")
             elif text == "📊Статистика":

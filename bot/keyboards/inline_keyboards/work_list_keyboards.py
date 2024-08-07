@@ -30,15 +30,15 @@ async def generate_departments():
     return keyboard.as_markup()
 
 
-async def generate_works(department: str, delivery=None):
+async def generate_works(delivery=None):
     async with async_session() as session:
         async with session.begin():
             if delivery:
                 q = select(Works).where(
-                    Works.delivery == True, Works.department_name == department
+                    Works.delivery == True
                 )
             else:
-                q = select(Works).where(Works.department_name == department)
+                q = select(Works)
             works_q = await session.execute(q.order_by(Works.name))
             all_works = works_q.scalars()
 
@@ -54,7 +54,6 @@ async def generate_works(department: str, delivery=None):
         except Exception as e:
             logger.error(f"Work: {i} Error: {e.args}")
     keyboard.row(send_inline_button)
-    keyboard.row(back_inline_button)
     keyboard.row(cancel_inline_button)
 
     return keyboard.as_markup()

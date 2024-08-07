@@ -8,7 +8,7 @@ from FSM import WorkList
 from helpers import aform_works_done_message, aget_user_by_id, anotify_admins
 from keyboards import (
     call_back,
-    generate_departments,
+    # generate_departments,
     generate_works,
     menu_keyboard,
     second_menu,
@@ -38,12 +38,12 @@ async def choose_department(callback_query: CallbackQuery, state: FSMContext):
         data["date"] = date
         # предлагаем пользователю выбрать департамент работ
         await callback_query.message.answer(
-            f"{date}\nВыберите департамент:", reply_markup=await generate_departments()
+            f"{date}\nВыберите работу:", reply_markup=await generate_works()
         )
         # обновляем данные машины состояний
         await state.update_data(data=data)
         # устанавливаем соответствующее состояние
-        await state.set_state(WorkList.choice_department)
+        await state.set_state(WorkList.choice_work)
     except Exception as e:
         # обрабатываем возможные исключения
         logger.exception(e)
@@ -148,12 +148,12 @@ async def nums_works(message: Message, state: FSMContext):
                 # отвечаем пользователю, предлагаем добавить работы
                 await message.answer(
                     msg,
-                    reply_markup=await generate_departments(),
+                    reply_markup=await generate_works(),
                 )
                 # сохраняем данные в машину состояний
                 await state.update_data(data=data)
                 # устанавливаем соответствующее состояние
-                await state.set_state(WorkList.choice_department)
+                await state.set_state(WorkList.choice_work)
 
         except ValueError:
             # обрабатываем невалидный ответ пользователя на запрос количества работ
@@ -177,7 +177,6 @@ async def nums_works(message: Message, state: FSMContext):
 
 
 @work_list_router.callback_query(F.data == "send", WorkList.choice_work)
-@work_list_router.callback_query(F.data == "send", WorkList.choice_department)
 async def send_works(callback_query: CallbackQuery, state: FSMContext):
     """
     Обрабатываем запрос отправки заполненного листа работ
@@ -272,47 +271,21 @@ async def add_works(callback_query: CallbackQuery, state: FSMContext):
             pass
         # получаем данные из машины состояний
         data = await state.get_data()
-        if callback_query.data == "back":
-            # получаем дату из данных
-            date = data.get("date")
-            # получаем сообщение об уже заполненных работах
-            works_msg = data.get("works_msg")
-            # формируем сообщение
-            message = f"{date}\nВыберите департамент:"
-            if works_msg:
-                # получаем комментарии к уже заполненным работам
-                comment = data.get("comment")
-                if comment:
-                    # добавляем комментарии
-                    works_msg = (
-                        works_msg
-                        + f"Комментарий:\n{comment.replace('; ', '\n')}"
-                        + "\n\n"
-                    )
-                # добавляем сообщение об уже заполненных работах в начало сообщения
-                message = works_msg + message
-            # возвращаем в предыдущее меню
-            await callback_query.message.answer(
-                message, reply_markup=await generate_departments()
-            )
+        try:
+            # получаем id работы и сохраняем его в данные
+            data["current_work"] = int(callback_query.data.split("_")[1])
+            # обновляем данные машины состояний
+            await state.update_data(data=data)
+            # просим пользователя ввести количество выполненной работы
+            await callback_query.message.answer(f"Теперь введите количество:")
             # устанавливаем соответствующее состояние
-            await state.set_state(WorkList.choice_department)
-        else:
-            try:
-                # получаем id работы и сохраняем его в данные
-                data["current_work"] = int(callback_query.data.split("_")[1])
-                # обновляем данные машины состояний
-                await state.update_data(data=data)
-                # просим пользователя ввести количество выполненной работы
-                await callback_query.message.answer(f"Теперь введите количество:")
-                # устанавливаем соответствующее состояние
-                await state.set_state(WorkList.input_num)
-            except (ValueError, IndexError):
-                # обрабатываем возможное исключение когда пользователь нажимает 2 раза на выбор департамента
-                await callback_query.message.answer(
-                    f"При выборе работы что-то пошло не так. Может быть Вы нажали на кнопку выбора департамента "
-                    f"несколько раз подряд? Пожалуйста, не торопитесь."
-                )
+            await state.set_state(WorkList.input_num)
+        except (ValueError, IndexError):
+            # обрабатываем возможное исключение когда пользователь нажимает 2 раза на выбор департамента
+            await callback_query.message.answer(
+                f"При выборе работы что-то пошло не так. Может быть Вы нажали на кнопку выбора департамента "
+                f"несколько раз подряд? Пожалуйста, не торопитесь."
+            )
     except Exception as e:
         # обрабатываем возможные исключения
         logger.exception(e)
@@ -329,57 +302,57 @@ async def add_works(callback_query: CallbackQuery, state: FSMContext):
         )
 
 
-@work_list_router.callback_query(WorkList.choice_department)
-async def add_work_list(callback_query: CallbackQuery, state: FSMContext):
-    """
-    Обрабатываем запрос на выбор департамента
-    """
-    try:
-        # удаляем сообщение
-        try:
-            await callback_query.message.delete()
-        except TelegramBadRequest:
-            pass
-        # получаем данные из машины состояний
-        data = await state.get_data()
-        # получаем дату из данных
-        date = data.get("date")
-        # формируем сообщение
-        msg = f"{date}\nВыберите работу:"
-        # получаем сообщение об уже заполненных работах
-        works_msg = data.get("works_msg")
-        if works_msg:
-            # получаем комментарии к работам
-            comment = data.get("comment")
-            if comment:
-                # добавляем к сообщению
-                works_msg = (
-                    works_msg + f"Комментарий:\n{comment.replace('; ', '\n')}" + "\n\n"
-                )
-            # добавляем сообщение об уже заполненных работах в начало ответа пользователю
-            msg = works_msg + msg
-        # отвечаем пользователю, предлагаем выбрать вид работ
-        await callback_query.message.answer(
-            msg, reply_markup=await generate_works(callback_query.data)
-        )
-        # обновляем данные машины состояний
-        await state.update_data(data)
-        # устанавливаем соответствующее состояние
-        await state.set_state(WorkList.choice_work)
-    except Exception as e:
-        # обрабатываем возможные исключения
-        logger.exception(e)
-        # очищаем машину состояний
-        await state.clear()
-        # информируем пользователя
-        await callback_query.message.answer("☣️Возникла ошибка☣️")
-        # уведомляем админов
-        await anotify_admins(
-            callback_query.bot,
-            f"Ошибка обработки: лист работ - выбор департамента; пользователь: "
-            f"{callback_query.from_user.id}; данные: {callback_query.data}, причина: {e}",
-            admins_list=ADMINS,
-        )
+# @work_list_router.callback_query(WorkList.choice_department)
+# async def add_work_list(callback_query: CallbackQuery, state: FSMContext):
+#     """
+#     Обрабатываем запрос на выбор департамента
+#     """
+#     try:
+#         # удаляем сообщение
+#         try:
+#             await callback_query.message.delete()
+#         except TelegramBadRequest:
+#             pass
+#         # получаем данные из машины состояний
+#         data = await state.get_data()
+#         # получаем дату из данных
+#         date = data.get("date")
+#         # формируем сообщение
+#         msg = f"{date}\nВыберите работу:"
+#         # получаем сообщение об уже заполненных работах
+#         works_msg = data.get("works_msg")
+#         if works_msg:
+#             # получаем комментарии к работам
+#             comment = data.get("comment")
+#             if comment:
+#                 # добавляем к сообщению
+#                 works_msg = (
+#                     works_msg + f"Комментарий:\n{comment.replace('; ', '\n')}" + "\n\n"
+#                 )
+#             # добавляем сообщение об уже заполненных работах в начало ответа пользователю
+#             msg = works_msg + msg
+#         # отвечаем пользователю, предлагаем выбрать вид работ
+#         await callback_query.message.answer(
+#             msg, reply_markup=await generate_works(callback_query.data)
+#         )
+#         # обновляем данные машины состояний
+#         await state.update_data(data)
+#         # устанавливаем соответствующее состояние
+#         await state.set_state(WorkList.choice_work)
+#     except Exception as e:
+#         # обрабатываем возможные исключения
+#         logger.exception(e)
+#         # очищаем машину состояний
+#         await state.clear()
+#         # информируем пользователя
+#         await callback_query.message.answer("☣️Возникла ошибка☣️")
+#         # уведомляем админов
+#         await anotify_admins(
+#             callback_query.bot,
+#             f"Ошибка обработки: лист работ - выбор департамента; пользователь: "
+#             f"{callback_query.from_user.id}; данные: {callback_query.data}, причина: {e}",
+#             admins_list=ADMINS,
+#         )
 
 
 @work_list_router.message(WorkList.send_comment, F.chat.type == "private")
@@ -432,9 +405,9 @@ async def comment_work(message: Message, state: FSMContext):
         # обновляем данные машины состояний
         await state.update_data(data=data)
         # устанавливаем соответствующее состояние
-        await state.set_state(WorkList.choice_department)
+        await state.set_state(WorkList.choice_work)
         # отвечаем пользователю, предлагаем выбрать департамент
-        await message.answer(msg, reply_markup=await generate_departments())
+        await message.answer(msg, reply_markup=await generate_works())
     except Exception as e:
         # обрабатываем возможные исключения
         logger.exception(e)

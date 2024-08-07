@@ -43,7 +43,7 @@ services:
 #
 #
   bot:
-    container_name: bot
+    container_name: bot_NN
     build:
       dockerfile: ./Dockerfile
     restart: on-failure

@@ -79,7 +79,7 @@ async def get_works():
     """
     Функция для получения списка работ с сайта
     """
-    url = f"{SITE_DOMAIN}/api-auth/works_departments/"
+    url = f"{SITE_DOMAIN}/api-auth/get_works/"
     async with ClientSession() as session:
         async with session.get(url=url) as response:
             return await response.json()
@@ -181,29 +181,25 @@ async def generate_works_base():
     """
     Функция для обновления базы нормативов
     """
-    data: dict = (await get_works()).get("data")
+    data: list[list] = (await get_works()).get("data")
     # работы к которым нужен комментарий
     needs_comment = ["другие работы", "обучение 3", "грузчик", "план"]
-    if data and isinstance(data, dict):
+    if data and isinstance(data, list):
         async with async_session() as session:
             async with session.begin():
                 await session.execute(delete(Works))
-                for department, works in data.items():
-                    for name, work in works.items():
-                        session.add(
-                            Works(
-                                id=work.get("id"),
-                                name=name,
-                                delivery=work.get("delivery", False),
-                                standard=work.get("quantity", 0),
-                                department_name=department,
-                            )
+                for work in data:
+                    session.add(
+                        Works(
+                            id=work[0],
+                            name=work[1],
+                            delivery=work[2],
+                            standard=work[3],
+                            # department_name=department,
                         )
-                        if department == "Общий":
-                            if any(
-                                [name.lower().startswith(nc) for nc in needs_comment]
-                            ):
-                                COMMENTED_WORKS[work.get("id")] = name
+                    )
+                    if any([work[1].lower().startswith(nc) for nc in needs_comment]):
+                        COMMENTED_WORKS[work[0]] = work[1]
                 await session.commit()
     else:
         logger.error("Не получилось обновить нормативы!")
@@ -263,4 +259,4 @@ async def get_pay_sheet(user_id):
 
 if __name__ == "__main__":
     # check_user_api('admin', 'fma160392')
-    logger.debug(asyncio.run(get_users_statuses()))
+    logger.debug(asyncio.run(get_works()))
