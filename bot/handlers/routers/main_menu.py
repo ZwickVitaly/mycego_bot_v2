@@ -276,7 +276,7 @@ async def main_menu_message_handler(message: types.Message, state: FSMContext):
             #     await generate_works_base()
             #     await message.answer("Список работ обновлён")
 
-            elif text == "Статистика запросов" and str(message.from_user.id) in ADMINS:
+            elif text == "Статистика запросов" and message.from_user.id in ADMINS:
                 # обрабатываем команду 'Статистика запросов', получаем сообщения, сгруппированные по запросам
                 results = await get_message_counts_by_group()
                 # формируем сообщение

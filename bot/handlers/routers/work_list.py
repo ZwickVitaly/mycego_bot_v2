@@ -1,4 +1,5 @@
 from aiogram import F, Router
+from aiogram.exceptions import TelegramBadRequest
 from aiogram.fsm.context import FSMContext
 from aiogram.types import CallbackQuery, Message
 from api_services import post_works
@@ -25,7 +26,10 @@ async def choose_department(callback_query: CallbackQuery, state: FSMContext):
     """
     try:
         # удаляем сообщение
-        await callback_query.message.delete()
+        try:
+            await callback_query.message.delete()
+        except TelegramBadRequest:
+            pass
         # получаем данные из машины состояний
         data = await state.get_data()
         # получаем дату
@@ -180,7 +184,10 @@ async def send_works(callback_query: CallbackQuery, state: FSMContext):
     """
     try:
         # удаляем сообщение
-        await callback_query.message.delete()
+        try:
+            await callback_query.message.delete()
+        except TelegramBadRequest:
+            pass
         # получаем данные из машины состояний
         data = await state.get_data()
         # получаем дату
@@ -259,7 +266,10 @@ async def add_works(callback_query: CallbackQuery, state: FSMContext):
     """
     try:
         # удаляем сообщение
-        await callback_query.message.delete()
+        try:
+            await callback_query.message.delete()
+        except TelegramBadRequest:
+            pass
         # получаем данные из машины состояний
         data = await state.get_data()
         if callback_query.data == "back":
@@ -326,7 +336,10 @@ async def add_work_list(callback_query: CallbackQuery, state: FSMContext):
     """
     try:
         # удаляем сообщение
-        await callback_query.message.delete()
+        try:
+            await callback_query.message.delete()
+        except TelegramBadRequest:
+            pass
         # получаем данные из машины состояний
         data = await state.get_data()
         # получаем дату из данных

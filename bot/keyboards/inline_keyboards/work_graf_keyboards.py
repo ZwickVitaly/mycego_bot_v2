@@ -37,7 +37,9 @@ async def generate_time_keyboard():
     keyboard.max_width = 6
 
     for num in range(9, 21):
-        numbers_button = InlineKeyboardButton(text=str(num), callback_data=f"{num}:00")
+        numbers_button = InlineKeyboardButton(
+            text=str(num), callback_data=f"start_time {num}:00"
+        )
         keyboard.add(numbers_button)
     keyboard.row(back_inline_button)
     keyboard.row(cancel_inline_button)
@@ -54,7 +56,7 @@ async def generate_time_keyboard2(chosen_hour: int):
             )
         else:
             numbers_button = InlineKeyboardButton(
-                text=str(num), callback_data=f"{num}:00"
+                text=str(num), callback_data=f"end_time {num}:00"
             )
         keyboard.add(numbers_button)
     keyboard.row(back_inline_button)

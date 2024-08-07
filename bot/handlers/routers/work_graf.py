@@ -1,4 +1,5 @@
 from aiogram import F, Router
+from aiogram.exceptions import TelegramBadRequest
 from aiogram.fsm.context import FSMContext
 from aiogram.types import CallbackQuery
 from api_services import create_or_get_apport, delete_appointments
@@ -22,7 +23,10 @@ async def process_date(callback_query: CallbackQuery, state: FSMContext):
     """
     try:
         # удаляем сообщение
-        await callback_query.message.delete()
+        try:
+            await callback_query.message.delete()
+        except TelegramBadRequest:
+            pass
         # получаем данные из машины состояний
         data = await state.get_data()
         # получаем дату
@@ -53,14 +57,17 @@ async def process_date(callback_query: CallbackQuery, state: FSMContext):
         )
 
 
-@work_graf_router.callback_query(WorkGraf.choice_time)
+@work_graf_router.callback_query(WorkGraf.choice_time, F.data.startswith("start_time"))
 async def process_time(callback_query: CallbackQuery, state: FSMContext):
     """
     Обрабатываем выбор времени начала работ
     """
     try:
         # удаляем сообщение
-        await callback_query.message.delete()
+        try:
+            await callback_query.message.delete()
+        except TelegramBadRequest:
+            pass
         if callback_query.data == "back":
             # возвращаем предыдущее меню
             await callback_query.message.answer(
@@ -74,7 +81,7 @@ async def process_time(callback_query: CallbackQuery, state: FSMContext):
         # получаем данные из машины состояний
         data = await state.get_data()
         # получаем время начала работ
-        start_time = callback_query.data
+        start_time = callback_query.data.split()[-1]
         # добавляем в машину состояний
         data["start_time"] = start_time
         try:
@@ -84,7 +91,7 @@ async def process_time(callback_query: CallbackQuery, state: FSMContext):
             # обрабатываем возможную ошибку при двойном нажатии выбора даты
             await callback_query.message.answer(
                 "Возникла ошибка. Возможно Вы случайно нажали кнопку выбора даты 2 раза подряд? "
-                "Пожалуйста, не торопитесь."
+                "Пожалуйста, не торопитесь.",
             )
             return
         # предлагаем пользователю выбрать время завершения работ
@@ -112,14 +119,17 @@ async def process_time(callback_query: CallbackQuery, state: FSMContext):
         )
 
 
-@work_graf_router.callback_query(WorkGraf.choice_time2)
+@work_graf_router.callback_query(WorkGraf.choice_time2, F.data.startswith("end_time"))
 async def process_time2(callback_query: CallbackQuery, state: FSMContext):
     """
     Обрабатываем выбор времени завершения работ
     """
     try:
         # удаляем сообщение
-        await callback_query.message.delete()
+        try:
+            await callback_query.message.delete()
+        except TelegramBadRequest:
+            pass
         if callback_query.data == "Not available":
             # если пользователь пытается выбрать недоступное время - не реагируем
             return
@@ -135,13 +145,20 @@ async def process_time2(callback_query: CallbackQuery, state: FSMContext):
             # получаем данные из машины состояний
             data = await state.get_data()
             # получаем время завершения
-            end_time = callback_query.data
+            end_time = callback_query.data.split()[-1]
+            start_time = data["start_time"]
+            if start_time > end_time:
+                await callback_query.message.answer(
+                    "Время начала работ не должно быть позже времени окончания работ. "
+                    "Возможно Вы нажали не на ту кнопку? Пожалуйста, не торопитесь."
+                )
+                return
             # получаем пользователя из бд
             user = await aget_user_by_id(callback_query.from_user.id)
             # запрашиваем создание заявки в график
             code = await create_or_get_apport(
                 date=data["date"],
-                start_time=data["start_time"],
+                start_time=start_time,
                 end_time=end_time,
                 user_id_site=user.site_user_id,
             )
@@ -181,7 +198,10 @@ async def del_row(callback_query: CallbackQuery, state: FSMContext):
     """
     try:
         # удаляем сообщение
-        await callback_query.message.delete()
+        try:
+            await callback_query.message.delete()
+        except TelegramBadRequest:
+            pass
         # получаем id заявки в график
         work_graf_id = callback_query.data.split("_")[1]
         # получаем пользователя из бд
