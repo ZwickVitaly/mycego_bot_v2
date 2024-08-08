@@ -58,6 +58,7 @@ async def process_date(callback_query: CallbackQuery, state: FSMContext):
 
 
 @work_graf_router.callback_query(WorkGraf.choice_time, F.data.startswith("start_time"))
+@work_graf_router.callback_query(WorkGraf.choice_time, F.data == "back")
 async def process_time(callback_query: CallbackQuery, state: FSMContext):
     """
     Обрабатываем выбор времени начала работ
@@ -120,6 +121,7 @@ async def process_time(callback_query: CallbackQuery, state: FSMContext):
 
 
 @work_graf_router.callback_query(WorkGraf.choice_time2, F.data.startswith("end_time"))
+@work_graf_router.callback_query(WorkGraf.choice_time2, F.data == "back")
 async def process_time2(callback_query: CallbackQuery, state: FSMContext):
     """
     Обрабатываем выбор времени завершения работ
