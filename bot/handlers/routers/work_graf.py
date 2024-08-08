@@ -149,7 +149,9 @@ async def process_time2(callback_query: CallbackQuery, state: FSMContext):
             # получаем время завершения
             end_time = callback_query.data.split()[-1]
             start_time = data["start_time"]
-            if start_time > end_time:
+            start_hour = int(start_time.replace(":00", ""))
+            end_hour = int(end_time.replace(":00", ""))
+            if start_hour > end_hour:
                 await callback_query.message.answer(
                     "Время начала работ не должно быть позже времени окончания работ. "
                     "Возможно Вы нажали не на ту кнопку? Пожалуйста, не торопитесь."
