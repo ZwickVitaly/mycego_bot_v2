@@ -30,7 +30,7 @@ async def kick_fired_on_admin(chat_id: int | str, bot: Bot):
                 try:
                     # пытаемся исключить из канала
                     await bot.ban_chat_member(
-                        chat_id, fired, until_date=timedelta(seconds=35)
+                        chat_id, fired, until_date=timedelta(seconds=59)
                     )
                 except TelegramBadRequest as e:
                     # обрабатываем исключения - пользователя нет на канале или у бота нет прав на исключение

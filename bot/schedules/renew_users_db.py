@@ -57,10 +57,11 @@ async def renew_users_base(bot: Bot):
                             for banned in banned_ids:
                                 try:
                                     # пытаемся кикнуть уволенных из чата
+                                    logger.info(f"Удаляем {banned} из чата {chat}")
                                     await bot.ban_chat_member(
                                         chat.id,
                                         banned,
-                                        until_date=timedelta(seconds=35),
+                                        until_date=timedelta(seconds=59),
                                     )
                                 except TelegramBadRequest as e:
                                     # не получается - скорее всего у бота нет прав

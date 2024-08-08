@@ -28,22 +28,15 @@ services:
 #      timeout: 10s
 #      retries: 3
 #
-#  redis:
-#    container_name: redis
-#    image: redis:latest
-#
-#    healthcheck:
-#      test: [ "CMD-SHELL", "redis-cli ping | grep PONG" ]
-#      interval: 10s
-#      timeout: 10s
-#      retries: 3
-#
-#    ports:
-#      - "6379:6379"
-#
-#
+  redis:
+    container_name: ${REDIS_HOST}
+    image: redis:latest
+    command: --port ${REDIS_PORT}
+    volumes:
+      - ./app_data/redis:/data
+
   bot:
-    container_name: bot
+    container_name: ${BOT_NAME}
     build:
       dockerfile: ./Dockerfile
     restart: on-failure
@@ -51,3 +44,6 @@ services:
       - ./app_data:/bot/app_data
     env_file:
       - .env
+    depends_on:
+      redis:
+        condition: service_started

@@ -2,8 +2,7 @@ from aiogram import Bot, F
 from aiogram.client.default import DefaultBotProperties
 from aiogram.enums import ParseMode
 from aiogram.filters import CommandStart
-from aiogram.fsm.storage.memory import MemoryStorage
-from db import Base, async_session, engine
+from aiogram.fsm.storage.redis import RedisStorage
 from dispatchers.lifespan_dispatcher import DispatcherLifespan
 from handlers import (  # work_list_delivery_router,
     auth_router,
@@ -21,6 +20,7 @@ from handlers import (  # work_list_delivery_router,
 )
 from lifespan import NotifyAdminsAsyncManager
 from settings import ADMINS, BOT_TOKEN, logger
+from utils import storage_connection
 
 logger.debug("Initializing bot instance")
 # Создаём бота
@@ -28,7 +28,7 @@ bot = Bot(token=BOT_TOKEN, default=DefaultBotProperties(parse_mode=ParseMode.HTM
 
 logger.debug("Initializing memory storage instance")
 # Создаём хранилище
-storage = MemoryStorage()
+storage = RedisStorage(storage_connection)
 
 logger.debug("Initializing dispatcher")
 # Создаём диспетчер с контекстным менеджером на время работы

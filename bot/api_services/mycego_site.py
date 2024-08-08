@@ -263,4 +263,4 @@ async def get_pay_sheet(user_id):
 
 if __name__ == "__main__":
     # check_user_api('admin', 'fma160392')
-    logger.debug(asyncio.run(get_users_statuses()))
+    logger.debug(asyncio.run(get_appointments("862")))
