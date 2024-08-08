@@ -1,3 +1,7 @@
+"""
+Модуль пока не используется
+"""
+
 import openai
 from settings import GPT_TOKEN, logger
 

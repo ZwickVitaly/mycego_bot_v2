@@ -17,7 +17,7 @@ async def aform_works_done_message(works: dict):
     # формируем сообщение
     works_msg = f"Выбранные работы:\n"
     for work in works_instances:
-        works_msg += f"\t- {work.name}: {works[int(work.id)]} ед.\n"
+        works_msg += f"\t- {work.name}: {works[work.id]} ед.\n"
     # добавляем отступ
     works_msg += "\n"
     return works_msg

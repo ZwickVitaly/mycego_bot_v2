@@ -110,7 +110,7 @@ async def nums_works(message: Message, state: FSMContext):
                     )  # Создаем словарь для хранения видов работ и их количества
 
                 data["works"][
-                    current_work
+                    str(current_work)
                 ] = quantity  # Сохраняем количество работы в словарь
                 await message.answer(f"Вы указали {quantity} единиц работы.")
 
@@ -127,6 +127,7 @@ async def nums_works(message: Message, state: FSMContext):
                     return
                 # получаем работы
                 works: dict = data.get("works")
+                logger.info(works)
                 # формируем ответное сообщение
                 msg = "Выберите следующий вид работы или нажмите 'Отправить', если все работы указаны."
                 if works:
@@ -210,12 +211,14 @@ async def send_works(callback_query: CallbackQuery, state: FSMContext):
             logger.success(works)
             # ищем есть ли комментируемые работы без комментария
             for key, value in works.items():
-                if key in COMMENTED_WORKS and COMMENTED_WORKS[key] not in comment:
+                if (
+                    int(key) in COMMENTED_WORKS
+                    and COMMENTED_WORKS[int(key)] not in comment
+                ):
                     # просим добавить комментарий
                     await callback_query.message.answer(
-                        f'⚠️Вы заполнили работы: "{COMMENTED_WORKS[key]}" необходимо указать комментарий, '
+                        f'⚠️Вы заполнили работы: "{COMMENTED_WORKS[int(key)]}" необходимо указать комментарий, '
                         "что именно они в себя включали⚠️",
-                        reply_markup=second_menu,
                     )
                     # устанавливаем id работы, к которой требуется комментарий как current_work
                     data["current_work"] = key
