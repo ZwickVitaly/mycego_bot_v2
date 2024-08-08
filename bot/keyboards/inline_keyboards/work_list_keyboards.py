@@ -34,9 +34,7 @@ async def generate_works(delivery=None):
     async with async_session() as session:
         async with session.begin():
             if delivery:
-                q = select(Works).where(
-                    Works.delivery == True
-                )
+                q = select(Works).where(Works.delivery == True)
             else:
                 q = select(Works)
             works_q = await session.execute(q.order_by(Works.name))

@@ -6,9 +6,8 @@ from api_services import post_works
 from custom_filters import not_digits_filter
 from FSM import WorkList
 from helpers import aform_works_done_message, aget_user_by_id, anotify_admins
-from keyboards import (
+from keyboards import (  # generate_departments,
     call_back,
-    # generate_departments,
     generate_works,
     menu_keyboard,
     second_menu,
