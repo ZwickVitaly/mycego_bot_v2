@@ -19,7 +19,7 @@ ADMINS - список id админов вида 123,321,213
 SITE_DOMAIN - домен основного сайта
 
 TIMEZONE - временна́я зона в формате Continent/City например Europe/Moscow,\
-можно оставить пустым - будет <b>Asia/Novosibirsk<b>
+можно оставить пустым - будет <b>Asia/Novosibirsk</b>
 
 PROXY_API_KEY - ключ от сервиса proxyapi.ru (chatGPT, gemini)
 
