@@ -15,7 +15,7 @@ class Message(Base):
 
     id = Column(Integer, primary_key=True, autoincrement=True)  # id сообщения
     user_id = Column(
-        ForeignKey("user.id", ondelete="DO NOTHING"),  # связка с пользователем
+        ForeignKey("user.id", ondelete="NO ACTION"),  # связка с пользователем
         nullable=False,
     )
     text = Column(String, nullable=False)  # текст сообщения

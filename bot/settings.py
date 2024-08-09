@@ -1,6 +1,7 @@
 from os import getenv
 from pathlib import Path
 from sys import stdout
+from zoneinfo import ZoneInfo
 
 from loguru import logger
 
@@ -20,7 +21,11 @@ logger.add(stdout, level="DEBUG" if DEBUG else "INFO")
 BOT_TOKEN = getenv("BOT_TOKEN2")
 
 # Токен GPT
-GPT_TOKEN = getenv("GPT_TOKEN")
+PROXY_API_KEY = getenv("PROXY_API_KEY")
+
+PROXY_API_GPT_URL = getenv(
+    "PROXY_API_GPT_URL", "https://api.proxyapi.ru/openai/v1/chat/completions"
+)
 
 # Список админов
 admins_list = (getenv("ADMINS", "")).split(",")
@@ -40,11 +45,16 @@ SITE_DOMAIN = getenv("SITE_DOMAIN") or "https://mycego.ru"
 # Базовая директория
 BASE_DIR = Path(__file__).parent
 
+TIMEZONE = ZoneInfo(getenv("TIMEZONE", "Asia/Novosibirsk"))
+
 # Ссылка на базу данных
 DATABASE_NAME = f'sqlite+aiosqlite:///{BASE_DIR / "app_data" / "telegram_bot.db"}'
 
 # Словарь комментируемых работ
 COMMENTED_WORKS = dict()
+
+REDIS_HOST = getenv("REDIS_HOST") or "localhost"
+REDIS_PORT = getenv("REDIS_PORT") or 6379
 
 # Set True if you want webhook bot. Don't forget to edit variables down below
 # WEBHOOK_DISPATCHER = getenv("WEBHOOKS") == "1"

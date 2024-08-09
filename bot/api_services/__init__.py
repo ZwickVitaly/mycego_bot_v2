@@ -1,3 +1,4 @@
+from .chat_gpt import get_happy_birthday_message
 from .mycego_site import (
     check_user_api,
     create_or_get_apport,
@@ -36,4 +37,5 @@ __all__ = [
     "post_works",
     "get_pay_sheet",
     "get_users_statuses",
+    "get_happy_birthday_message",
 ]

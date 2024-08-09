@@ -4,7 +4,7 @@ from aiogram import Bot
 from dispatchers import DispatcherLifespan
 from helpers import anotify_admins
 from polling_dispatcher import bot, dp
-from schedules import renew_users_base, renew_works_base
+from schedules import happy_birthday, renew_users_base, renew_works_base
 from settings import ADMINS, logger
 
 
@@ -16,6 +16,7 @@ async def main_polling(
         await asyncio.gather(
             renew_works_base(),
             renew_users_base(bot),
+            happy_birthday(bot),
             dispatcher.start_polling(active_bot, polling_timeout=10),
         )
     except Exception as e:

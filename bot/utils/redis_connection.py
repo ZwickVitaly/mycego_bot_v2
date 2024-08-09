@@ -1,10 +1,5 @@
-from os import getenv
-
 from redis.asyncio import Redis, StrictRedis
-
-REDIS_HOST = getenv("REDIS_HOST") or "localhost"
-REDIS_PORT = getenv("REDIS_PORT") or 6379
-
+from settings import REDIS_HOST, REDIS_PORT
 
 # инстансы соединения с redis ТРЕБУЮТ НАЛИЧИЯ РАБОТАЮЩЕГО redis (очевидно)
 redis_connection = StrictRedis(
