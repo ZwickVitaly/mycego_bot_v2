@@ -6,7 +6,7 @@ def not_digits_filter(message: Message):
     Обратный фильтр сообщений, состоящих из цифр.
     """
     # очищаем сообщение от пробелов до и поле тела сообщения
-    text = message.text.strip()
+    text = message.text.strip() if message.text else ""
     if text.isdigit():
         # сообщение из цифр
         return False

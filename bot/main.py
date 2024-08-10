@@ -13,10 +13,11 @@ async def main_polling(
 ):
     logger.debug("Initializing long polling")
     try:
+        await bot.delete_webhook(drop_pending_updates=True)
         await asyncio.gather(
             renew_works_base(),
             renew_users_base(bot),
-            happy_birthday(bot),
+            # happy_birthday(bot),
             dispatcher.start_polling(active_bot, polling_timeout=10),
         )
     except Exception as e:

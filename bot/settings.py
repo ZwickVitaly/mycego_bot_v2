@@ -53,8 +53,15 @@ DATABASE_NAME = f'sqlite+aiosqlite:///{BASE_DIR / "app_data" / "telegram_bot.db"
 # Словарь комментируемых работ
 COMMENTED_WORKS = dict()
 
+# Redis
 REDIS_HOST = getenv("REDIS_HOST") or "localhost"
 REDIS_PORT = getenv("REDIS_PORT") or 6379
+
+# Stickers
+HELLO_STICKERS = [
+    "CAACAgIAAxkBAAEMoY5mt5qbWqQVbfGJsWUh7ht4ZKhiuwACNhYAAlxA2EvbRm7S3ZV6DTUE",
+    "CAACAgIAAxkBAAEMoX9mt5T_sgoFCwNJQlc4e0gjk1IglQAC0wIAAvPjvguBRPfRdizrsTUE",
+]
 
 # Set True if you want webhook bot. Don't forget to edit variables down below
 # WEBHOOK_DISPATCHER = getenv("WEBHOOKS") == "1"

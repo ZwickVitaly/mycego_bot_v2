@@ -1,12 +1,11 @@
-import os
-import random
+from random import choice
 
 from aiogram.fsm.context import FSMContext
 from aiogram.types import FSInputFile, Message
 from FSM import AuthState
 from helpers import aget_user_by_id
 from keyboards import menu_keyboard
-from settings import BASE_DIR, logger
+from settings import HELLO_STICKERS, logger
 
 
 async def start_command_handler(message: Message, state: FSMContext):
@@ -20,14 +19,9 @@ async def start_command_handler(message: Message, state: FSMContext):
     )
     # очищаем машину состояний
     await state.clear()
-    # получаем возможные стикеры
-    hello = os.listdir("stickers")
-    # выбираем рандомный стикер
-    sticker_path = "{}/stickers/{}".format(BASE_DIR, random.choice(hello))
     # посылаем его
-    await message.bot.send_sticker(
-        message.chat.id, FSInputFile(sticker_path, "hello_sticker.tgs")
-    )
+    hello_sticker = choice(HELLO_STICKERS)
+    await message.bot.send_sticker(message.chat.id, hello_sticker)
     # ищем пользователя в бд
     user = await aget_user_by_id(message.from_user.id)
     if user:

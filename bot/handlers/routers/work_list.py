@@ -61,7 +61,9 @@ async def choose_department(callback_query: CallbackQuery, state: FSMContext):
 
 
 @work_list_router.message(
-    not_digits_filter, WorkList.input_num, F.chat.type == "private"
+    WorkList.input_num,
+    F.chat.type == "private",
+    not_digits_filter,
 )
 async def process_amount_invalid(message: Message):
     """
@@ -385,7 +387,7 @@ async def add_work_list(callback_query: CallbackQuery, state: FSMContext):
         )
 
 
-@work_list_router.message(WorkList.send_comment, F.chat.type == "private")
+@work_list_router.message(WorkList.send_comment, F.chat.type == "private", F.text)
 async def comment_work(message: Message, state: FSMContext):
     """
     Обработка запроса на добавление комментария к комментируемым работам

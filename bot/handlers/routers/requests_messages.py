@@ -11,7 +11,7 @@ from settings import ADMINS, logger
 requests_router = Router()
 
 
-@requests_router.message(Requests.type, F.chat.type == "private")
+@requests_router.message(Requests.type, F.chat.type == "private", F.text)
 async def type_request_user(message: Message, state: FSMContext):
     """
     Обрабатываем заявку на изменение
@@ -48,7 +48,7 @@ async def type_request_user(message: Message, state: FSMContext):
         )
 
 
-@requests_router.message(Requests.comment, F.chat.type == "private")
+@requests_router.message(Requests.comment, F.chat.type == "private", F.text)
 async def comment_request(message: Message, state: FSMContext):
     """
     Обрабатываем комментарий к заявке на изменение

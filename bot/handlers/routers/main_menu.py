@@ -4,7 +4,6 @@ from aiogram import F, Router, types
 from aiogram.fsm.context import FSMContext
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 from api_services import (  # get_data_delivery,
-    generate_works_base,
     get_appointments,
     get_pay_sheet,
     get_request,
@@ -35,7 +34,7 @@ from sqlalchemy import select
 main_menu_router = Router()
 
 
-@main_menu_router.message(F.chat.type == "private")
+@main_menu_router.message(F.chat.type == "private", F.text)
 async def main_menu_message_handler(message: types.Message, state: FSMContext):
     """
     Обрабатываем главное меню
