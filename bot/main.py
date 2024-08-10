@@ -17,7 +17,7 @@ async def main_polling(
         await asyncio.gather(
             renew_works_base(),
             renew_users_base(bot),
-            # happy_birthday(bot),
+            happy_birthday(bot),
             dispatcher.start_polling(active_bot, polling_timeout=10),
         )
     except Exception as e:
