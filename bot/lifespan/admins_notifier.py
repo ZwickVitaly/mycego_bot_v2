@@ -15,7 +15,7 @@ class NotifyAdminsAsyncManager:
         stop_message: str,
         admins: list[str] | None = None,
     ):
-        logger.debug("Initializing SQLAlchemyDBCreateAsyncManager")
+        logger.debug(f"Initializing {self.__class__.__name__}")
         self.bot = bot
         self.admins = admins
         self.start_message = start_message

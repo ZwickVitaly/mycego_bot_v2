@@ -9,6 +9,7 @@ async def anotify_admins(bot: Bot, message: str, admins_list: list[str] | None =
     :param message: сообщение
     :param admins_list: список id админов
     """
+    logger.info(f"Уведомляем админов: {message}")
     if admins_list:
         for admin in admins_list:
             try:

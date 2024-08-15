@@ -1,33 +1,5 @@
 services:
 
-#  postgres:
-#    container_name: postgres
-#    image: postgres:latest
-#    environment:
-#      - POSTGRES_USER=${POSTGRES_USER}
-#      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
-#      - POSTGRES_DB=${POSTGRES_DB}
-#    command:
-#      - "postgres"
-#      - "-c"
-#      - "log_destination=stderr"
-#      - "-c"
-#      - "logging_collector=on"
-#      - "-c"
-#      - "log_directory=/tmp/logs"
-#    volumes:
-#      - ./app_data/database:/var/lib/postgresql/data
-#      - ./app_data/logs/postgres:/var/postgres/logs
-#    env_file:
-#      - .env
-#    ports:
-#      - "5432:5432"
-#    healthcheck:
-#      test: pg_isready -U admin
-#      interval: 10s
-#      timeout: 10s
-#      retries: 3
-#
   redis:
     container_name: ${REDIS_HOST}
     image: redis:latest
@@ -39,6 +11,7 @@ services:
     container_name: ${BOT_NAME}
     build:
       dockerfile: ./Dockerfile
+    image: mycego_bot
     restart: on-failure
     volumes:
       - ./app_data:/bot/app_data
@@ -47,3 +20,8 @@ services:
     depends_on:
       redis:
         condition: service_started
+
+networks:
+  proxy:
+    external: true
+    name: proxy_net

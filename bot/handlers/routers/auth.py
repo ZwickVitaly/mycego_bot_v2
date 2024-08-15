@@ -103,6 +103,7 @@ async def process_password(message: Message, state: FSMContext):
                     q = await session.execute(select(Chat).where(Chat.admin == True))
                     chats = list(q.scalars())
             if chats:
+                logger.info("Отправляем ссылки на каналы пользователю")
                 # создаём окончания слов
                 endings = "а", "ая", "й", "", "её"
                 if len(chats) > 2:
@@ -116,8 +117,11 @@ async def process_password(message: Message, state: FSMContext):
                 # создаём ссылки на каналы с ограничением в 1 час
                 for chat in chats:
                     try:
+                        logger.info(f"Создаём ссылку на канал {chat.id}")
                         link = await message.bot.create_chat_invite_link(
-                            chat_id=chat.id, expire_date=timedelta(hours=1)
+                            chat_id=chat.id,
+                            expire_date=timedelta(hours=1),
+                            creates_join_request=True,
                         )
                         await message.answer(f"{link.invite_link}")
                     except TelegramBadRequest as e:

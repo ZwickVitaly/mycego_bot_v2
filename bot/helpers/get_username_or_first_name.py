@@ -14,9 +14,9 @@ def get_username_or_name(message: Message | CallbackQuery) -> str:
     :return: @username or first_name of user
     """
     logger.debug(f"Getting username or first_name")
-    username = message.from_user.username
+    username = message.from_user.username if message.from_user else None
     if username:
         username = f"@{username}"
     else:
-        username = message.from_user.first_name
+        username = message.from_user.first_name if message.from_user else "имя неизвестно"
     return username
