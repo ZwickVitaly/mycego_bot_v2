@@ -76,7 +76,7 @@ WEBHOOK_SECRET_TOKEN = getenv("WEBHOOK_SECRET_TOKEN")
 WEBHOOK_HOST = "0.0.0.0"
 
 # Choose any, don't go 80 or 443 :)
-WEBHOOK_PORT = int(getenv("WEBHOOK_PORT"), "8080")
+WEBHOOK_PORT = int(getenv("WEBHOOK_PORT", "8080"))
 
 # Path to your webhook for Telegram server
 # Base format - http://yourpath_OR_ip
