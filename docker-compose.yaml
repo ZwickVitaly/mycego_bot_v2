@@ -6,6 +6,8 @@ services:
     command: --port ${REDIS_PORT}
     volumes:
       - ./app_data/redis:/data
+    networks:
+      - proxy_net
 
   bot:
     container_name: ${BOT_NAME}
@@ -20,8 +22,9 @@ services:
     depends_on:
       redis:
         condition: service_started
+    networks:
+      - proxy_net
 
 networks:
-  proxy:
-    external: true
+  proxy_net:
     name: proxy_net

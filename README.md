@@ -53,6 +53,7 @@ docker-compose up --build
 ### v2.0.4
 !Добавлены вебхуки!\
 Для работы требуется reverse-proxy (nginx, например) с ssl-сертификатом
+Если nginx вне контейнера - необходимо будет пробросить порты в docker-compose.yaml
 
 Изменена логика сборки dispatcher
 

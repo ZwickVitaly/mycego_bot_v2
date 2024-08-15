@@ -18,5 +18,7 @@ def get_username_or_name(message: Message | CallbackQuery) -> str:
     if username:
         username = f"@{username}"
     else:
-        username = message.from_user.first_name if message.from_user else "имя неизвестно"
+        username = (
+            message.from_user.first_name if message.from_user else "имя неизвестно"
+        )
     return username

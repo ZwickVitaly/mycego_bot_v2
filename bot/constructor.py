@@ -1,6 +1,6 @@
 import asyncio
 
-from aiogram import Bot, F, Dispatcher
+from aiogram import Bot, Dispatcher, F
 from aiogram.client.default import DefaultBotProperties
 from aiogram.enums import ParseMode
 from aiogram.filters import CommandStart
@@ -50,12 +50,16 @@ dp: Dispatcher = Dispatcher(
 
 async def start_up(bot: Bot):
     if WEBHOOK_DISPATCHER:
+        logger.debug("Устанавливаем вебхук для телеграма")
         await bot.set_webhook(
             f"{WEBHOOK_BASE}{WEBHOOK_PATH}", secret_token=WEBHOOK_SECRET_TOKEN
         )
     else:
+        logger.debug("Удаляем вебхук для поллинга")
         await bot.delete_webhook()
     await anotify_admins(bot, "Бот запущен", admins_list=ADMINS)
+
+    logger.info("Запускаем schedulers")
     BACKGROUND_TASKS.append(asyncio.create_task(renew_works_base()))
     BACKGROUND_TASKS.append(asyncio.create_task(renew_users_base(bot)))
     BACKGROUND_TASKS.append(asyncio.create_task(happy_birthday(bot)))
