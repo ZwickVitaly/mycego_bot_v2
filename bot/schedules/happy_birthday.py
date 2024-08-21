@@ -40,6 +40,7 @@ async def happy_birthday(bot: Bot):
                                 )
                                 chats: list[Chat] = list(q.scalars())
                         if chats:
+                            logger.info(f"Дни рожденья: {b_day}")
                             message = await get_happy_birthday_message(b_day)
                             if message:
                                 for chat in chats:
