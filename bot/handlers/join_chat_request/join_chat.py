@@ -1,6 +1,6 @@
 from aiogram.exceptions import TelegramBadRequest
 from aiogram.types import ChatJoinRequest
-from helpers import aget_user_by_id
+from helpers import aget_user_by_id, get_username_or_name
 from settings import logger
 
 
@@ -22,9 +22,11 @@ async def request_join_channel_handler(request: ChatJoinRequest):
                 )
                 await request.approve()
                 # пишем пользователю об успешном добавлении на канал
+                username = f"@{request.from_user.username}" \
+                    if request.from_user.username else request.from_user.full_name
                 await request.bot.send_message(
                     request.chat.id,
-                    f'Добро пожаловать, {f"@{request.from_user.username}" or request.from_user.full_name}!',
+                    f'Добро пожаловать, {username}!',
                 )
             else:
                 # не нашли - отклоняем заявку
