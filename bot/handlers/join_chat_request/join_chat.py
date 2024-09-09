@@ -21,13 +21,6 @@ async def request_join_channel_handler(request: ChatJoinRequest):
                     f"Пользователь: {request.from_user.id} добавлен в чат {request.chat.id}"
                 )
                 await request.approve()
-                # пишем пользователю об успешном добавлении на канал
-                username = f"@{request.from_user.username}" \
-                    if request.from_user.username else request.from_user.full_name
-                await request.bot.send_message(
-                    request.chat.id,
-                    f'Добро пожаловать, {username}!',
-                )
             else:
                 # не нашли - отклоняем заявку
                 logger.info(
