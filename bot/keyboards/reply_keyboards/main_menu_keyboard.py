@@ -22,6 +22,7 @@ def menu_keyboard(user_id=None):
     if user_id and user_id in ADMINS:
         # menu_buttons.append(KeyboardButton(text="Обновить список работ"))
         menu_buttons.append(KeyboardButton(text="Статистика запросов"))
+        menu_buttons.append(KeyboardButton(text="Пользователи в базе"))
     menu = ReplyKeyboardBuilder()
     menu.row(*menu_buttons, width=2)
     return menu.as_markup()

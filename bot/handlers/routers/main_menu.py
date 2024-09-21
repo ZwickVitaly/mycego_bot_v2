@@ -18,7 +18,7 @@ from FSM import (  # WorkListDelivery
     WorkGraf,
     WorkList,
 )
-from helpers import aget_user_by_id, anotify_admins, get_message_counts_by_group
+from helpers import aget_user_by_id, anotify_admins, get_message_counts_by_group, aget_users_count
 from keyboards import (
     create_works_list,
     generate_current_week_works_dates,
@@ -282,6 +282,13 @@ async def main_menu_message_handler(message: types.Message, state: FSMContext):
                 mess = f"Топ 10 запросов с {results[1]} по {results[2]}:\n"
                 for result in results[0]:
                     mess += f" - {result[0]}, Количество: {result[-1]}\n"
+                # отвечаем пользователю
+                await message.answer(mess)
+            elif text == "Пользователи в базе" and message.from_user.id in ADMINS:
+                # обрабатываем команду 'Пользователи в базе', получаем количество пользователей в бд
+                users_count = await aget_users_count()
+                # формируем сообщение
+                mess = f"Количество активных пользователей в базе: {users_count}"
                 # отвечаем пользователю
                 await message.answer(mess)
             else:

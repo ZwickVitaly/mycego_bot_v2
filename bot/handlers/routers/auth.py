@@ -87,7 +87,10 @@ async def process_password(message: Message, state: FSMContext):
                 await message.answer(
                     "Не получилось зарегистрировать Вас в телеграм-боте. "
                     "Это не Ваша вина. Админы уже в курсе. "
-                    "Пожалуйста, подождите немного."
+                    "Пожалуйста, подождите немного.\n"
+                    "Возможно Вы перепутали бота?\n"
+                    "@mycego_bot - бот для Новосибирска\n"
+                    "@mycego_nn_bot -  бот для Нижнего Новгорода"
                 )
                 return
             logger.warning(
