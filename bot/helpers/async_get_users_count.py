@@ -15,5 +15,5 @@ async def aget_users_count() -> int:
             user_q = await session.execute(
                 select(User)
             )
-            users_count = user_q.scalars()
+            users_count = user_q.scalar_one()
     return users_count
