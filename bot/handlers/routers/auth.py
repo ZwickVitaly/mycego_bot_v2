@@ -116,6 +116,7 @@ async def process_password(message: Message, state: FSMContext):
                 await message.answer(
                     f"Вот Ваш{endings[0]} персональн{endings[1]} ссылк{endings[0]} "
                     f"на рабочи{endings[2]} канал{endings[3]}. Пожалуйста не пересылайте {endings[4]} никому."
+                    f"\nСсылка действительна всего час!"
                 )
                 # создаём ссылки на каналы с ограничением в 1 час
                 for chat in chats:
