@@ -5,7 +5,6 @@ from aiogram.exceptions import TelegramBadRequest
 from sqlalchemy import select
 from db import async_session, Chat
 from settings import ADMINS
-from FSM import AuthState
 from helpers import aget_user_by_id, anotify_admins
 from settings import logger
 
@@ -67,6 +66,8 @@ async def new_link_command_handler(message: Message, state: FSMContext):
                         f"Не получилось создать ссылку на канал {chat}",
                         ADMINS,
                     )
+        else:
+            await message.answer("У бота нет администрируемых каналов")
     else:
         # не нашли, начинаем процедуру аутентификации
         await message.answer(

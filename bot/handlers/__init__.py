@@ -1,5 +1,5 @@
 from .callback_handlers import cancel_operations_handler
-from .command_handlers import help_command_handler, start_command_handler
+from .command_handlers import help_command_handler, start_command_handler, new_link_command_handler
 from .join_chat_request import request_join_channel_handler
 from .message_handlers import back_message_handler
 from .my_chat_member_handlers import my_chat_member_status_change_handler
@@ -29,4 +29,5 @@ __all__ = [
     "pay_sheets_router",
     "my_chat_member_status_change_handler",
     "request_join_channel_handler",
+    "new_link_command_handler"
 ]

@@ -3,7 +3,7 @@ import asyncio
 from aiogram import Bot, Dispatcher, F
 from aiogram.client.default import DefaultBotProperties
 from aiogram.enums import ParseMode
-from aiogram.filters import CommandStart
+from aiogram.filters import CommandStart, Command
 from aiogram.fsm.storage.redis import RedisStorage
 from handlers import (  # work_list_delivery_router,
     auth_router,
@@ -18,6 +18,7 @@ from handlers import (  # work_list_delivery_router,
     view_work_list_router,
     work_graf_router,
     work_list_router,
+    new_link_command_handler,
 )
 from helpers import anotify_admins
 from schedules import happy_birthday, renew_users_base, renew_works_base
@@ -78,6 +79,7 @@ logger.debug("Registering bot reply functions")
 
 # Команды
 dp.message.register(start_command_handler, CommandStart(), F.chat.type == "private")
+dp.message.register(new_link_command_handler, Command("new-link"), F.chat.type == "private")
 
 # Отмена
 dp.message.register(back_message_handler, F.text == "Назад", F.chat.type == "private")
