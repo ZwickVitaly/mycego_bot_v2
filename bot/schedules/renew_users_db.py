@@ -42,7 +42,7 @@ async def renew_users_base(bot: Bot):
                             for fired in fired_ids:
                                 try:
                                     # пытаемся кикнуть уволенных из чата
-                                    logger.info(f"Удаляем {fired} из чата {chat}")
+                                    logger.info(f"Удаляем {fired} из чата {chat.id}")
                                     await bot.ban_chat_member(
                                         chat.id,
                                         fired,
