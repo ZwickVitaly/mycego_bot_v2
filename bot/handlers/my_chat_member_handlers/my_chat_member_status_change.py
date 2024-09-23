@@ -22,6 +22,10 @@ async def my_chat_member_status_change_handler(message: ChatMemberUpdated):
                     f"Обновление чата! Chat_id: {chat_id} Chat_name:{message.chat.title} Status: {new_status}"
                 )
                 if new_status == "administrator":
+                    # самоудаляемся из чата, если это не чат Mycego
+                    if not message.chat.full_name or "mycego" not in message.chat.full_name.lower():
+                        await message.chat.leave()
+                        return
                     # добавляем чат со статусом бота "admin" в базу данных
                     chat_info = await message.bot.get_chat(chat_id)
                     logger.info(f"{chat_info}")

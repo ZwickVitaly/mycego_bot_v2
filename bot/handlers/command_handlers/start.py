@@ -3,20 +3,22 @@ from random import choice
 from aiogram.fsm.context import FSMContext
 from aiogram.types import FSInputFile, Message
 from FSM import AuthState
-from helpers import aget_user_by_id
+from helpers import aget_user_by_id, anotify_admins
 from keyboards import menu_keyboard
-from settings import HELLO_STICKERS, logger
+from settings import HELLO_STICKERS, logger, ADMINS
 
 
 async def start_command_handler(message: Message, state: FSMContext):
     """
     Старт бота, проверка на присутствие в базе данных, если нет, запрашивает пароль
     """
-    logger.info(
+    log_msg = (
         f"Пользователь {message.from_user.id}: "
         f"{message.from_user.full_name} {message.from_user.username} "
         f"нажал на кнопку {message.text}"
     )
+    logger.info(log_msg)
+    await anotify_admins(message.bot, log_msg, ADMINS)
     # очищаем машину состояний
     await state.clear()
     # посылаем его
