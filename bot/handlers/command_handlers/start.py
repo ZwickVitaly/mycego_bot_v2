@@ -1,9 +1,9 @@
 from random import choice
 
 from aiogram.fsm.context import FSMContext
-from aiogram.types import FSInputFile, Message
+from aiogram.types import Message
 from FSM import AuthState
-from helpers import aget_user_by_id, anotify_admins
+from helpers import aget_user_by_id, anotify_admins, sanitize_string
 from keyboards import menu_keyboard
 from settings import HELLO_STICKERS, logger, ADMINS
 
@@ -21,21 +21,21 @@ async def start_command_handler(message: Message, state: FSMContext):
     await anotify_admins(message.bot, log_msg, ADMINS)
     # очищаем машину состояний
     await state.clear()
-    # посылаем его
-    hello_sticker = choice(HELLO_STICKERS)
-    await message.bot.send_sticker(message.chat.id, hello_sticker)
     # ищем пользователя в бд
     user = await aget_user_by_id(message.from_user.id)
+    # посылаем стикер
+    hello_sticker = choice(HELLO_STICKERS)
+    await message.bot.send_sticker(message.chat.id, hello_sticker)
     if user:
         # нашли - приветствуем
         await message.answer(
-            f"Добро пожаловать, {message.from_user.first_name}!",
+            f"Добро пожаловать, {message.from_user.full_name}!",
             reply_markup=menu_keyboard(message.from_user.id),
         )
     else:
         # не нашли, начинаем процедуру аутентификации
         await message.answer(
-            f"Добро пожаловать, {message.from_user.first_name}! Введите ваш логин:"
+            f"Добро пожаловать, {message.from_user.full_name}! Введите ваш логин:"
         )
         # устанавливаем состояние приёма логина
         await state.set_state(AuthState.waiting_for_login)

@@ -7,7 +7,7 @@ from aiogram.types import Message
 from api_services import check_user_api
 from db import Chat, User, async_session
 from FSM import AuthState
-from helpers import anotify_admins
+from helpers import anotify_admins, sanitize_string
 from keyboards import menu_keyboard
 from settings import ADMINS, logger
 from sqlalchemy import select
@@ -67,7 +67,7 @@ async def process_password(message: Message, state: FSMContext):
                             username=login,
                             username_tg=message.from_user.username
                             or message.from_user.full_name,
-                            first_name=message.from_user.first_name,
+                            first_name=sanitize_string(message.from_user.first_name) or "*****",
                             last_name=message.from_user.last_name,
                             role=user_valid.get("role"),
                         )

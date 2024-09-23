@@ -8,6 +8,7 @@ from .capitalize_first_letter import cap_first
 from .get_username_or_first_name import get_username_or_name
 from .kick_fired import kick_fired_on_admin
 from .seconds_to_time import seconds_to_time
+from .sanitize import sanitize_string
 
 __all__ = [
     "get_username_or_name",
@@ -19,5 +20,6 @@ __all__ = [
     "cap_first",
     "kick_fired_on_admin",
     "seconds_to_time",
-    "aget_users_count"
+    "aget_users_count",
+    "sanitize_string",
 ]
