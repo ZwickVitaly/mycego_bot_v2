@@ -2,6 +2,7 @@ from contextlib import asynccontextmanager
 
 from aiogram.exceptions import TelegramBadRequest
 from aiogram.types import Message
+
 from settings import logger
 
 

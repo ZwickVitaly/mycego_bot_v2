@@ -1,15 +1,17 @@
 import asyncio
 from datetime import timedelta
 
-from aiogram import Bot
 from aiogram.exceptions import TelegramBadRequest
-from api_services import get_users_statuses
-from db import Chat, User, async_session
-from settings import logger
 from sqlalchemy import delete, select
 
+import schedules.keys as keys
+from api_services import get_users_statuses
+from constructors import bot, scheduler
+from db import Chat, User, async_session
+from settings import logger
 
-async def renew_users_base(bot: Bot):
+
+async def renew_users_base():
     """Функция для обновления статусов пользователей и удаления их из администрируемых каналов, если они были уволены"""
     while True:
         logger.warning("Обновляем пользователей")
@@ -26,6 +28,15 @@ async def renew_users_base(bot: Bot):
                     for user in users_statuses
                     if user.get("telegram_id") and user.get("status_work") is False
                 ]
+                for fired in fired_ids:
+                    try:
+                        scheduler.remove_job(job_id=f"{keys.THREE_MONTHS}_{fired}")
+                        scheduler.remove_job(job_id=f"{keys.TWO_MONTHS}_{fired}")
+                        scheduler.remove_job(job_id=f"{keys.ONE_MONTH}_{fired}")
+                        scheduler.remove_job(job_id=f"{keys.ONE_WEEK}_{fired}")
+                        scheduler.remove_job(job_id=f"{keys.FIRST_DAY}_{fired}")
+                    except Exception as e:
+                        logger.error(f"Ошибка при удалении триггеров кронтаба: {e}")
                 async with async_session() as session:
                     async with session.begin():
                         q2 = await session.execute(

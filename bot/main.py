@@ -1,6 +1,6 @@
 import asyncio
 
-from constructor import bot, dp
+from constructors import bot, dp
 from polling import main_polling
 from settings import ADMINS, WEBHOOK_DISPATCHER
 from webhooks import main_webhooks

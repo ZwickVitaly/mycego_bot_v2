@@ -2,10 +2,11 @@ import datetime
 
 from aiogram.types import InlineKeyboardButton
 from aiogram.utils.keyboard import InlineKeyboardBuilder
-from api_services import get_delivery
-from db import Works, async_session
 from loguru import logger
 from sqlalchemy import select
+
+from api_services import get_delivery
+from db import Works, async_session
 
 from .buttons import back_inline_button, cancel_inline_button, send_inline_button
 

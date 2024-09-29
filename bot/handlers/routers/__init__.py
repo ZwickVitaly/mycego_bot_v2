@@ -6,6 +6,8 @@ from .view_work_list import view_work_list_router
 from .work_graf import work_graf_router
 from .work_list import work_list_router
 from .work_list_delivery import work_list_delivery_router
+from .admin_edit_contacts import admin_edit_contacts_router
+from .acquaintance import acquaintance_router
 
 __all__ = [
     "auth_router",
@@ -16,4 +18,6 @@ __all__ = [
     "work_list_delivery_router",
     "requests_router",
     "pay_sheets_router",
+    "admin_edit_contacts_router",
+    "acquaintance_router"
 ]

@@ -13,6 +13,7 @@ from .work_list_keyboards import (
     generate_departments,
     generate_works,
 )
+from .admin_edit_contacts import select_contacts_keyboard, delete_or_edit_contact
 
 __all__ = [
     "generate_works",
@@ -26,4 +27,6 @@ __all__ = [
     "delete_button",
     "generate_pay_sheets",
     "generate_departments",
+    "select_contacts_keyboard",
+    "delete_or_edit_contact",
 ]

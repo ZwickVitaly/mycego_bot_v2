@@ -1,4 +1,5 @@
 from aiogram.types import ChatMemberUpdated
+
 from db import Chat, async_session
 from helpers import anotify_admins, kick_fired_on_admin
 from settings import ADMINS, logger
@@ -23,7 +24,10 @@ async def my_chat_member_status_change_handler(message: ChatMemberUpdated):
                 )
                 if new_status == "administrator":
                     # самоудаляемся из чата, если это не чат Mycego
-                    if not message.chat.full_name or "mycego" not in message.chat.full_name.lower():
+                    if (
+                        not message.chat.full_name
+                        or "mycego" not in message.chat.full_name.lower()
+                    ):
                         await message.chat.leave()
                         return
                     # добавляем чат со статусом бота "admin" в базу данных

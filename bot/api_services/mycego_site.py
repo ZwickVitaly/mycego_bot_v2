@@ -1,12 +1,12 @@
 import asyncio
 import json
 from copy import deepcopy
-from datetime import datetime
 
 from aiohttp import ClientSession
+from sqlalchemy import delete
+
 from db import Works, async_session
 from settings import COMMENTED_WORKS, JSON_HEADERS, SITE_DOMAIN, logger
-from sqlalchemy import delete
 
 
 async def check_user_api(username, password, user_id):
@@ -183,6 +183,7 @@ async def generate_works_base():
     Функция для обновления базы нормативов
     """
     data: dict = (await get_works()).get("data")
+    logger.info("Обновление нормативов - api")
     # работы к которым нужен комментарий
     needs_comment = ["другие работы", "обучение 3", "грузчик", "план"]
     if data and isinstance(data, dict):
@@ -206,6 +207,7 @@ async def generate_works_base():
                             ):
                                 COMMENTED_WORKS[work.get("id")] = name
                 await session.commit()
+        logger.info("Обновление нормативов завершено")
     else:
         logger.error("Не получилось обновить нормативы!")
 

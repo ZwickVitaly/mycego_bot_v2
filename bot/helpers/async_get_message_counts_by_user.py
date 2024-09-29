@@ -1,5 +1,6 @@
-from db import Message, async_session
 from sqlalchemy import func, select
+
+from db import Message, async_session
 
 
 async def get_message_counts_by_group():

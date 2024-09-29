@@ -10,6 +10,8 @@ from .inline_keyboards import (
     generate_time_keyboard,
     generate_time_keyboard2,
     generate_works,
+    select_contacts_keyboard,
+    delete_or_edit_contact,
 )
 from .reply_keyboards import menu_keyboard, ready, second_menu, type_request
 
@@ -29,4 +31,6 @@ __all__ = [
     "delete_button",
     "generate_pay_sheets",
     "generate_departments",
+    "select_contacts_keyboard",
+    "delete_or_edit_contact",
 ]

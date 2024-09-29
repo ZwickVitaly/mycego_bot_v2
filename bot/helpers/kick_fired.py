@@ -2,6 +2,7 @@ from datetime import timedelta
 
 from aiogram import Bot
 from aiogram.exceptions import TelegramBadRequest
+
 from api_services import get_users_statuses
 from settings import logger
 

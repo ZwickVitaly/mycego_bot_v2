@@ -1,10 +1,11 @@
 import asyncio
+from datetime import datetime
 from os import getenv
 from pathlib import Path
 from sys import stdout
-from zoneinfo import ZoneInfo
 
 from loguru import logger
+from pytz import timezone
 
 # Дебаг - для более развёрнутых логов
 DEBUG = getenv("DEBUG", "1") == "1"
@@ -46,7 +47,7 @@ SITE_DOMAIN = getenv("SITE_DOMAIN") or "https://mycego.ru"
 # Базовая директория
 BASE_DIR = Path(__file__).parent
 
-TIMEZONE = ZoneInfo(getenv("TIMEZONE", "Asia/Novosibirsk"))
+TIMEZONE = timezone(getenv("TIMEZONE", "Europe/Moscow"))
 
 # Ссылка на базу данных
 DATABASE_NAME = f'sqlite+aiosqlite:///{BASE_DIR / "app_data" / "telegram_bot.db"}'
