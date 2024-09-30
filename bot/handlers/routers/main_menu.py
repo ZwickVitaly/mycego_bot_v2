@@ -52,7 +52,7 @@ async def main_menu_message_handler(message: types.Message, state: FSMContext):
         user = await aget_user_by_id(message.from_user.id)
         # получаем текст сообщения для последующих манипуляций
         text = message.text
-        if user:
+        if user or True:
             # нашли пользователя, берём его id с сайта
             user_id_site = user.site_user_id
             if text == "🗓Заявка в график":

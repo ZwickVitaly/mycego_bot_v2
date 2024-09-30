@@ -12,7 +12,6 @@ from keyboards import (
     generate_departments,
     generate_works,
     menu_keyboard,
-    second_menu,
 )
 from settings import ADMINS, COMMENTED_WORKS, logger
 

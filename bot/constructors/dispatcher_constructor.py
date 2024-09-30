@@ -1,6 +1,6 @@
 from aiogram import Dispatcher, F
 from aiogram.filters import Command, CommandStart
-from aiogram.fsm.storage.redis import RedisStorage, RedisEventIsolation
+from aiogram.fsm.storage.redis import RedisEventIsolation
 
 
 from handlers import (  # work_list_delivery_router,
@@ -20,15 +20,16 @@ from handlers import (  # work_list_delivery_router,
     get_contacts_command_handler,
     admin_edit_contacts_router,
     acquaintance_router,
+    first_day_survey_router,
 )
 
 from settings import logger
 from utils import storage_connection
 from .lifespan_constructor import start_up, shut_down
+from .storage_constructor import storage
 
 logger.debug("Initializing memory storage instance")
 # Создаём хранилище
-storage = RedisStorage(storage_connection)
 
 logger.debug("Initializing dispatcher")
 # Создаём диспетчер с контекстным менеджером на время работы
@@ -43,6 +44,8 @@ dp.startup.register(start_up)
 dp.shutdown.register(shut_down)
 
 logger.debug("Registering bot reply functions")
+
+dp.include_router(first_day_survey_router)
 
 # Команды
 dp.message.register(get_contacts_command_handler, Command("contacts"), F.chat.type == "private")

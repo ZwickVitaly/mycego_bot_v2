@@ -14,6 +14,7 @@ from .work_list_keyboards import (
     generate_works,
 )
 from .admin_edit_contacts import select_contacts_keyboard, delete_or_edit_contact
+from .surveys import SurveyMappings, yes_or_no_keyboard, one_to_range_keyboard, team_atmosphere_keyboard
 
 __all__ = [
     "generate_works",
@@ -29,4 +30,8 @@ __all__ = [
     "generate_departments",
     "select_contacts_keyboard",
     "delete_or_edit_contact",
+    "SurveyMappings",
+    "yes_or_no_keyboard",
+    "one_to_range_keyboard",
+    "team_atmosphere_keyboard",
 ]

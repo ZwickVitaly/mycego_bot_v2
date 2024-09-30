@@ -8,7 +8,3 @@ redis_connection = StrictRedis(
     host=REDIS_HOST, port=REDIS_PORT, decode_responses=True
 )
 storage_connection = Redis(host=REDIS_HOST, port=REDIS_PORT)
-
-
-class RedisKeys:
-    CONTACTS_KEY = "contacts"

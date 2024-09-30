@@ -6,8 +6,7 @@ from settings import logger
 
 async def aget_users_count() -> int:
     """
-    Функция чтобы достать из бд User или None
-    :param user_id: user's id
+    Функция чтобы достать из кол-во юзеров
     :return: User | None
     """
     logger.debug(f"Getting users count")

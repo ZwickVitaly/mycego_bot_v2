@@ -1,7 +1,7 @@
 from aiogram.exceptions import TelegramBadRequest
 from aiogram.types import ChatJoinRequest
 
-from helpers import aget_user_by_id, get_username_or_name
+from helpers import aget_user_by_id
 from settings import logger
 
 

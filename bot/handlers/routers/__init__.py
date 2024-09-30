@@ -8,6 +8,7 @@ from .work_list import work_list_router
 from .work_list_delivery import work_list_delivery_router
 from .admin_edit_contacts import admin_edit_contacts_router
 from .acquaintance import acquaintance_router
+from handlers.routers.surveys import first_day_survey_router
 
 __all__ = [
     "auth_router",
@@ -19,5 +20,6 @@ __all__ = [
     "requests_router",
     "pay_sheets_router",
     "admin_edit_contacts_router",
-    "acquaintance_router"
+    "acquaintance_router",
+    "first_day_survey_router"
 ]

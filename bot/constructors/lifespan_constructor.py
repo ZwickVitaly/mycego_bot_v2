@@ -1,5 +1,4 @@
 from aiogram import Bot
-from apscheduler.triggers.interval import IntervalTrigger
 from apscheduler.triggers.cron import CronTrigger
 
 from helpers import anotify_admins
@@ -7,7 +6,6 @@ from schedules import (
     happy_birthday,
     renew_users_base,
     renew_works_base,
-    keys,
 )
 
 from settings import (
@@ -19,6 +17,7 @@ from settings import (
     TIMEZONE,
     logger,
 )
+from utils import RedisKeys
 
 from .scheduler_constructor import scheduler
 
@@ -36,19 +35,19 @@ async def start_up(bot: Bot):
     scheduler.add_job(
         happy_birthday,
         trigger=CronTrigger(hour=12, minute=0, second=0, timezone=TIMEZONE),
-        id=keys.HAPPY_BIRTHDAY,
+        id=RedisKeys.SCHEDULES_HAPPY_BIRTHDAY_KEY,
         replace_existing=True,
     )
     scheduler.add_job(
         renew_users_base,
         trigger=CronTrigger(hour=1, minute=0, second=0, timezone=TIMEZONE),
-        id=keys.USER_DB_RENEW,
+        id=RedisKeys.SCHEDULES_USER_DB_RENEW_KEY,
         replace_existing=True,
     )
     scheduler.add_job(
         renew_works_base,
         trigger=CronTrigger(minute=0, second=0, timezone=TIMEZONE),
-        id=keys.STANDARDS_RENEW,
+        id=RedisKeys.SCHEDULES_STANDARDS_RENEW_KEY,
         replace_existing=True,
     )
     logger.info("Запускаем задачи по расписанию")

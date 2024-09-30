@@ -19,6 +19,7 @@ from .routers import (
     work_list_router,
     admin_edit_contacts_router,
     acquaintance_router,
+    first_day_survey_router,
 )
 
 __all__ = [
@@ -40,4 +41,5 @@ __all__ = [
     "get_contacts_command_handler",
     "admin_edit_contacts_router",
     "acquaintance_router",
+    "first_day_survey_router",
 ]

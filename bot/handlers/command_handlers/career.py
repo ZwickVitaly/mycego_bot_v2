@@ -9,9 +9,9 @@ from FSM import EditContactsState
 
 
 
-async def get_contacts_command_handler(message: Message, state: FSMContext):
+async def get_career_ladder_handler(message: Message, state: FSMContext):
     """
-    Запрос важных контактов
+    Запрос карьерной лестницы
     """
     try:
         contacts = await redis_connection.hgetall(RedisKeys.CONTACTS_KEY)
@@ -28,4 +28,3 @@ async def get_contacts_command_handler(message: Message, state: FSMContext):
         logger.error(e)
         await message.answer("Возникла ошибка. Админы оповещены. Попробуйте ещё раз.")
         await anotify_admins(message.bot, "Ошибка при запросе контактов: {e}", ADMINS)
-

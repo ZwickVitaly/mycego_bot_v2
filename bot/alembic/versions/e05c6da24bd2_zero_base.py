@@ -36,7 +36,7 @@ def upgrade() -> None:
     op.create_index("user_site_user_id", "user", ["site_user_id"]),
     op.create_index("user_telegram_id", "user", ["telegram_id"]),
     op.create_index("user_username", "user", ["username"])
-    works = op.create_table(
+    op.create_table(
         "works",
         sa.Column("id", sa.String(), nullable=False),
         sa.Column("name", sa.String(), nullable=False),

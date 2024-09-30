@@ -12,6 +12,10 @@ from .inline_keyboards import (
     generate_works,
     select_contacts_keyboard,
     delete_or_edit_contact,
+    SurveyMappings,
+    yes_or_no_keyboard,
+    one_to_range_keyboard,
+    team_atmosphere_keyboard,
 )
 from .reply_keyboards import menu_keyboard, ready, second_menu, type_request
 
@@ -33,4 +37,8 @@ __all__ = [
     "generate_departments",
     "select_contacts_keyboard",
     "delete_or_edit_contact",
+    "SurveyMappings",
+    "yes_or_no_keyboard",
+    "one_to_range_keyboard",
+    "team_atmosphere_keyboard",
 ]
