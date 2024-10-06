@@ -4,16 +4,15 @@ from aiogram import F, Router
 from aiogram.exceptions import TelegramBadRequest
 from aiogram.fsm.context import FSMContext
 from aiogram.types import Message
-from sqlalchemy import select
-from sqlalchemy.exc import IntegrityError
-
 from api_services import check_user_api
 from db import Chat, User, async_session
-from FSM import AuthState, AcquaintanceState
+from FSM import AcquaintanceState, AuthState
 from helpers import aget_user_by_site_username, anotify_admins, sanitize_string
 from keyboards import menu_keyboard
 from messages import ACQUAINTANCE_FIRST_MESSAGE
 from settings import ADMINS, logger
+from sqlalchemy import select
+from sqlalchemy.exc import IntegrityError
 
 # Роутер аутентификации
 auth_router = Router()
@@ -163,7 +162,9 @@ async def process_password(message: Message, state: FSMContext):
                             f"Не получилось создать ссылку на канал {chat}",
                             ADMINS,
                         )
-                logger.info(f"Устанавливаем таймеры для пользователя {message.from_user.id}")
+                logger.info(
+                    f"Устанавливаем таймеры для пользователя {message.from_user.id}"
+                )
             # очищаем машину состояний
             await message.answer(ACQUAINTANCE_FIRST_MESSAGE)
             await state.set_state(AcquaintanceState.waiting_for_date_of_birth)

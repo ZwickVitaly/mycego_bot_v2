@@ -1,12 +1,10 @@
 from aiogram.fsm.context import FSMContext
 from aiogram.types import Message
-
-from helpers import anotify_admins
-from utils import redis_connection, RedisKeys
-from settings import ADMINS, logger
-from keyboards import select_contacts_keyboard
 from FSM import EditContactsState
-
+from helpers import anotify_admins
+from keyboards import select_contacts_keyboard
+from settings import ADMINS, logger
+from utils import RedisKeys, redis_connection
 
 
 async def get_contacts_command_handler(message: Message, state: FSMContext):
@@ -20,12 +18,11 @@ async def get_contacts_command_handler(message: Message, state: FSMContext):
             await state.set_state(EditContactsState.waiting_for_selected_contact)
             await message.answer(
                 f"{msg}\n\nВыберите контакт, который нужно отредактировать или добавьте новый",
-                reply_markup=await select_contacts_keyboard(contacts)
+                reply_markup=await select_contacts_keyboard(contacts),
             )
         else:
             await message.answer(msg)
     except Exception as e:
         logger.error(e)
         await message.answer("Возникла ошибка. Админы оповещены. Попробуйте ещё раз.")
-        await anotify_admins(message.bot, "Ошибка при запросе контактов: {e}", ADMINS)
-
+        await anotify_admins(message.bot, f"Ошибка при запросе контактов: {e}", ADMINS)

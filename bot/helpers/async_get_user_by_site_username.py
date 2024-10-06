@@ -2,10 +2,9 @@
 Module for aget_user_by_site_username
 """
 
-from sqlalchemy import select
-
 from db import User, async_session
 from settings import logger
+from sqlalchemy import select
 
 
 async def aget_user_by_site_username(username: str) -> User | None:

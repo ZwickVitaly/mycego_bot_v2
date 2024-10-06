@@ -1,13 +1,17 @@
 from aiogram import Dispatcher, F
 from aiogram.filters import Command, CommandStart
 from aiogram.fsm.storage.redis import RedisEventIsolation
-
-
 from handlers import (  # work_list_delivery_router,
+    acquaintance_router,
+    admin_edit_contacts_router,
     auth_router,
     back_message_handler,
     cancel_operations_handler,
+    first_day_survey_router,
+    first_week_survey_router,
+    get_contacts_command_handler,
     main_menu_router,
+    monthly_survey_router,
     my_chat_member_status_change_handler,
     new_link_command_handler,
     pay_sheets_router,
@@ -17,15 +21,11 @@ from handlers import (  # work_list_delivery_router,
     view_work_list_router,
     work_graf_router,
     work_list_router,
-    get_contacts_command_handler,
-    admin_edit_contacts_router,
-    acquaintance_router,
-    first_day_survey_router,
 )
-
 from settings import logger
 from utils import storage_connection
-from .lifespan_constructor import start_up, shut_down
+
+from .lifespan_constructor import shut_down, start_up
 from .storage_constructor import storage
 
 logger.debug("Initializing memory storage instance")
@@ -34,8 +34,7 @@ logger.debug("Initializing memory storage instance")
 logger.debug("Initializing dispatcher")
 # Создаём диспетчер с контекстным менеджером на время работы
 dp: Dispatcher = Dispatcher(
-    storage=storage,
-    events_isolation=RedisEventIsolation(storage_connection)
+    storage=storage, events_isolation=RedisEventIsolation(storage_connection)
 )
 
 
@@ -46,9 +45,13 @@ dp.shutdown.register(shut_down)
 logger.debug("Registering bot reply functions")
 
 dp.include_router(first_day_survey_router)
+dp.include_router(first_week_survey_router)
+dp.include_router(monthly_survey_router)
 
 # Команды
-dp.message.register(get_contacts_command_handler, Command("contacts"), F.chat.type == "private")
+dp.message.register(
+    get_contacts_command_handler, Command("contacts"), F.chat.type == "private"
+)
 dp.message.register(start_command_handler, CommandStart(), F.chat.type == "private")
 dp.message.register(
     new_link_command_handler, Command("new-link"), F.chat.type == "private"

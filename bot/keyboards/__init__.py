@@ -1,7 +1,9 @@
 from .inline_keyboards import (
+    SurveyMappings,
     call_back,
     create_works_list,
     delete_button,
+    delete_or_edit_contact,
     delivery_keyboard,
     generate_current_week_works_dates,
     generate_departments,
@@ -10,12 +12,10 @@ from .inline_keyboards import (
     generate_time_keyboard,
     generate_time_keyboard2,
     generate_works,
-    select_contacts_keyboard,
-    delete_or_edit_contact,
-    SurveyMappings,
-    yes_or_no_keyboard,
     one_to_range_keyboard,
+    select_contacts_keyboard,
     team_atmosphere_keyboard,
+    yes_or_no_keyboard,
 )
 from .reply_keyboards import menu_keyboard, ready, second_menu, type_request
 

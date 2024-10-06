@@ -1,13 +1,12 @@
 from datetime import datetime
 
 from aiogram.exceptions import TelegramBadRequest
-from sqlalchemy import select
-
 from api_services import get_happy_birthday_message, get_users_statuses
 from constructors import bot
 from db import Chat, async_session
 from helpers import anotify_admins
 from settings import ADMINS, TIMEZONE, logger
+from sqlalchemy import select
 
 
 async def happy_birthday():

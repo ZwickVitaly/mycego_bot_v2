@@ -1,7 +1,6 @@
-from sqlalchemy import func, select
-
 from db import User, async_session
 from settings import logger
+from sqlalchemy import func, select
 
 
 async def aget_users_count() -> int:

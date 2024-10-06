@@ -3,7 +3,6 @@ Module for get_username_or_name function
 """
 
 from aiogram.types import CallbackQuery, Message
-
 from settings import logger
 
 

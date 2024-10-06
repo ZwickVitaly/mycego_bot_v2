@@ -3,7 +3,6 @@ from apscheduler.executors.asyncio import AsyncIOExecutor
 from apscheduler.jobstores.redis import RedisJobStore
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from pytz import UTC
-
 from settings import REDIS_HOST, REDIS_PORT, logger
 
 

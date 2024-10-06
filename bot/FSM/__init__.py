@@ -1,17 +1,15 @@
+from .acquaintance import AcquaintanceState
 from .auth import AuthState
+from .edit_contacts import EditContactsState
 from .pay_sheets import PaySheets
 from .request import Requests
-from .work import ViewWorkList, WorkGraf, WorkList, WorkListDelivery
-from .acquaintance import AcquaintanceState
-from .edit_contacts import EditContactsState
 from .surveys import (
     FirstDaySurveyStates,
+    MonthlySurveyStates,
     OneWeekSurveyStates,
-    OneMonthSurveyStates,
-    SecondMonthSurveyStates,
-    ThirdMonthSurveyStates,
     survey_states,
 )
+from .work import ViewWorkList, WorkGraf, WorkList, WorkListDelivery
 
 __all__ = [
     "AuthState",
@@ -25,8 +23,6 @@ __all__ = [
     "EditContactsState",
     "FirstDaySurveyStates",
     "OneWeekSurveyStates",
-    "OneMonthSurveyStates",
-    "SecondMonthSurveyStates",
-    "ThirdMonthSurveyStates",
+    "MonthlySurveyStates",
     "survey_states",
 ]

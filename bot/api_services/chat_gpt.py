@@ -3,7 +3,6 @@ import json
 from copy import deepcopy
 
 from aiohttp import ClientSession
-
 from settings import JSON_HEADERS, PROXY_API_GPT_URL, PROXY_API_KEY, logger
 
 
@@ -19,7 +18,8 @@ async def get_happy_birthday_message(names: list[str]):
                 "для сотрудников, имя и фамилию которых предоставит пользователь. "
                 "Поздравление должно быть от лица компании Mycego, "
                 "должно выглядеть как объявление в общем чате "
-                "и должно быть сердечным и уважительным.'",
+                "и должно быть сердечным и уважительным. "
+                "ОБЯЗАТЕЛЬНО ИСПОЛЬЗУЙ 4-5 ПОДХОДЯЩИХ ПО СМЫСЛУ ЭМОДЖИ!",
             },
             {"role": "user", "content": ", ".join(names)},
         ],

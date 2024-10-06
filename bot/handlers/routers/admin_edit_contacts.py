@@ -1,18 +1,21 @@
 from aiogram import Router
 from aiogram.fsm.context import FSMContext
-from aiogram.types import Message, CallbackQuery
-
+from aiogram.types import CallbackQuery, Message
 from FSM import EditContactsState
 from keyboards import delete_or_edit_contact, select_contacts_keyboard
 from settings import logger
-from utils import redis_connection, RedisKeys
+from utils import RedisKeys, redis_connection
 
 # Роутер для редактирования контактов (админ)
 admin_edit_contacts_router = Router()
 
 
-@admin_edit_contacts_router.callback_query(EditContactsState.waiting_for_selected_contact)
-async def process_admin_contact_callback(callback_query: CallbackQuery, state: FSMContext):
+@admin_edit_contacts_router.callback_query(
+    EditContactsState.waiting_for_selected_contact
+)
+async def process_admin_contact_callback(
+    callback_query: CallbackQuery, state: FSMContext
+):
     try:
         logger.info(f"{callback_query.from_user.id} редактирует контакты")
         await callback_query.message.delete()
@@ -27,7 +30,8 @@ async def process_admin_contact_callback(callback_query: CallbackQuery, state: F
             selected = callback_query.data.split("_")[-1]
             contact = await redis_connection.hget(RedisKeys.CONTACTS_KEY, selected)
             await callback_query.message.answer(
-                f"Выберите действие для контакта: \n{selected} - {contact}", reply_markup=await delete_or_edit_contact(callback_query.data)
+                f"Выберите действие для контакта: \n{selected} - {contact}",
+                reply_markup=await delete_or_edit_contact(callback_query.data),
             )
             await state.set_state(EditContactsState.waiting_for_action_type)
             logger.info(callback_query.data)
@@ -59,7 +63,7 @@ async def process_new_contact(message: Message, state: FSMContext):
             await state.set_state(EditContactsState.waiting_for_selected_contact)
             await message.answer(
                 f"Контакт {action}. Новый список:\n{msg}\n\nВыберите контакт, который нужно отредактировать или добавьте новый",
-                reply_markup=await select_contacts_keyboard(contacts)
+                reply_markup=await select_contacts_keyboard(contacts),
             )
             await message.delete()
     except Exception as e:
@@ -85,7 +89,7 @@ async def process_action_type(callback_query: CallbackQuery, state: FSMContext):
             await callback_query.message.answer(
                 f"Контакт Удалён. Новый список:\n{msg}\n\n"
                 "Выберите контакт, который нужно отредактировать или добавьте новый",
-                reply_markup=await select_contacts_keyboard(contacts)
+                reply_markup=await select_contacts_keyboard(contacts),
             )
         else:
             await state.set_data({"edited_contact": contact_key})

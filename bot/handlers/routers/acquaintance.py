@@ -3,26 +3,34 @@ from datetime import datetime, timedelta
 
 from aiogram import F, Router
 from aiogram.fsm.context import FSMContext
-from aiogram.types import Message, FSInputFile
-from FSM import AcquaintanceState
+from aiogram.types import FSInputFile, Message
 from constructors import scheduler
+from FSM import AcquaintanceState
 from helpers import anotify_admins
 from keyboards import menu_keyboard
 from messages import (
-    ACQUAINTANCE_SECOND_MESSAGE,
     ACQUAINTANCE_ABOUT_US_MESSAGE,
+    ACQUAINTANCE_SECOND_MESSAGE,
     AFTER_ACQUAINTANCE_MESSAGE,
-    CAREER_PHOTO_PATH, VACANCIES_LINK, PROMO_MESSAGE
+    CAREER_PHOTO_PATH,
+    PROMO_MESSAGE,
+    VACANCIES_LINK,
 )
-from schedules import after_first_day_survey_start
-from settings import ADMINS, logger, TIMEZONE
-from utils import redis_connection, RedisKeys
+from schedules import (
+    after_first_day_survey_start,
+    after_first_week_survey_start,
+    monthly_survey_start,
+)
+from settings import ADMINS, TIMEZONE, logger
+from utils import RedisKeys, redis_connection
 
 # Роутер знакомства
 acquaintance_router = Router()
 
 
-@acquaintance_router.message(AcquaintanceState.waiting_for_date_of_birth, F.chat.type == "private")
+@acquaintance_router.message(
+    AcquaintanceState.waiting_for_date_of_birth, F.chat.type == "private"
+)
 async def process_date_of_birth(message: Message, state: FSMContext):
     """
     Обрабатываем др пользователя
@@ -32,9 +40,11 @@ async def process_date_of_birth(message: Message, state: FSMContext):
         try:
             dob = datetime.strptime(message.text, "%d.%m.%Y").date()
             # проверяем шутников
-            age = (datetime.now().year - dob.year)
+            age = datetime.now().year - dob.year
             if 14 > age or age > 65:
-                await message.answer("Шалость почти удалась! А теперь, пожалуйста, введите реальные данные.")
+                await message.answer(
+                    "Шалость почти удалась! А теперь, пожалуйста, введите реальные данные."
+                )
                 return
         except (ValueError, TypeError):
             # обрабатываем неправильный формат даты
@@ -60,7 +70,9 @@ async def process_date_of_birth(message: Message, state: FSMContext):
         )
 
 
-@acquaintance_router.message(AcquaintanceState.waiting_for_about_me, F.chat.type == "private")
+@acquaintance_router.message(
+    AcquaintanceState.waiting_for_about_me, F.chat.type == "private"
+)
 async def process_date_of_birth(message: Message, state: FSMContext):
     """
     Обрабатываем блок 'о себе'
@@ -68,11 +80,11 @@ async def process_date_of_birth(message: Message, state: FSMContext):
     try:
         data = await state.get_data()
         about_me = data.get("about_me") or ""
-        about_me += " " + message.text.strip()
+        about_me += " " + (message.text.strip() if message.text else "")
         data["about_me"] = about_me
         await state.set_data(data)
-        if len(about_me) == 0:
-            await message.answer("Трюк с пробелами никого не удивит ☺️\n\n")
+        if len(about_me.strip()) == 0:
+            await message.answer("Пожалуйста введите текст, а не картинки ☺️\n\n")
         elif len(about_me) < 50:
             await message.answer(
                 "Хм, не густо 🥲\n\nПожалуйста, не стесняйтесь! "
@@ -104,52 +116,66 @@ async def process_date_of_birth(message: Message, state: FSMContext):
                     await asyncio.sleep(1)
             await message.answer(PROMO_MESSAGE)
             await asyncio.sleep(1)
-            await message.answer(AFTER_ACQUAINTANCE_MESSAGE, reply_markup=menu_keyboard(message.from_user.id))
-            # first_day_timer = datetime.now(tz=TIMEZONE).replace(hour=21, minute=0, second=0)
-            # scheduler.add_job(
-            #     after_first_day_survey_start,
-            #     "date",
-            #     id=f"{RedisKeys.SCHEDULES_FIRST_DAY_KEY}_{message.from_user.id}",
-            #     next_run_time=first_day_timer,
-            #     args=[message.from_user.id],
-            #     replace_existing=True,
-            # )
-            first_week_timer = datetime.now(TIMEZONE).replace(hour=8, minute=0, second=0) + timedelta(weeks=1)
+            await message.answer(
+                AFTER_ACQUAINTANCE_MESSAGE,
+                reply_markup=menu_keyboard(message.from_user.id),
+            )
+            now = datetime.now(tz=TIMEZONE)
+            # first_day_timer = now.replace(hour=21, minute=0, second=0)
+            first_day_timer = now + timedelta(seconds=10)
             scheduler.add_job(
                 after_first_day_survey_start,
+                "date",
+                id=f"{RedisKeys.SCHEDULES_FIRST_DAY_KEY}_{message.from_user.id}",
+                next_run_time=first_day_timer,
+                args=[message.from_user.id],
+                replace_existing=True,
+            )
+            # first_week_timer = now.replace(hour=8, minute=0, second=0) + timedelta(
+            #     weeks=(1 if now.weekday() <= 1 else 2), days=(1 - now.weekday())
+            # )
+            first_week_timer = now + timedelta(seconds=60)
+            scheduler.add_job(
+                after_first_week_survey_start,
                 "date",
                 id=f"{RedisKeys.SCHEDULES_ONE_WEEK_KEY}_{message.from_user.id}",
                 next_run_time=first_week_timer,
                 args=[message.from_user.id],
                 replace_existing=True,
             )
-            first_month_timer = datetime.now(TIMEZONE).replace(hour=8, minute=0, second=0) + timedelta(days=31)
-            scheduler.add_job(
-                after_first_day_survey_start,
-                "date",
-                id=f"{RedisKeys.SCHEDULES_ONE_MONTH_KEY}_{message.from_user.id}",
-                next_run_time=first_month_timer,
-                args=[message.from_user.id],
-                replace_existing=True,
-            )
-            second_month_timer = datetime.now(TIMEZONE).replace(hour=8, minute=0, second=0) + timedelta(days=61)
-            scheduler.add_job(
-                after_first_day_survey_start,
-                "date",
-                id=f"{RedisKeys.SCHEDULES_TWO_MONTHS_KEY}_{message.from_user.id}",
-                next_run_time=second_month_timer,
-                args=[message.from_user.id],
-                replace_existing=True,
-            )
-            third_month_timer = datetime.now(TIMEZONE).replace(hour=8, minute=0, second=0) + timedelta(days=91)
-            scheduler.add_job(
-                after_first_day_survey_start,
-                "date",
-                id=f"{RedisKeys.SCHEDULES_THREE_MONTHS_KEY}_{message.from_user.id}",
-                next_run_time=third_month_timer,
-                args=[message.from_user.id],
-                replace_existing=True,
-            )
+            # first_month_timer = now.replace(hour=8, minute=0, second=0) + timedelta(
+            #     days=31
+            # )
+            # scheduler.add_job(
+            #     monthly_survey_start,
+            #     "date",
+            #     id=f"{RedisKeys.SCHEDULES_ONE_MONTH_KEY}_{message.from_user.id}",
+            #     next_run_time=first_month_timer,
+            #     args=[message.from_user.id, 1],
+            #     replace_existing=True,
+            # )
+            # second_month_timer = now.replace(hour=8, minute=0, second=0) + timedelta(
+            #     days=61
+            # )
+            # scheduler.add_job(
+            #     monthly_survey_start,
+            #     "date",
+            #     id=f"{RedisKeys.SCHEDULES_TWO_MONTHS_KEY}_{message.from_user.id}",
+            #     next_run_time=second_month_timer,
+            #     args=[message.from_user.id, 2],
+            #     replace_existing=True,
+            # )
+            # third_month_timer = now.replace(hour=8, minute=0, second=0) + timedelta(
+            #     days=91
+            # )
+            # scheduler.add_job(
+            #     monthly_survey_start,
+            #     "date",
+            #     id=f"{RedisKeys.SCHEDULES_THREE_MONTHS_KEY}_{message.from_user.id}",
+            #     next_run_time=third_month_timer,
+            #     args=[message.from_user.id, 3],
+            #     replace_existing=True,
+            # )
             await state.clear()
 
     except Exception as e:
@@ -165,4 +191,3 @@ async def process_date_of_birth(message: Message, state: FSMContext):
             f"Ошибка обработки блока 'о себе' пользователя: {message.from_user.id}, ошибка: {e}",
             admins_list=ADMINS,
         )
-

@@ -2,17 +2,11 @@ from aiogram import F, Router
 from aiogram.exceptions import TelegramBadRequest
 from aiogram.fsm.context import FSMContext
 from aiogram.types import CallbackQuery, Message
-
 from api_services import post_works
 from custom_filters import not_digits_filter
 from FSM import WorkList
 from helpers import aform_works_done_message, aget_user_by_id, anotify_admins
-from keyboards import (
-    call_back,
-    generate_departments,
-    generate_works,
-    menu_keyboard,
-)
+from keyboards import call_back, generate_departments, generate_works, menu_keyboard
 from settings import ADMINS, COMMENTED_WORKS, logger
 
 # роутер листов работ

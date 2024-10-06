@@ -2,12 +2,11 @@ import asyncio
 from datetime import timedelta
 
 from aiogram.exceptions import TelegramBadRequest
-from sqlalchemy import delete, select
-
 from api_services import get_users_statuses
 from constructors import bot, scheduler
 from db import Chat, User, async_session
 from settings import logger
+from sqlalchemy import delete, select
 from utils import RedisKeys
 
 
@@ -30,11 +29,21 @@ async def renew_users_base():
                 ]
                 for fired in fired_ids:
                     try:
-                        scheduler.remove_job(job_id=f"{RedisKeys.SCHEDULES_THREE_MONTHS_KEY}_{fired}")
-                        scheduler.remove_job(job_id=f"{RedisKeys.SCHEDULES_TWO_MONTHS_KEY}_{fired}")
-                        scheduler.remove_job(job_id=f"{RedisKeys.SCHEDULES_ONE_MONTH_KEY}_{fired}")
-                        scheduler.remove_job(job_id=f"{RedisKeys.SCHEDULES_ONE_WEEK_KEY}_{fired}")
-                        scheduler.remove_job(job_id=f"{RedisKeys.SCHEDULES_FIRST_DAY_KEY}_{fired}")
+                        scheduler.remove_job(
+                            job_id=f"{RedisKeys.SCHEDULES_THREE_MONTHS_KEY}_{fired}"
+                        )
+                        scheduler.remove_job(
+                            job_id=f"{RedisKeys.SCHEDULES_TWO_MONTHS_KEY}_{fired}"
+                        )
+                        scheduler.remove_job(
+                            job_id=f"{RedisKeys.SCHEDULES_ONE_MONTH_KEY}_{fired}"
+                        )
+                        scheduler.remove_job(
+                            job_id=f"{RedisKeys.SCHEDULES_ONE_WEEK_KEY}_{fired}"
+                        )
+                        scheduler.remove_job(
+                            job_id=f"{RedisKeys.SCHEDULES_FIRST_DAY_KEY}_{fired}"
+                        )
                     except Exception as e:
                         logger.error(f"Ошибка при удалении триггеров кронтаба: {e}")
                 async with async_session() as session:

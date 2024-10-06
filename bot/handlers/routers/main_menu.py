@@ -3,8 +3,6 @@ from itertools import groupby
 from aiogram import F, Router, types
 from aiogram.fsm.context import FSMContext
 from aiogram.utils.keyboard import InlineKeyboardBuilder
-from sqlalchemy import select
-
 from api_services import (  # get_data_delivery,
     get_appointments,
     get_pay_sheet,
@@ -35,6 +33,7 @@ from keyboards import (
     type_request,
 )
 from settings import ADMINS, logger
+from sqlalchemy import select
 
 # Роутер главного меню
 main_menu_router = Router()

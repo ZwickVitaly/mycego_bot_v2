@@ -1,25 +1,27 @@
 from .callback_handlers import cancel_operations_handler
 from .command_handlers import (
+    get_contacts_command_handler,
     help_command_handler,
     new_link_command_handler,
     start_command_handler,
-    get_contacts_command_handler
 )
 from .join_chat_request import request_join_channel_handler
 from .message_handlers import back_message_handler
 from .my_chat_member_handlers import my_chat_member_status_change_handler
 from .routers import (
+    acquaintance_router,
+    admin_edit_contacts_router,
     auth_router,
+    first_day_survey_router,
+    first_week_survey_router,
     main_menu_router,
+    monthly_survey_router,
     pay_sheets_router,
     requests_router,
     view_work_list_router,
     work_graf_router,
     work_list_delivery_router,
     work_list_router,
-    admin_edit_contacts_router,
-    acquaintance_router,
-    first_day_survey_router,
 )
 
 __all__ = [
@@ -42,4 +44,6 @@ __all__ = [
     "admin_edit_contacts_router",
     "acquaintance_router",
     "first_day_survey_router",
+    "monthly_survey_router",
+    "first_week_survey_router",
 ]

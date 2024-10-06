@@ -1,7 +1,6 @@
 from aiogram import Bot, Dispatcher
 from aiogram.webhook.aiohttp_server import SimpleRequestHandler, setup_application
 from aiohttp import web
-
 from settings import (
     WEBHOOK_HOST,
     WEBHOOK_PATH,

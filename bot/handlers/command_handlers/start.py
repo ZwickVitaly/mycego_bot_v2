@@ -2,7 +2,6 @@ from random import choice
 
 from aiogram.fsm.context import FSMContext
 from aiogram.types import Message
-
 from FSM import AuthState
 from helpers import aget_user_by_id, anotify_admins, sanitize_string
 from keyboards import menu_keyboard

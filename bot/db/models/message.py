@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from sqlalchemy import Column, DateTime, ForeignKey, Integer, String
+from sqlalchemy import Column, DateTime, ForeignKey, Integer, String, func
 from sqlalchemy.orm import relationship
 
 from ..base import Base
@@ -20,7 +20,7 @@ class Message(Base):
     )
     text = Column(String, nullable=False)  # текст сообщения
     timestamp = Column(
-        DateTime, default=datetime.now(), nullable=False
+        DateTime, default=func.now, nullable=False
     )  # время сообщения
     user = relationship(
         "User", back_populates="messages", lazy="joined"

@@ -1,20 +1,14 @@
 from aiogram import Bot
 from apscheduler.triggers.cron import CronTrigger
-
 from helpers import anotify_admins
-from schedules import (
-    happy_birthday,
-    renew_users_base,
-    renew_works_base,
-)
-
+from schedules import happy_birthday, renew_users_base, renew_works_base
 from settings import (
     ADMINS,
+    TIMEZONE,
     WEBHOOK_BASE,
     WEBHOOK_DISPATCHER,
     WEBHOOK_PATH,
     WEBHOOK_SECRET_TOKEN,
-    TIMEZONE,
     logger,
 )
 from utils import RedisKeys
@@ -24,7 +18,7 @@ from .scheduler_constructor import scheduler
 
 async def start_up(bot: Bot):
     if WEBHOOK_DISPATCHER:
-        logger.debug("Устанавливаем вебхук для телеграма")
+        logger.debug("Устанавливаем вебхук")
         await bot.set_webhook(
             f"{WEBHOOK_BASE}{WEBHOOK_PATH}", secret_token=WEBHOOK_SECRET_TOKEN
         )
