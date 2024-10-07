@@ -4,7 +4,6 @@ from settings import BASE_DIR, SURVEY_GOOGLE_SHEET_URL, CITY_MARKER, logger
 try:
     gs = service_account(BASE_DIR / "gc.json")
 
-
     spread_sheet = gs.open_by_url(SURVEY_GOOGLE_SHEET_URL)
     work_sheets = [
         sheet

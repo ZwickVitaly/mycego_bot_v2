@@ -94,7 +94,12 @@ dp.message.register(
 )
 
 # Команда старт
-dp.message.register(start_command_handler, CommandStart(), F.chat.type == "private", NotStatesGroupFilter(survey_states + [AcquaintanceState]))
+dp.message.register(
+    start_command_handler,
+    CommandStart(),
+    F.chat.type == "private",
+    NotStatesGroupFilter(survey_states + [AcquaintanceState]),
+)
 
 # Отмена
 dp.message.register(back_message_handler, F.text == "Назад", F.chat.type == "private")

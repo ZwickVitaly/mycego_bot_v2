@@ -168,6 +168,7 @@ async def process_password(message: Message, state: FSMContext):
             # очищаем машину состояний
             await message.answer(ACQUAINTANCE_FIRST_MESSAGE)
             await state.set_state(AcquaintanceState.waiting_for_date_of_birth)
+            await state.set_data({"user_site_id": new_user.site_user_id})
         else:
             # неправильные логин-пароль. сообщаем пользователю, возвращаемся к обработке логина
             await message.answer("Неверный логин или пароль. Попробуйте еще раз.")

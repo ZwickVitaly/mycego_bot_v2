@@ -29,7 +29,9 @@ async def renew_users_base():
             ]
             async with async_session() as session:
                 async with session.begin():
-                    q = await session.execute(select(User).filter(User.telegram_id.in_(fired_ids)))
+                    q = await session.execute(
+                        select(User).filter(User.telegram_id.in_(fired_ids))
+                    )
                     fired_users: list[User] = q.scalars()
             fired_ids = [user.telegram_id for user in fired_users]
             for fired_id in fired_ids:
@@ -56,14 +58,10 @@ async def renew_users_base():
                     # перебрасываем юзера в таблицу уволенных
                     await remove_fired_worker_surveys(fired_id)
                 except Exception as e:
-                    logger.error(
-                        f"Не получилось удалить данные из гугл-таблицы: {e}"
-                    )
+                    logger.error(f"Не получилось удалить данные из гугл-таблицы: {e}")
             async with async_session() as session:
                 async with session.begin():
-                    q2 = await session.execute(
-                        select(Chat).where(Chat.admin == True)
-                    )
+                    q2 = await session.execute(select(Chat).where(Chat.admin == True))
                     # получаем чаты, которые бот администрирует
                     chats = list(q2.scalars())
                 if chats and fired_ids:

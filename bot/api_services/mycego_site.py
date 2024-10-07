@@ -3,6 +3,7 @@ import json
 from copy import deepcopy
 
 from aiohttp import ClientSession
+
 from db import Works, async_session
 from settings import COMMENTED_WORKS, JSON_HEADERS, SITE_DOMAIN, logger
 from sqlalchemy import delete
@@ -261,6 +262,22 @@ async def get_pay_sheet(user_id):
             if response.status == 200:
                 return await response.json()
     return None
+
+
+async def update_user_bio(user_id_site, birth_date, hobbies):
+    """
+    Функция для создания листа работ на сайте
+    """
+    url = f"{SITE_DOMAIN}/api-auth/update-user/{user_id_site}/"
+    data = {
+        "birth_date": birth_date,
+        "hobbies": hobbies,
+    }
+    async with ClientSession() as session:
+        async with session.post(url=url, json=data) as response:
+            if response.status == 200:
+                return True
+            return False
 
 
 if __name__ == "__main__":

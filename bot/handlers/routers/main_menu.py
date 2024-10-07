@@ -17,7 +17,9 @@ from FSM import (  # WorkListDelivery
     Requests,
     ViewWorkList,
     WorkGraf,
-    WorkList, survey_states, AcquaintanceState,
+    WorkList,
+    survey_states,
+    AcquaintanceState,
 )
 from helpers import (
     aget_user_by_id,
@@ -40,7 +42,11 @@ from sqlalchemy import select
 main_menu_router = Router()
 
 
-@main_menu_router.message(F.chat.type == "private", F.text, NotStatesGroupFilter(survey_states + [AcquaintanceState]))
+@main_menu_router.message(
+    F.chat.type == "private",
+    F.text,
+    NotStatesGroupFilter(survey_states + [AcquaintanceState]),
+)
 async def main_menu_message_handler(message: types.Message, state: FSMContext):
     """
     Обрабатываем главное меню

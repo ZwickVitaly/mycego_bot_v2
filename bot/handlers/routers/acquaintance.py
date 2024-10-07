@@ -4,6 +4,8 @@ from datetime import datetime, timedelta
 from aiogram import F, Router
 from aiogram.fsm.context import FSMContext
 from aiogram.types import FSInputFile, Message, CallbackQuery
+
+from api_services import update_user_bio
 from constructors import scheduler
 from FSM import AcquaintanceState
 from helpers import anotify_admins
@@ -55,6 +57,7 @@ async def process_date_of_birth(message: Message, state: FSMContext):
         # запрашиваем инфо "о себе"
         await message.answer(ACQUAINTANCE_SECOND_MESSAGE)
         await state.set_state(AcquaintanceState.waiting_for_about_me)
+        await state.update_data({"date_of_birth": dob.strftime("%Y-%m-%d")})
     except Exception as e:
         # обрабатываем исключение
         logger.exception(e)
@@ -82,7 +85,7 @@ async def process_about_me_block(message: Message, state: FSMContext):
         about_me = data.get("about_me") or ""
         about_me += " " + (message.text.strip() if message.text else "")
         data["about_me"] = about_me
-        await state.set_data(data)
+        await state.update_data(data)
         if len(about_me.strip()) == 0:
             await message.answer("Пожалуйста введите текст, а не картинки ☺️\n\n")
         elif len(about_me) < 50:
@@ -97,7 +100,24 @@ async def process_about_me_block(message: Message, state: FSMContext):
                 "Предыдущее сообщение я запомнил."
             )
         else:
-            logger.info(about_me)
+            if len(about_me) > 255:
+                about_me = about_me[:255]
+            user_site_id = data.get("user_site_id")
+            dob = data.get("date_of_birth")
+            try:
+                upd = await update_user_bio(user_site_id, dob, about_me)
+                if not upd:
+                    raise ValueError("Response != 200")
+            except Exception as e:
+                logger.error(
+                    f"Не получилось добавить ДР и Хобби пользователя на сайт: {e}"
+                )
+                await anotify_admins(
+                    message.from_user.bot,
+                    f"Не получилось добавить ДР и Хобби пользователя на сайт: {e}",
+                    ADMINS,
+                )
+
             await message.answer(
                 ACQUAINTANCE_ABOUT_US_MESSAGE,
                 reply_markup=acquaintance_proceed_keyboard,
@@ -110,7 +130,9 @@ async def process_about_me_block(message: Message, state: FSMContext):
         # очищаем машину состояний
         await state.clear()
         # информируем пользователя
-        await message.answer("Возникла ошибка. Админы в курсе.")
+        await message.answer(
+            "Возникла ошибка. Админы в курсе. Функции бота перезапущены. Нажмите команду /start"
+        )
         # уведомляем админов об ошибке
         await anotify_admins(
             message.bot,
@@ -239,6 +261,6 @@ async def process_confirmation(callback_query: CallbackQuery, state: FSMContext)
             f"Ошибка при назначении schedulers. Пользователь: {callback_query.from_user.id}",
         )
         await callback_query.message.answer(
-            "Произошла ошибка. Бот перезапущен, функции бота доступны."
+            "Произошла ошибка. Бот перезапущен, функции бота доступны. Нажмите команду /start"
         )
         await state.clear()

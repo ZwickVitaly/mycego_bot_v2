@@ -17,7 +17,6 @@ async def append_new_worker_surveys(survey_data: list):
     return False
 
 
-
 def find_worker_row(user_id: str) -> int:
     if working:
         logger.debug("Ищем ряд пользователя")

@@ -42,4 +42,6 @@ async def get_happy_birthday_message(names: list[str]):
 
 if __name__ == "__main__":
     # test
-    print(asyncio.run(get_happy_birthday_message(["Лена Каменева", "Джордж Вашингтон"])))
+    print(
+        asyncio.run(get_happy_birthday_message(["Лена Каменева", "Джордж Вашингтон"]))
+    )
