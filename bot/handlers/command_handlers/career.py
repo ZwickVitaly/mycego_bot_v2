@@ -23,8 +23,9 @@ async def get_career_ladder_handler(message: Message, state: FSMContext):
         photo_id = msg.photo[-1].file_id
         await redis_connection.set("career_photo_id", photo_id)
 
-
     except Exception as e:
         logger.error(e)
         await message.answer("Возникла ошибка. Админы оповещены. Попробуйте ещё раз.")
-        await anotify_admins(message.bot, f"Ошибка при запросе карьерной лестницы: {e}", ADMINS)
+        await anotify_admins(
+            message.bot, f"Ошибка при запросе карьерной лестницы: {e}", ADMINS
+        )

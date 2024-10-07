@@ -27,5 +27,5 @@ class User(Base):
         "Message", back_populates="user", lazy="selectin"
     )  # отношение к сообщениям
     surveys = relationship(
-        "User", back_populates="user", lazy="selectin"
+        "Survey", back_populates="user", lazy="selectin"
     )  # отношение к опросам

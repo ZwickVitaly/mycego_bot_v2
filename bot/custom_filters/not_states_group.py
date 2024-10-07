@@ -11,4 +11,7 @@ class NotStatesGroupFilter(Filter):
         ]
 
     async def __call__(self, message: Message, state: FSMContext) -> bool:
-        return (await state.get_state()).split(":")[0] not in self.states_group_list
+        s = ((await state.get_state()) or "").split(":")[0]
+        if not s:
+            return True
+        return s not in self.states_group_list

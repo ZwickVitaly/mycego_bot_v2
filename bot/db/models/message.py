@@ -19,9 +19,7 @@ class Message(Base):
         nullable=False,
     )
     text = Column(String, nullable=False)  # текст сообщения
-    timestamp = Column(
-        DateTime, default=func.now, nullable=False
-    )  # время сообщения
+    timestamp = Column(DateTime, default=func.now(), nullable=False)  # время сообщения
     user = relationship(
         "User", back_populates="messages", lazy="joined"
     )  # отношение к пользователю

@@ -6,6 +6,8 @@ from sys import stdout
 from loguru import logger
 from pytz import timezone
 
+from messages import VACANCIES_LINK
+
 # Дебаг - для более развёрнутых логов
 DEBUG = getenv("DEBUG", "1") == "1"
 
@@ -86,4 +88,4 @@ WEBHOOK_BASE = getenv("WEBHOOK_BASE")
 WEBHOOK_PATH = getenv("WEBHOOK_PATH")
 
 SURVEY_GOOGLE_SHEET_URL = getenv("SURVEY_GOOGLE_SHEET_URL")
-CITY_GOOGLE_SHEET_MARKER = getenv("CITY_GOOGLE_SHEET_MARKER", "Новосибирск")
+CITY_MARKER = getenv("CITY_MARKER", "Новосибирск")

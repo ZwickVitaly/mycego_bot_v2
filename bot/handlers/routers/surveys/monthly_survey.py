@@ -1,7 +1,14 @@
+import json
+
 from aiogram import F, Router
 from aiogram.fsm.context import FSMContext
 from aiogram.types import CallbackQuery, Message
 from FSM.surveys import MonthlySurveyStates
+from api_services.google_sheets import (
+    update_worker_surveys,
+    remove_fired_worker_surveys,
+)
+from db import async_session, Survey
 from helpers import adelete_message_manager, anotify_admins
 from keyboards import SurveyMappings, team_atmosphere_keyboard, yes_or_no_keyboard
 from messages import (
@@ -28,7 +35,7 @@ async def monthly_first_q_handler(callback_query: CallbackQuery, state: FSMConte
     try:
         async with adelete_message_manager(callback_query.message):
             data = await state.get_data()
-            if len(data) <= 0:
+            if len(data) <= 1:
                 data["Вы довольны своей работой"] = SurveyMappings.YES_OR_NO.get(
                     callback_query.data.split("_")[-1]
                 )
@@ -36,21 +43,21 @@ async def monthly_first_q_handler(callback_query: CallbackQuery, state: FSMConte
                     MONTHLY_SECOND_QUESTION,
                     reply_markup=await team_atmosphere_keyboard(),
                 )
-            elif len(data) <= 1:
+            elif len(data) <= 2:
                 data["Атмосфера в коллективе"] = SurveyMappings.TEAM_ATMOSPHERE.get(
                     callback_query.data.split("_")[-1]
                 )
                 await callback_query.message.answer(
                     MONTHLY_THIRD_QUESTION, reply_markup=await yes_or_no_keyboard()
                 )
-            elif len(data) <= 2:
+            elif len(data) <= 3:
                 data["Рекомендуете ли работу в нашей компании"] = (
                     SurveyMappings.YES_OR_NO.get(callback_query.data.split("_")[-1])
                 )
                 await callback_query.message.answer(
                     MONTHLY_FOURTH_QUESTION, reply_markup=await yes_or_no_keyboard()
                 )
-            elif len(data) <= 3:
+            elif len(data) <= 4:
                 data["Вас устраивает уровень дохода"] = SurveyMappings.YES_OR_NO.get(
                     callback_query.data.split("_")[-1]
                 )
@@ -101,8 +108,25 @@ async def monthly_second_q_handler(message: Message, state: FSMContext):
             )
         data["Предложения"] = message.text[:2000]
         await message.answer(AFTER_SURVEY_MESSAGE)
-        await message.answer(f"{data}")
         await state.clear()
+        month_no = data.pop("month_no")
+        new_data = list(data.values())
+        survey = await update_worker_surveys(str(message.from_user.id), new_data)
+        if not survey:
+            logger.warning(
+                "Не получилось внести данные опроса в таблицу для "
+                f"пользователя {message.from_user.id}. Данные: {data}"
+            )
+        async with async_session() as session:
+            async with session.begin():
+                srv = Survey(
+                    user_id=message.from_user.id,
+                    period=f"{month_no}й месяц",
+                    survey_json=json.dumps(data, ensure_ascii=False),
+                )
+                session.add(srv)
+                await session.commit()
+        return
 
     except Exception as e:
         # обрабатываем исключение

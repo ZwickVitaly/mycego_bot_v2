@@ -26,6 +26,8 @@ async def start_up(bot: Bot):
         logger.debug("Удаляем вебхук для поллинга")
         await bot.delete_webhook()
     await anotify_admins(bot, "Бот запущен", admins_list=ADMINS)
+    await renew_users_base()
+    await renew_works_base()
     scheduler.add_job(
         happy_birthday,
         trigger=CronTrigger(hour=12, minute=0, second=0, timezone=TIMEZONE),

@@ -1,7 +1,11 @@
+import json
+
 from aiogram import F, Router
 from aiogram.fsm.context import FSMContext
 from aiogram.types import CallbackQuery
 from FSM import OneWeekSurveyStates
+from api_services.google_sheets import update_worker_surveys
+from db import async_session, Survey
 from helpers import adelete_message_manager, anotify_admins
 from keyboards import one_to_range_keyboard
 from messages import (
@@ -43,9 +47,26 @@ async def first_week_first_q_handler(callback_query: CallbackQuery, state: FSMCo
             else:
                 data["Уровень зарплаты"] = callback_query.data.split("_")[-1]
                 await callback_query.message.answer(AFTER_SURVEY_MESSAGE)
-                await callback_query.message.answer(f"{data}")
                 await state.clear()
                 await callback_query.message.delete()
+                new_data = list(data.values())
+                survey = await update_worker_surveys(
+                    str(callback_query.from_user.id), new_data
+                )
+                if not survey:
+                    logger.warning(
+                        "Не получилось внести данные опроса в таблицу для "
+                        f"пользователя {callback_query.from_user.id}. Данные: {data}"
+                    )
+                async with async_session() as session:
+                    async with session.begin():
+                        srv = Survey(
+                            user_id=callback_query.from_user.id,
+                            period="Первая неделя",
+                            survey_json=json.dumps(data, ensure_ascii=False),
+                        )
+                        session.add(srv)
+                        await session.commit()
                 return
 
             await state.set_data(data)

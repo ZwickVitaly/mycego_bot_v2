@@ -13,12 +13,13 @@ from db import User
 
 async def after_first_day_survey_start(user_id):
     user: User = await aget_user_by_id(user_id)
-    await storage.set_data(
-        StorageKey(user_id=user_id, chat_id=user_id, bot_id=bot.id), {"user_name": user.username.split("_")}
-    )
     await storage.set_state(
         StorageKey(user_id=user_id, chat_id=user_id, bot_id=bot.id),
         state=FirstDaySurveyStates.first_q.state,
+    )
+    await storage.set_data(
+        StorageKey(user_id=user_id, chat_id=user_id, bot_id=bot.id),
+        {"user_name": user.username.replace("_", " ")},
     )
     await bot.send_message(
         chat_id=user_id, text=AFTER_FIRST_DAY_MESSAGE + SURVEY_DISCLAIMER

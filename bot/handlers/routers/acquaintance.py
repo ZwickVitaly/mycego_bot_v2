@@ -3,11 +3,11 @@ from datetime import datetime, timedelta
 
 from aiogram import F, Router
 from aiogram.fsm.context import FSMContext
-from aiogram.types import FSInputFile, Message
+from aiogram.types import FSInputFile, Message, CallbackQuery
 from constructors import scheduler
 from FSM import AcquaintanceState
 from helpers import anotify_admins
-from keyboards import menu_keyboard
+from keyboards import menu_keyboard, acquaintance_proceed_keyboard
 from messages import (
     ACQUAINTANCE_ABOUT_US_MESSAGE,
     ACQUAINTANCE_SECOND_MESSAGE,
@@ -73,7 +73,7 @@ async def process_date_of_birth(message: Message, state: FSMContext):
 @acquaintance_router.message(
     AcquaintanceState.waiting_for_about_me, F.chat.type == "private"
 )
-async def process_date_of_birth(message: Message, state: FSMContext):
+async def process_about_me_block(message: Message, state: FSMContext):
     """
     Обрабатываем блок 'о себе'
     """
@@ -98,85 +98,11 @@ async def process_date_of_birth(message: Message, state: FSMContext):
             )
         else:
             logger.info(about_me)
-            await message.answer(ACQUAINTANCE_ABOUT_US_MESSAGE)
-            await asyncio.sleep(1)
-            career = FSInputFile(CAREER_PHOTO_PATH)
-            await message.answer_photo(photo=career)
-            await asyncio.sleep(1)
-            await message.answer(VACANCIES_LINK)
-            await asyncio.sleep(1)
-            contacts = await redis_connection.hgetall(RedisKeys.CONTACTS_KEY)
-            if contacts:
-                contacts_msg = ""
-                for key, val in contacts.items():
-                    contacts_msg += f"{key} - {val}\n"
-                if contacts_msg:
-                    contacts_msg = f"Важные контакты:\n{contacts_msg}"
-                    await message.answer(contacts_msg)
-                    await asyncio.sleep(1)
-            await message.answer(PROMO_MESSAGE)
-            await asyncio.sleep(1)
             await message.answer(
-                AFTER_ACQUAINTANCE_MESSAGE,
-                reply_markup=menu_keyboard(message.from_user.id),
+                ACQUAINTANCE_ABOUT_US_MESSAGE,
+                reply_markup=acquaintance_proceed_keyboard,
             )
-            now = datetime.now(tz=TIMEZONE)
-            # first_day_timer = now.replace(hour=21, minute=0, second=0)
-            first_day_timer = now + timedelta(seconds=10)
-            scheduler.add_job(
-                after_first_day_survey_start,
-                "date",
-                id=f"{RedisKeys.SCHEDULES_FIRST_DAY_KEY}_{message.from_user.id}",
-                next_run_time=first_day_timer,
-                args=[message.from_user.id],
-                replace_existing=True,
-            )
-            # first_week_timer = now.replace(hour=8, minute=0, second=0) + timedelta(
-            #     weeks=(1 if now.weekday() <= 1 else 2), days=(1 - now.weekday())
-            # )
-            first_week_timer = now + timedelta(seconds=60)
-            scheduler.add_job(
-                after_first_week_survey_start,
-                "date",
-                id=f"{RedisKeys.SCHEDULES_ONE_WEEK_KEY}_{message.from_user.id}",
-                next_run_time=first_week_timer,
-                args=[message.from_user.id],
-                replace_existing=True,
-            )
-            # first_month_timer = now.replace(hour=8, minute=0, second=0) + timedelta(
-            #     days=31
-            # )
-            # scheduler.add_job(
-            #     monthly_survey_start,
-            #     "date",
-            #     id=f"{RedisKeys.SCHEDULES_ONE_MONTH_KEY}_{message.from_user.id}",
-            #     next_run_time=first_month_timer,
-            #     args=[message.from_user.id, 1],
-            #     replace_existing=True,
-            # )
-            # second_month_timer = now.replace(hour=8, minute=0, second=0) + timedelta(
-            #     days=61
-            # )
-            # scheduler.add_job(
-            #     monthly_survey_start,
-            #     "date",
-            #     id=f"{RedisKeys.SCHEDULES_TWO_MONTHS_KEY}_{message.from_user.id}",
-            #     next_run_time=second_month_timer,
-            #     args=[message.from_user.id, 2],
-            #     replace_existing=True,
-            # )
-            # third_month_timer = now.replace(hour=8, minute=0, second=0) + timedelta(
-            #     days=91
-            # )
-            # scheduler.add_job(
-            #     monthly_survey_start,
-            #     "date",
-            #     id=f"{RedisKeys.SCHEDULES_THREE_MONTHS_KEY}_{message.from_user.id}",
-            #     next_run_time=third_month_timer,
-            #     args=[message.from_user.id, 3],
-            #     replace_existing=True,
-            # )
-            await state.clear()
+            await state.set_state(AcquaintanceState.waiting_for_confirmation)
 
     except Exception as e:
         # обрабатываем исключение
@@ -191,3 +117,128 @@ async def process_date_of_birth(message: Message, state: FSMContext):
             f"Ошибка обработки блока 'о себе' пользователя: {message.from_user.id}, ошибка: {e}",
             admins_list=ADMINS,
         )
+
+
+@acquaintance_router.callback_query(
+    AcquaintanceState.waiting_for_confirmation, F.data == "acquaintance_proceed"
+)
+async def process_confirmation(callback_query: CallbackQuery, state: FSMContext):
+    """
+    Обрабатываем блок 'о себе'
+    """
+    try:
+        data = await state.get_data()
+        confirmations = data.get("confirmations") or 0
+        await callback_query.message.delete_reply_markup()
+        if not confirmations:
+            career = FSInputFile(CAREER_PHOTO_PATH)
+            await callback_query.message.answer_photo(
+                photo=career, reply_markup=acquaintance_proceed_keyboard
+            )
+        elif confirmations == 1:
+            await callback_query.message.answer(
+                VACANCIES_LINK,
+                reply_markup=acquaintance_proceed_keyboard,
+                disable_web_page_preview=True,
+            )
+        elif confirmations == 2:
+            contacts = await redis_connection.hgetall(RedisKeys.CONTACTS_KEY)
+            if contacts:
+                contacts_msg = ""
+                for key, val in contacts.items():
+                    contacts_msg += f"{key} - {val}\n"
+                if contacts_msg:
+                    contacts_msg = f"Важные контакты:\n{contacts_msg}"
+                    await callback_query.message.answer(
+                        contacts_msg, reply_markup=acquaintance_proceed_keyboard
+                    )
+            else:
+                await callback_query.message.answer(
+                    "Скоро мы добавим в этот раздел важные контакты. Пока что просто жмите 'Продолжить'",
+                    reply_markup=acquaintance_proceed_keyboard,
+                )
+        elif confirmations == 3:
+            await callback_query.message.answer(
+                PROMO_MESSAGE, reply_markup=acquaintance_proceed_keyboard
+            )
+        else:
+            await callback_query.message.answer(
+                AFTER_ACQUAINTANCE_MESSAGE,
+                reply_markup=menu_keyboard(callback_query.from_user.id),
+            )
+            logger.warning(
+                f"Устанавливаем таймеры опросников для {callback_query.from_user.id}"
+            )
+            now = datetime.now(tz=TIMEZONE)
+            first_day_timer = now.replace(hour=21, minute=0, second=0)
+            # first_day_timer = now + timedelta(seconds=5)
+            scheduler.add_job(
+                after_first_day_survey_start,
+                "date",
+                id=f"{RedisKeys.SCHEDULES_FIRST_DAY_KEY}_{callback_query.from_user.id}",
+                next_run_time=first_day_timer,
+                args=[callback_query.from_user.id],
+                replace_existing=True,
+            )
+            first_week_timer = now.replace(hour=8, minute=0, second=0) + timedelta(
+                weeks=(1 if now.weekday() <= 1 else 2), days=(1 - now.weekday())
+            )
+            # first_week_timer = now + timedelta(seconds=35)
+            scheduler.add_job(
+                after_first_week_survey_start,
+                "date",
+                id=f"{RedisKeys.SCHEDULES_ONE_WEEK_KEY}_{callback_query.from_user.id}",
+                next_run_time=first_week_timer,
+                args=[callback_query.from_user.id],
+                replace_existing=True,
+            )
+            first_month_timer = now.replace(hour=8, minute=0, second=0) + timedelta(
+                days=31
+            )
+            # first_month_timer = now + timedelta(seconds=60)
+            scheduler.add_job(
+                monthly_survey_start,
+                "date",
+                id=f"{RedisKeys.SCHEDULES_ONE_MONTH_KEY}_{callback_query.from_user.id}",
+                next_run_time=first_month_timer,
+                args=[callback_query.from_user.id, 1],
+                replace_existing=True,
+            )
+            second_month_timer = now.replace(hour=8, minute=0, second=0) + timedelta(
+                days=61
+            )
+            # second_month_timer = now + timedelta(seconds=90)
+            scheduler.add_job(
+                monthly_survey_start,
+                "date",
+                id=f"{RedisKeys.SCHEDULES_TWO_MONTHS_KEY}_{callback_query.from_user.id}",
+                next_run_time=second_month_timer,
+                args=[callback_query.from_user.id, 2],
+                replace_existing=True,
+            )
+            third_month_timer = now.replace(hour=8, minute=0, second=0) + timedelta(
+                days=91
+            )
+            # third_month_timer = now + timedelta(seconds=120)
+            scheduler.add_job(
+                monthly_survey_start,
+                "date",
+                id=f"{RedisKeys.SCHEDULES_THREE_MONTHS_KEY}_{callback_query.from_user.id}",
+                next_run_time=third_month_timer,
+                args=[callback_query.from_user.id, 3],
+                replace_existing=True,
+            )
+            await state.clear()
+            return
+        data["confirmations"] = confirmations + 1
+        await state.set_data(data)
+    except Exception as e:
+        logger.error(f"{e}")
+        await anotify_admins(
+            callback_query.message.bot,
+            f"Ошибка при назначении schedulers. Пользователь: {callback_query.from_user.id}",
+        )
+        await callback_query.message.answer(
+            "Произошла ошибка. Бот перезапущен, функции бота доступны."
+        )
+        await state.clear()

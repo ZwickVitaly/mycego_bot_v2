@@ -4,9 +4,12 @@ from .command_handlers import (
     help_command_handler,
     new_link_command_handler,
     start_command_handler,
+    get_career_ladder_handler,
+    get_promo_handler,
+    get_vacancies_command_handler,
 )
 from .join_chat_request import request_join_channel_handler
-from .message_handlers import back_message_handler
+from .message_handlers import back_message_handler, surveys_lock_message_handler
 from .my_chat_member_handlers import my_chat_member_status_change_handler
 from .routers import (
     acquaintance_router,
@@ -46,4 +49,8 @@ __all__ = [
     "first_day_survey_router",
     "monthly_survey_router",
     "first_week_survey_router",
+    "get_career_ladder_handler",
+    "get_promo_handler",
+    "get_vacancies_command_handler",
+    "surveys_lock_message_handler",
 ]

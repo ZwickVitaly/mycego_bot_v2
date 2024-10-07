@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from sqlalchemy import Column, Integer, Text, ForeignKey, DateTime, func, String
 from sqlalchemy.orm import relationship
 
@@ -12,16 +14,17 @@ class Survey(Base):
 
     __tablename__ = "surveys"
 
-    id = Column(
-        Integer, primary_key=True, autoincrement=True
-    )  # id опроса
+    id = Column(Integer, primary_key=True, autoincrement=True)  # id опроса
     user_id = Column(
         ForeignKey("user.id", ondelete="CASCADE"), nullable=True
     )  # id пользователя из бд
     period = Column(String, nullable=False)
-    survey_json = Column(Text, nullable=False) # результат опроса. хранится строкой, нужно парсить
-    created_at = Column(DateTime, default=func.now, nullable=False) # дата прохождения опроса
+    survey_json = Column(
+        Text, nullable=False
+    )  # результат опроса. хранится строкой, нужно парсить
+    created_at = Column(
+        DateTime, default=func.now(), nullable=False
+    )  # дата прохождения опроса
     user = relationship(
         "User", back_populates="surveys", lazy="joined"
     )  # отношение к пользователю
-

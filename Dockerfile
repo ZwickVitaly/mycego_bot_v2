@@ -9,6 +9,8 @@ COPY requirements.txt requirements.txt
 
 RUN pip install -r requirements.txt
 
+COPY gc.json gc.json
+
 COPY bot .
 
 ENTRYPOINT alembic upgrade head && python3 main.py

@@ -16,6 +16,7 @@ from .inline_keyboards import (
     select_contacts_keyboard,
     team_atmosphere_keyboard,
     yes_or_no_keyboard,
+    acquaintance_proceed_keyboard,
 )
 from .reply_keyboards import menu_keyboard, ready, second_menu, type_request
 
@@ -41,4 +42,5 @@ __all__ = [
     "yes_or_no_keyboard",
     "one_to_range_keyboard",
     "team_atmosphere_keyboard",
+    "acquaintance_proceed_keyboard",
 ]

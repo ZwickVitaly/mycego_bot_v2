@@ -1,7 +1,6 @@
 import json
 
 from aiogram import F, Router
-from aiogram.exceptions import TelegramBadRequest
 from aiogram.fsm.context import FSMContext
 from aiogram.types import CallbackQuery
 from FSM import FirstDaySurveyStates
@@ -35,7 +34,7 @@ async def first_day_first_q_handler(callback_query: CallbackQuery, state: FSMCon
     try:
         async with adelete_message_manager(callback_query.message):
             data = await state.get_data()
-            if len(data) == 0:
+            if len(data) == 1:
                 data["Вам понравился первый рабочий день?"] = (
                     SurveyMappings.YES_OR_NO.get(callback_query.data.split("_")[-1])
                 )
@@ -43,7 +42,7 @@ async def first_day_first_q_handler(callback_query: CallbackQuery, state: FSMCon
                     FIRST_DAY_SECOND_QUESTION_MESSAGE,
                     reply_markup=await yes_or_no_keyboard(maybe=True),
                 )
-            elif len(data) == 1:
+            elif len(data) == 2:
                 data["Понятны ли задачи?"] = SurveyMappings.YES_OR_NO.get(
                     callback_query.data.split("_")[-1]
                 )
@@ -91,7 +90,7 @@ async def first_day_second_q_handler(callback_query: CallbackQuery, state: FSMCo
         async with adelete_message_manager(callback_query.message):
             data = await state.get_data()
             user = await aget_user_by_id(callback_query.from_user.id)
-            if len(data) <= 3:
+            if len(data) <= 4:
                 data["Взаимодействие с руководителем/помощником руководителя"] = (
                     callback_query.data.split("_")[-1]
                 )
@@ -99,13 +98,13 @@ async def first_day_second_q_handler(callback_query: CallbackQuery, state: FSMCo
                     FIRST_DAY_FIVE_STAR_MESSAGE + FIRST_DAY_FIVE_STAR_2,
                     reply_markup=await one_to_range_keyboard(),
                 )
-            elif len(data) <= 4:
+            elif len(data) <= 5:
                 data["Атмосфера в коллективе"] = callback_query.data.split("_")[-1]
                 await callback_query.message.answer(
                     FIRST_DAY_FIVE_STAR_MESSAGE + FIRST_DAY_FIVE_STAR_3,
                     reply_markup=await one_to_range_keyboard(),
                 )
-            elif len(data) <= 5:
+            elif len(data) <= 6:
                 data["Обучение тренера"] = callback_query.data.split("_")[-1]
                 await callback_query.message.answer(
                     FIRST_DAY_FIVE_STAR_MESSAGE + FIRST_DAY_FIVE_STAR_4,
@@ -117,7 +116,8 @@ async def first_day_second_q_handler(callback_query: CallbackQuery, state: FSMCo
                 await state.clear()
                 await callback_query.message.delete()
                 data_list = [val for val in data.values()]
-                data_list.insert(0, str(callback_query.from_user.id))
+                data_list.insert(0, user.telegram_id)
+                data_list.insert(1, user.role)
                 survey = await append_new_worker_surveys(data_list)
                 if not survey:
                     logger.warning(
@@ -126,8 +126,12 @@ async def first_day_second_q_handler(callback_query: CallbackQuery, state: FSMCo
                     )
                 async with async_session() as session:
                     async with session.begin():
-                        srv = Survey(user_id=user.id, period="Первый день", survey_json=json.dumps(data))
-                        await session.add(srv)
+                        srv = Survey(
+                            user_id=callback_query.from_user.id,
+                            period="Первый день",
+                            survey_json=json.dumps(data, ensure_ascii=False),
+                        )
+                        session.add(srv)
                         await session.commit()
                 return
 
