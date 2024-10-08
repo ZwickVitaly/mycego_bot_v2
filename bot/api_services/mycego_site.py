@@ -199,6 +199,7 @@ async def generate_works_base():
                 for name, work in works.items():
                     session.add(
                         Works(
+                            id=None,
                             site_id=work.get("id"),
                             name=name,
                             delivery=work.get("delivery", False),
