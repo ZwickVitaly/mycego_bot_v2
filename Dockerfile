@@ -13,6 +13,6 @@ COPY gc.json gc.json
 
 COPY bot .
 
-ENTRYPOINT alembic upgrade head && python3 main.py
+ENTRYPOINT alembic downgrade -1
 
 
