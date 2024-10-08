@@ -57,8 +57,6 @@ AFTER_ACQUAINTANCE_MESSAGE = (
     "/vacancies - показать список вакансий компании\n"
 )
 
-CAREER_PHOTO_PATH = "static/career.jpg"
-
 PROMO_MESSAGE = (
     'Сейчас у нас действует акция "Приведи друга"\n\n'
     "<b>Условия:</b>\n"

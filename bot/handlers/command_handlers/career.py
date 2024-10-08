@@ -3,7 +3,7 @@ from aiogram.types import Message, FSInputFile
 from aiogram.exceptions import TelegramBadRequest
 from helpers import anotify_admins
 from settings import ADMINS, logger, BASE_DIR
-from utils import redis_connection
+from utils import redis_connection, RedisKeys
 
 
 async def get_career_ladder_handler(message: Message, state: FSMContext):
@@ -11,7 +11,7 @@ async def get_career_ladder_handler(message: Message, state: FSMContext):
     Запрос карьерной лестницы
     """
     try:
-        photo_id = await redis_connection.get("career_photo_id")
+        photo_id = await redis_connection.get(RedisKeys.CAREER_IMAGE_ID)
         if photo_id:
             try:
                 await message.answer_photo(photo=photo_id)

@@ -15,10 +15,13 @@ async def check_user_api(username, password, user_id):
     """
     url = f"{SITE_DOMAIN}/api-auth/login/"
     data = {"username": username, "password": password, "telegram_id": str(user_id)}
+    logger.debug(data)
     async with ClientSession() as session:
-        async with session.post(url=url, data=data) as response:
+        async with session.post(url=url, json=data) as response:
+            logger.debug(f"{response.status}")
             if response.status == 200:
                 user = await response.json()
+                logger.debug(user)
                 if user.get("status_work") is True:
                     return user
     return None
@@ -190,23 +193,25 @@ async def generate_works_base():
         async with async_session() as session:
             async with session.begin():
                 await session.execute(delete(Works))
-                for department, works in data.items():
-                    for name, work in works.items():
-                        session.add(
-                            Works(
-                                id=work.get("id"),
-                                name=name,
-                                delivery=work.get("delivery", False),
-                                standard=work.get("quantity", 0),
-                                department_name=department,
-                            )
-                        )
-                        if department == "Общий":
-                            if any(
-                                [name.lower().startswith(nc) for nc in needs_comment]
-                            ):
-                                COMMENTED_WORKS[work.get("id")] = name
                 await session.commit()
+        async with session.begin():
+            for department, works in data.items():
+                for name, work in works.items():
+                    session.add(
+                        Works(
+                            site_id=work.get("id"),
+                            name=name,
+                            delivery=work.get("delivery", False),
+                            standard=work.get("quantity", 0),
+                            department_name=department,
+                        )
+                    )
+                    if department == "Общий":
+                        if any(
+                            [name.lower().startswith(nc) for nc in needs_comment]
+                        ):
+                            COMMENTED_WORKS[work.get("id")] = name
+            await session.commit()
         logger.info("Обновление нормативов завершено")
     else:
         logger.error("Не получилось обновить нормативы!")
@@ -266,7 +271,7 @@ async def get_pay_sheet(user_id):
 
 async def update_user_bio(user_id_site, birth_date, hobbies):
     """
-    Функция для создания листа работ на сайте
+    Функция для обновления био пользователя на сайте
     """
     url = f"{SITE_DOMAIN}/api-auth/update-user/{user_id_site}/"
     data = {
@@ -274,7 +279,7 @@ async def update_user_bio(user_id_site, birth_date, hobbies):
         "hobbies": hobbies,
     }
     async with ClientSession() as session:
-        async with session.post(url=url, json=data) as response:
+        async with session.put(url=url, json=data) as response:
             if response.status == 200:
                 return True
             return False

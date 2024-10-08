@@ -1,9 +1,9 @@
-import asyncio
 from datetime import datetime, timedelta
 
 from aiogram import F, Router
 from aiogram.fsm.context import FSMContext
 from aiogram.types import FSInputFile, Message, CallbackQuery
+from aiogram.exceptions import TelegramBadRequest
 
 from api_services import update_user_bio
 from constructors import scheduler
@@ -14,7 +14,6 @@ from messages import (
     ACQUAINTANCE_ABOUT_US_MESSAGE,
     ACQUAINTANCE_SECOND_MESSAGE,
     AFTER_ACQUAINTANCE_MESSAGE,
-    CAREER_PHOTO_PATH,
     PROMO_MESSAGE,
     VACANCIES_LINK,
 )
@@ -23,7 +22,7 @@ from schedules import (
     after_first_week_survey_start,
     monthly_survey_start,
 )
-from settings import ADMINS, TIMEZONE, logger
+from settings import ADMINS, TIMEZONE, logger, BASE_DIR
 from utils import RedisKeys, redis_connection
 
 # Роутер знакомства
@@ -153,10 +152,19 @@ async def process_confirmation(callback_query: CallbackQuery, state: FSMContext)
         confirmations = data.get("confirmations") or 0
         await callback_query.message.delete_reply_markup()
         if not confirmations:
-            career = FSInputFile(CAREER_PHOTO_PATH)
-            await callback_query.message.answer_photo(
-                photo=career, reply_markup=acquaintance_proceed_keyboard
+            photo_id = await redis_connection.get(RedisKeys.CAREER_IMAGE_ID)
+            if photo_id:
+                try:
+                    await callback_query.message.answer_photo(photo=photo_id)
+                    return
+                except TelegramBadRequest:
+                    pass
+            career_jpg = FSInputFile(BASE_DIR / "static" / "career.jpg")
+            msg = await callback_query.message.answer_photo(
+                photo=career_jpg, reply_markup=acquaintance_proceed_keyboard
             )
+            photo_id = msg.photo[-1].file_id
+            await redis_connection.set(RedisKeys.CAREER_IMAGE_ID, photo_id)
         elif confirmations == 1:
             await callback_query.message.answer(
                 VACANCIES_LINK,

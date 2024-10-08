@@ -9,3 +9,5 @@ class RedisKeys:
     SCHEDULES_USER_DB_RENEW_KEY = "user_db_renew"
     SCHEDULES_STANDARDS_RENEW_KEY = "standards_renew"
     SCHEDULES_HAPPY_BIRTHDAY_KEY = "happy_birthday"
+
+    CAREER_IMAGE_ID = "career_image_id"
