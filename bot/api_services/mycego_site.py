@@ -207,9 +207,7 @@ async def generate_works_base():
                         )
                     )
                     if department == "Общий":
-                        if any(
-                            [name.lower().startswith(nc) for nc in needs_comment]
-                        ):
+                        if any([name.lower().startswith(nc) for nc in needs_comment]):
                             COMMENTED_WORKS[work.get("id")] = name
             await session.commit()
         logger.info("Обновление нормативов завершено")

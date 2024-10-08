@@ -11,7 +11,9 @@ async def aform_works_done_message(works: dict):
         async with session.begin():
             works_instances = (
                 await session.execute(
-                    select(Works).where(Works.site_id.in_(works.keys())).order_by(Works.name)
+                    select(Works)
+                    .where(Works.site_id.in_(works.keys()))
+                    .order_by(Works.name)
                 )
             ).scalars()
     # формируем сообщение
