@@ -26,6 +26,7 @@ async def type_request_user(message: Message, state: FSMContext):
             await message.answer(
                 "Запрос не распознан. Используйте меню или нажмите /start чтобы сбросить эту операцию."
             )
+            return
         # достаём данные из машины состояний
         data = await state.get_data()
         # добавляем тип запроса
