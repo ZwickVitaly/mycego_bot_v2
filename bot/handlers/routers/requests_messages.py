@@ -17,7 +17,7 @@ async def type_request_user(message: Message, state: FSMContext):
     Обрабатываем заявку на изменение
     """
     try:
-        if message.text.capitalize() in ["Назад", "Отмена", "Назад❌"]:
+        if message.text.strip().lower() in ["назад", "отмена", "назад❌"]:
             await message.answer("Главное меню", reply_markup=menu_keyboard())
         # достаём данные из машины состояний
         data = await state.get_data()
