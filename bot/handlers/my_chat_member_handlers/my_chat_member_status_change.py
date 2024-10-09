@@ -13,7 +13,7 @@ async def my_chat_member_status_change_handler(message: ChatMemberUpdated):
     )
     try:
         # получаем новый статус бота
-        new_status = message.new_chat_member.status.value
+        new_status = message.new_chat_member.status.value if message.new_chat_member.status else "notadmin"
         # получаем id чата
         chat_id = str(message.chat.id)
         async with async_session() as session:

@@ -6,7 +6,7 @@ from aiogram.types import CallbackQuery
 from FSM import OneWeekSurveyStates
 from api_services.google_sheets import update_worker_surveys
 from db import async_session, Survey
-from helpers import adelete_message_manager, anotify_admins
+from helpers import adelete_message_manager, anotify_admins, make_survey_notification, aget_user_by_id
 from keyboards import one_to_range_keyboard
 from messages import (
     AFTER_SURVEY_MESSAGE,
@@ -14,7 +14,7 @@ from messages import (
     FIRST_WEEK_FIVE_STAR_2,
     FIRST_WEEK_FIVE_STAR_3,
 )
-from settings import ADMINS, logger
+from settings import ADMINS, logger, SURVEY_ADMINS
 
 # Роутер знакомства
 first_week_survey_router = Router()
@@ -49,6 +49,18 @@ async def first_week_first_q_handler(callback_query: CallbackQuery, state: FSMCo
                 await callback_query.message.answer(AFTER_SURVEY_MESSAGE)
                 await state.clear()
                 await callback_query.message.delete()
+                user = await aget_user_by_id(callback_query.from_user.id)
+                admin_msg = make_survey_notification(
+                    user_name=user.username.split("_"),
+                    user_role=user.role,
+                    period="Первый день",
+                    data=data
+                )
+                await anotify_admins(
+                    bot=callback_query.message.bot,
+                    message=admin_msg,
+                    admins_list=SURVEY_ADMINS
+                )
                 new_data = list(data.values())
                 survey = await update_worker_surveys(
                     str(callback_query.from_user.id), new_data

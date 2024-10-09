@@ -6,10 +6,9 @@ from aiogram.types import CallbackQuery, Message
 from FSM.surveys import MonthlySurveyStates
 from api_services.google_sheets import (
     update_worker_surveys,
-    remove_fired_worker_surveys,
 )
 from db import async_session, Survey
-from helpers import adelete_message_manager, anotify_admins
+from helpers import adelete_message_manager, anotify_admins, make_survey_notification, aget_user_by_id
 from keyboards import SurveyMappings, team_atmosphere_keyboard, yes_or_no_keyboard
 from messages import (
     AFTER_SURVEY_MESSAGE,
@@ -19,7 +18,7 @@ from messages import (
     MONTHLY_SIXTH_QUESTION,
     MONTHLY_THIRD_QUESTION,
 )
-from settings import ADMINS, logger
+from settings import ADMINS, logger, SURVEY_ADMINS
 
 # Роутер знакомства
 monthly_survey_router = Router()
@@ -110,6 +109,18 @@ async def monthly_second_q_handler(message: Message, state: FSMContext):
         await message.answer(AFTER_SURVEY_MESSAGE)
         await state.clear()
         month_no = data.pop("month_no")
+        user = await aget_user_by_id(message.from_user.id)
+        admin_msg = make_survey_notification(
+            user_name=user.username.split("_"),
+            user_role=user.role,
+            period=f"{month_no}й месяц",
+            data=data
+        )
+        await anotify_admins(
+            bot=message.bot,
+            message=admin_msg,
+            admins_list=SURVEY_ADMINS
+        )
         new_data = list(data.values())
         survey = await update_worker_surveys(str(message.from_user.id), new_data)
         if not survey:

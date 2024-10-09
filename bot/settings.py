@@ -39,6 +39,15 @@ for admin_id in admins_list:
     except ValueError:
         pass
 
+# Список ответственных за опросники
+survey_admins_list = (getenv("SURVEY_ADMINS", "")).split(",")
+SURVEY_ADMINS = []
+for admin_id in survey_admins_list:
+    try:
+        SURVEY_ADMINS.append(int(admin_id))
+    except ValueError:
+        pass
+
 # json заголовки
 JSON_HEADERS = {"Content-Type": "application/json"}
 
