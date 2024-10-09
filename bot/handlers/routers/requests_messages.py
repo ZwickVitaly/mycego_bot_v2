@@ -19,6 +19,7 @@ async def type_request_user(message: Message, state: FSMContext):
     try:
         if message.text.strip().lower() in ["назад", "отмена", "назад❌"]:
             await message.answer("Главное меню", reply_markup=menu_keyboard())
+            await state.clear()
             return
         # достаём данные из машины состояний
         data = await state.get_data()
