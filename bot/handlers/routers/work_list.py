@@ -299,7 +299,7 @@ async def add_works(callback_query: CallbackQuery, state: FSMContext):
         else:
             try:
                 # получаем id работы и сохраняем его в данные
-                data["current_work"] = int(callback_query.data.split("_")[1])
+                data["current_work"] = int(callback_query.data.split("_")[-1])
                 # обновляем данные машины состояний
                 await state.update_data(data=data)
                 # просим пользователя ввести количество выполненной работы

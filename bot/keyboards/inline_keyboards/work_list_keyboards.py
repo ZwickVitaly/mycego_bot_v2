@@ -48,7 +48,7 @@ async def generate_works(department: str, delivery=None):
     for i in all_works:
         try:
             work_button = InlineKeyboardButton(
-                text=str(i.name), callback_data=f"{i.id}_{i.id}"
+                text=str(i.name), callback_data=f"{i.site_id}_{i.site_id}"
             )
             keyboard.add(work_button)
         except Exception as e:
