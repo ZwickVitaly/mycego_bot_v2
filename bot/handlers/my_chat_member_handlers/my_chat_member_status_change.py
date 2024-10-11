@@ -17,10 +17,12 @@ async def my_chat_member_status_change_handler(message: ChatMemberUpdated):
         new_status = (
             message.new_chat_member.status.value
             if isinstance(message.new_chat_member.status, ChatMemberStatus)
-            else "notadmin"
+            else None
         )
         # получаем id чата
         chat_id = str(message.chat.id)
+        if not new_status:
+            return
         async with async_session() as session:
             async with session.begin():
                 logger.info(
