@@ -1,4 +1,5 @@
 from aiogram.types import ChatMemberUpdated
+from aiogram.enums.chat_member_status import ChatMemberStatus
 from db import Chat, async_session
 from helpers import anotify_admins, kick_fired_on_admin
 from settings import ADMINS, logger
@@ -13,7 +14,11 @@ async def my_chat_member_status_change_handler(message: ChatMemberUpdated):
     )
     try:
         # получаем новый статус бота
-        new_status = message.new_chat_member.status.value if message.new_chat_member.status else "notadmin"
+        new_status = (
+            message.new_chat_member.status.value
+            if isinstance(message.new_chat_member.status, ChatMemberStatus)
+            else "notadmin"
+        )
         # получаем id чата
         chat_id = str(message.chat.id)
         async with async_session() as session:

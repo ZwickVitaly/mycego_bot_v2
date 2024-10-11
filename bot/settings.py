@@ -6,8 +6,6 @@ from sys import stdout
 from loguru import logger
 from pytz import timezone
 
-from messages import VACANCIES_LINK
-
 # Дебаг - для более развёрнутых логов
 DEBUG = getenv("DEBUG", "1") == "1"
 

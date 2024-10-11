@@ -52,6 +52,7 @@ beautifulsoup4 = "^4.12.3"
 redis = "^5.0.8"
 apscheduler = "^3.10.4"
 gspread = "^6.1.2"
+uvicorn = "^0.31.1"
 
 
 [build-system]

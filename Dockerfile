@@ -5,9 +5,10 @@ ENV PYTHONUNBUFFERED=1
 
 WORKDIR /bot
 
-COPY requirements.txt requirements.txt
-
-RUN pip install -r requirements.txt
+COPY pyproject.toml .
+RUN pip install poetry
+RUN poetry config virtualenvs.create false \
+  && poetry install --no-interaction --no-ansi
 
 COPY gc.json gc.json
 
