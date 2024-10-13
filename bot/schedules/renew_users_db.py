@@ -4,7 +4,8 @@ from datetime import timedelta
 from aiogram.exceptions import TelegramBadRequest
 from api_services import get_users_statuses
 from api_services.google_sheets import remove_fired_worker_surveys
-from constructors import bot, scheduler
+from constructors.bot_constructor import bot
+from constructors.scheduler_constructor import scheduler
 from db import Chat, User, async_session
 from settings import logger
 from sqlalchemy import delete, select

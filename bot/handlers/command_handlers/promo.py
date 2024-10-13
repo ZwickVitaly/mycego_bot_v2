@@ -1,11 +1,8 @@
 from aiogram.fsm.context import FSMContext
 from aiogram.types import Message
-from FSM import EditContactsState
 from helpers import anotify_admins
-from keyboards import select_contacts_keyboard
 from messages import PROMO_MESSAGE
 from settings import ADMINS, logger
-from utils import RedisKeys, redis_connection
 
 
 async def get_promo_handler(message: Message, state: FSMContext):

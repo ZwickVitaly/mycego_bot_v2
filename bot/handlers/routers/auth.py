@@ -8,7 +8,6 @@ from api_services import check_user_api
 from db import Chat, User, async_session
 from FSM import AcquaintanceState, AuthState
 from helpers import aget_user_by_site_username, anotify_admins, sanitize_string
-from keyboards import menu_keyboard
 from messages import ACQUAINTANCE_FIRST_MESSAGE
 from settings import ADMINS, logger
 from sqlalchemy import select

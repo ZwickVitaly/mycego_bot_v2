@@ -5,7 +5,7 @@ from aiogram.exceptions import TelegramBadRequest
 from aiogram.fsm.context import FSMContext
 from aiogram.types import CallbackQuery, FSInputFile, Message
 from api_services import update_user_bio
-from constructors import scheduler
+from constructors.scheduler_constructor import scheduler
 from FSM import AcquaintanceState
 from helpers import anotify_admins
 from keyboards import acquaintance_proceed_keyboard, menu_keyboard

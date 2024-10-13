@@ -2,7 +2,7 @@ from datetime import datetime
 
 from aiogram.exceptions import TelegramBadRequest
 from api_services import get_happy_birthday_message, get_users_statuses
-from constructors import bot
+from constructors.bot_constructor import bot
 from db import Chat, async_session
 from helpers import anotify_admins
 from settings import ADMINS, TIMEZONE, logger

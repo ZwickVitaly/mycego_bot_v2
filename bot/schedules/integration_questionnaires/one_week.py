@@ -1,8 +1,9 @@
 from aiogram.fsm.storage.redis import StorageKey
-from constructors import bot, storage
+from constructors.bot_constructor import bot
+from constructors.storage_constructor import storage
 from db import User
 from FSM import OneWeekSurveyStates
-from helpers import aget_user_by_id, anotify_admins
+from helpers import aget_user_by_id
 from keyboards import one_to_range_keyboard
 from messages import (
     AFTER_FIRST_WEEK_MESSAGE,

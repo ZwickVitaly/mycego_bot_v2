@@ -1,5 +1,6 @@
 from aiogram.fsm.storage.redis import StorageKey
-from constructors import bot, storage
+from constructors.bot_constructor import bot
+from constructors.storage_constructor import storage
 from db import User
 from FSM import FirstDaySurveyStates
 from helpers import aget_user_by_id, anotify_admins
