@@ -3,7 +3,7 @@ from constructors.bot_constructor import bot
 from constructors.storage_constructor import storage
 from db import User
 from FSM import OneWeekSurveyStates
-from helpers import aget_user_by_id
+from helpers import aget_user_by_id, anotify_admins
 from keyboards import one_to_range_keyboard
 from messages import (
     AFTER_FIRST_WEEK_MESSAGE,
@@ -33,6 +33,6 @@ async def after_first_week_survey_start(user_id):
             text=FIRST_DAY_FIVE_STAR_MESSAGE + FIRST_WEEK_FIVE_STAR_1,
             reply_markup=await one_to_range_keyboard(),
         )
-        # await anotify_admins(
-        #     bot, f"User: {user.username} проходит опрос, первая неделя", ADMINS
-        # )
+        await anotify_admins(
+            bot, f"User: {user.username} проходит опрос, первая неделя", ADMINS
+        )

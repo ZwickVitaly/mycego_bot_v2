@@ -29,6 +29,6 @@ async def monthly_survey_start(user_id: str | int, month_no: str | int):
             text=MONTHLY_FIRST_QUESTION,
             reply_markup=await yes_or_no_keyboard(),
         )
-        # await anotify_admins(
-        #     bot, f"User: {user.username} проходит опрос, {month_no}й месяц", ADMINS
-        # )
+        await anotify_admins(
+            bot, f"User: {user.username} проходит опрос, {month_no}й месяц", ADMINS
+        )

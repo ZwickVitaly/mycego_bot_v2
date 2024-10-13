@@ -33,6 +33,6 @@ async def after_first_day_survey_start(user_id):
             text=FIRST_DAY_FIRST_QUESTION_MESSAGE,
             reply_markup=await yes_or_no_keyboard(maybe=True),
         )
-        # await anotify_admins(
-        #     bot, f"User: {user.username} проходит опрос, первый день", ADMINS
-        # )
+        await anotify_admins(
+            bot, f"User: {user.username} проходит опрос, первый день", ADMINS
+        )
