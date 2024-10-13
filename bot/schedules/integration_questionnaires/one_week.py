@@ -1,6 +1,5 @@
 from aiogram.fsm.storage.redis import StorageKey
-from constructors import storage
-from constructors.bot_constructor import bot
+from constructors import bot, storage
 from db import User
 from FSM import OneWeekSurveyStates
 from helpers import aget_user_by_id, anotify_admins
@@ -33,6 +32,6 @@ async def after_first_week_survey_start(user_id):
             text=FIRST_DAY_FIVE_STAR_MESSAGE + FIRST_WEEK_FIVE_STAR_1,
             reply_markup=await one_to_range_keyboard(),
         )
-        await anotify_admins(
-            bot, f"User: {user.username} проходит опрос, первая неделя", ADMINS
-        )
+        # await anotify_admins(
+        #     bot, f"User: {user.username} проходит опрос, первая неделя", ADMINS
+        # )

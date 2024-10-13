@@ -1,6 +1,5 @@
 from aiogram.fsm.storage.redis import StorageKey
-from constructors import storage
-from constructors.bot_constructor import bot
+from constructors import bot, storage
 from db import User
 from FSM import MonthlySurveyStates
 from helpers import aget_user_by_id, anotify_admins
@@ -29,6 +28,6 @@ async def monthly_survey_start(user_id: str | int, month_no: str | int):
             text=MONTHLY_FIRST_QUESTION,
             reply_markup=await yes_or_no_keyboard(),
         )
-        await anotify_admins(
-            bot, f"User: {user.username} проходит опрос, {month_no}й месяц", ADMINS
-        )
+        # await anotify_admins(
+        #     bot, f"User: {user.username} проходит опрос, {month_no}й месяц", ADMINS
+        # )
