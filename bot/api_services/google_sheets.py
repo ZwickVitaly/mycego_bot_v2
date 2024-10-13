@@ -1,6 +1,6 @@
 import asyncio
 
-from constructors.google_sheets_constructor import working, fired
+from constructors.google_sheets_constructor import fired, working
 from settings import logger
 
 

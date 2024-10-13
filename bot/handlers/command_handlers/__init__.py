@@ -1,11 +1,10 @@
+from .career import get_career_ladder_handler
 from .contacts import get_contacts_command_handler
 from .help import help_command_handler
 from .new_link import new_link_command_handler
-from .start import start_command_handler
-from .career import get_career_ladder_handler
 from .promo import get_promo_handler
+from .start import start_command_handler
 from .vacancies import get_vacancies_command_handler
-
 
 __all__ = [
     "start_command_handler",

@@ -1,6 +1,5 @@
 from aiogram.utils.keyboard import InlineKeyboardBuilder, InlineKeyboardButton
 
-
 acquaintance_proceed_button = InlineKeyboardButton(
     text="Продолжить", callback_data="acquaintance_proceed"
 )

@@ -1,8 +1,8 @@
 from aiogram.fsm.context import FSMContext
 from aiogram.types import Message
 from helpers import anotify_admins
-from settings import ADMINS, logger
 from messages import VACANCIES_LINK
+from settings import ADMINS, logger
 
 
 async def get_vacancies_command_handler(message: Message, state: FSMContext):

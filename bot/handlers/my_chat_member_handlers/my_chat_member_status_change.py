@@ -1,5 +1,5 @@
-from aiogram.types import ChatMemberUpdated
 from aiogram.enums.chat_member_status import ChatMemberStatus
+from aiogram.types import ChatMemberUpdated
 from db import Chat, async_session
 from helpers import anotify_admins, kick_fired_on_admin
 from settings import ADMINS, logger

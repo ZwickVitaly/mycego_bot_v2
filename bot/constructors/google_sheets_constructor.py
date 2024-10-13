@@ -1,5 +1,5 @@
 from gspread import service_account
-from settings import BASE_DIR, SURVEY_GOOGLE_SHEET_URL, CITY_MARKER, logger
+from settings import BASE_DIR, CITY_MARKER, SURVEY_GOOGLE_SHEET_URL, logger
 
 try:
     gs = service_account(BASE_DIR / "gc.json")

@@ -1,5 +1,6 @@
 from aiogram.fsm.storage.redis import StorageKey
 from constructors import bot, storage
+from db import User
 from FSM import FirstDaySurveyStates
 from helpers import aget_user_by_id, anotify_admins
 from keyboards import yes_or_no_keyboard
@@ -8,8 +9,7 @@ from messages import (
     FIRST_DAY_FIRST_QUESTION_MESSAGE,
     SURVEY_DISCLAIMER,
 )
-from db import User
-from settings import logger, ADMINS
+from settings import ADMINS, logger
 
 
 async def after_first_day_survey_start(user_id):
@@ -32,4 +32,6 @@ async def after_first_day_survey_start(user_id):
             text=FIRST_DAY_FIRST_QUESTION_MESSAGE,
             reply_markup=await yes_or_no_keyboard(maybe=True),
         )
-        await anotify_admins(bot, f"User: {user.username} проходит опрос, первый день", ADMINS)
+        await anotify_admins(
+            bot, f"User: {user.username} проходит опрос, первый день", ADMINS
+        )

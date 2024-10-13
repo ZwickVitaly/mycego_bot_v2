@@ -1,8 +1,8 @@
 from .chat import Chat
 from .message import Message
+from .survey import Survey
 from .user import User
 from .works import Works
-from .survey import Survey
 
 __all__ = [
     "User",

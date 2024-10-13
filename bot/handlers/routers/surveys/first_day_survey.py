@@ -3,10 +3,15 @@ import json
 from aiogram import F, Router
 from aiogram.fsm.context import FSMContext
 from aiogram.types import CallbackQuery
-from FSM import FirstDaySurveyStates
 from api_services.google_sheets import append_new_worker_surveys
-from db import async_session, Survey
-from helpers import adelete_message_manager, anotify_admins, aget_user_by_id, make_survey_notification
+from db import Survey, async_session
+from FSM import FirstDaySurveyStates
+from helpers import (
+    adelete_message_manager,
+    aget_user_by_id,
+    anotify_admins,
+    make_survey_notification,
+)
 from keyboards import SurveyMappings, one_to_range_keyboard, yes_or_no_keyboard
 from messages import (
     AFTER_SURVEY_MESSAGE,
@@ -18,7 +23,7 @@ from messages import (
     FIRST_DAY_SECOND_QUESTION_MESSAGE,
     FIRST_DAY_THIRD_QUESTION_MESSAGE,
 )
-from settings import ADMINS, logger, SURVEY_ADMINS
+from settings import ADMINS, SURVEY_ADMINS, logger
 
 # Роутер знакомства
 first_day_survey_router = Router()
@@ -119,12 +124,12 @@ async def first_day_second_q_handler(callback_query: CallbackQuery, state: FSMCo
                     user_name=user.username.split("_"),
                     user_role=user.role,
                     period="Первый день",
-                    data=data
+                    data=data,
                 )
                 await anotify_admins(
                     bot=callback_query.message.bot,
                     message=admin_msg,
-                    admins_list=SURVEY_ADMINS
+                    admins_list=SURVEY_ADMINS,
                 )
                 data_list = [val for val in data.values()]
                 data_list.insert(0, user.telegram_id)

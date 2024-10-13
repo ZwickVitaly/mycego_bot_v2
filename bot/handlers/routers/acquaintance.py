@@ -1,15 +1,14 @@
 from datetime import datetime, timedelta
 
 from aiogram import F, Router
-from aiogram.fsm.context import FSMContext
-from aiogram.types import FSInputFile, Message, CallbackQuery
 from aiogram.exceptions import TelegramBadRequest
-
+from aiogram.fsm.context import FSMContext
+from aiogram.types import CallbackQuery, FSInputFile, Message
 from api_services import update_user_bio
 from constructors import scheduler
 from FSM import AcquaintanceState
 from helpers import anotify_admins
-from keyboards import menu_keyboard, acquaintance_proceed_keyboard
+from keyboards import acquaintance_proceed_keyboard, menu_keyboard
 from messages import (
     ACQUAINTANCE_ABOUT_US_MESSAGE,
     ACQUAINTANCE_SECOND_MESSAGE,
@@ -22,7 +21,7 @@ from schedules import (
     after_first_week_survey_start,
     monthly_survey_start,
 )
-from settings import ADMINS, TIMEZONE, logger, BASE_DIR
+from settings import ADMINS, BASE_DIR, TIMEZONE, logger
 from utils import RedisKeys, redis_connection
 
 # Роутер знакомства

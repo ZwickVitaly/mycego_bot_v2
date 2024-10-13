@@ -1,13 +1,8 @@
 from aiogram import Dispatcher, F
 from aiogram.filters import Command, CommandStart
 from aiogram.fsm.storage.redis import RedisEventIsolation
-
-from FSM import (
-    AcquaintanceState,
-    survey_states,
-    MonthlySurveyStates,
-)
-from custom_filters import NotStatesGroupFilter, InStatesGroupFilter
+from custom_filters import InStatesGroupFilter, NotStatesGroupFilter
+from FSM import AcquaintanceState, MonthlySurveyStates, survey_states
 from handlers import (  # work_list_delivery_router,
     acquaintance_router,
     admin_edit_contacts_router,
@@ -16,7 +11,10 @@ from handlers import (  # work_list_delivery_router,
     cancel_operations_handler,
     first_day_survey_router,
     first_week_survey_router,
+    get_career_ladder_handler,
     get_contacts_command_handler,
+    get_promo_handler,
+    get_vacancies_command_handler,
     main_menu_router,
     monthly_survey_router,
     my_chat_member_status_change_handler,
@@ -25,13 +23,10 @@ from handlers import (  # work_list_delivery_router,
     request_join_channel_handler,
     requests_router,
     start_command_handler,
+    surveys_lock_message_handler,
     view_work_list_router,
     work_graf_router,
     work_list_router,
-    get_career_ladder_handler,
-    get_promo_handler,
-    get_vacancies_command_handler,
-    surveys_lock_message_handler,
 )
 from settings import logger
 from utils import storage_connection

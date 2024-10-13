@@ -1,9 +1,9 @@
-from aiogram.fsm.context import FSMContext
-from aiogram.types import Message, FSInputFile
 from aiogram.exceptions import TelegramBadRequest
+from aiogram.fsm.context import FSMContext
+from aiogram.types import FSInputFile, Message
 from helpers import anotify_admins
-from settings import ADMINS, logger, BASE_DIR
-from utils import redis_connection, RedisKeys
+from settings import ADMINS, BASE_DIR, logger
+from utils import RedisKeys, redis_connection
 
 
 async def get_career_ladder_handler(message: Message, state: FSMContext):

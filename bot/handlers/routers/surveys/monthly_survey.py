@@ -3,12 +3,15 @@ import json
 from aiogram import F, Router
 from aiogram.fsm.context import FSMContext
 from aiogram.types import CallbackQuery, Message
+from api_services.google_sheets import update_worker_surveys
+from db import Survey, async_session
 from FSM.surveys import MonthlySurveyStates
-from api_services.google_sheets import (
-    update_worker_surveys,
+from helpers import (
+    adelete_message_manager,
+    aget_user_by_id,
+    anotify_admins,
+    make_survey_notification,
 )
-from db import async_session, Survey
-from helpers import adelete_message_manager, anotify_admins, make_survey_notification, aget_user_by_id
 from keyboards import SurveyMappings, team_atmosphere_keyboard, yes_or_no_keyboard
 from messages import (
     AFTER_SURVEY_MESSAGE,
@@ -18,7 +21,7 @@ from messages import (
     MONTHLY_SIXTH_QUESTION,
     MONTHLY_THIRD_QUESTION,
 )
-from settings import ADMINS, logger, SURVEY_ADMINS
+from settings import ADMINS, SURVEY_ADMINS, logger
 
 # Роутер знакомства
 monthly_survey_router = Router()
@@ -114,12 +117,10 @@ async def monthly_second_q_handler(message: Message, state: FSMContext):
             user_name=user.username.split("_"),
             user_role=user.role,
             period=f"{month_no}й месяц",
-            data=data
+            data=data,
         )
         await anotify_admins(
-            bot=message.bot,
-            message=admin_msg,
-            admins_list=SURVEY_ADMINS
+            bot=message.bot, message=admin_msg, admins_list=SURVEY_ADMINS
         )
         new_data = list(data.values())
         survey = await update_worker_surveys(str(message.from_user.id), new_data)

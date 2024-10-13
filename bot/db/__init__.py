@@ -1,5 +1,5 @@
 from .base import Base, async_session, engine
-from .models import Chat, Message, User, Works, Survey
+from .models import Chat, Message, Survey, User, Works
 
 __all__ = [
     "engine",

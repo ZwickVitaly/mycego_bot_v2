@@ -1,7 +1,7 @@
 from .admin_edit_contacts import delete_or_edit_contact, select_contacts_keyboard
 from .cancel_keyboard import call_back
-from .pay_sheets_keyboards import generate_pay_sheets
 from .continue_keyboard import acquaintance_proceed_keyboard
+from .pay_sheets_keyboards import generate_pay_sheets
 from .surveys import (
     SurveyMappings,
     one_to_range_keyboard,

@@ -1,12 +1,12 @@
 from .callback_handlers import cancel_operations_handler
 from .command_handlers import (
+    get_career_ladder_handler,
     get_contacts_command_handler,
+    get_promo_handler,
+    get_vacancies_command_handler,
     help_command_handler,
     new_link_command_handler,
     start_command_handler,
-    get_career_ladder_handler,
-    get_promo_handler,
-    get_vacancies_command_handler,
 )
 from .join_chat_request import request_join_channel_handler
 from .message_handlers import back_message_handler, surveys_lock_message_handler

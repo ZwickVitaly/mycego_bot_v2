@@ -8,9 +8,9 @@ from .async_notify_admins import anotify_admins
 from .capitalize_first_letter import cap_first
 from .get_username_or_first_name import get_username_or_name
 from .kick_fired import kick_fired_on_admin
+from .make_survey_admin_message import make_survey_notification
 from .sanitize import sanitize_string
 from .seconds_to_time import seconds_to_time
-from .make_survey_admin_message import make_survey_notification
 
 __all__ = [
     "get_username_or_name",
@@ -25,5 +25,5 @@ __all__ = [
     "seconds_to_time",
     "aget_users_count",
     "sanitize_string",
-    "make_survey_notification"
+    "make_survey_notification",
 ]
