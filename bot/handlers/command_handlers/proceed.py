@@ -35,6 +35,8 @@ async def process_failed_confirmation(message: Message, state: FSMContext):
                         photo=photo_id,
                         reply_markup=await generate_acquaintance_proceed_keyboard(),
                     )
+                    data["confirmations"] = confirmations + 1
+                    await state.set_data(data)
                     return
                 except TelegramBadRequest:
                     pass
