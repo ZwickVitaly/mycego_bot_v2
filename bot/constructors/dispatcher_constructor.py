@@ -27,6 +27,7 @@ from handlers import (  # work_list_delivery_router,
     view_work_list_router,
     work_graf_router,
     work_list_router,
+    process_failed_confirmation
 )
 from settings import logger
 from utils import storage_connection
@@ -58,6 +59,7 @@ dp.include_router(monthly_survey_router)
 
 # Роутер знакомства
 dp.include_router(acquaintance_router)
+dp.message(process_failed_confirmation, Command("proceed"), AcquaintanceState.waiting_for_confirmation)
 
 # Команды
 dp.message.register(

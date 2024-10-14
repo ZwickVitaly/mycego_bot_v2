@@ -7,6 +7,7 @@ from .command_handlers import (
     help_command_handler,
     new_link_command_handler,
     start_command_handler,
+    process_failed_confirmation,
 )
 from .join_chat_request import request_join_channel_handler
 from .message_handlers import back_message_handler, surveys_lock_message_handler
@@ -53,4 +54,5 @@ __all__ = [
     "get_promo_handler",
     "get_vacancies_command_handler",
     "surveys_lock_message_handler",
+    "process_failed_confirmation"
 ]
