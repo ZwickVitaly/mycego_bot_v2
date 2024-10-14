@@ -15,5 +15,5 @@ __all__ = [
     "get_career_ladder_handler",
     "get_promo_handler",
     "get_vacancies_command_handler",
-    "process_failed_confirmation"
+    "process_failed_confirmation",
 ]

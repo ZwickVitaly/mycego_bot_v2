@@ -155,14 +155,16 @@ async def process_confirmation(callback_query: CallbackQuery, state: FSMContext)
             if photo_id:
                 try:
                     await callback_query.message.answer_photo(
-                        photo=photo_id, reply_markup=await generate_acquaintance_proceed_keyboard()
+                        photo=photo_id,
+                        reply_markup=await generate_acquaintance_proceed_keyboard(),
                     )
                     return
                 except TelegramBadRequest:
                     pass
             career_jpg = FSInputFile(BASE_DIR / "static" / "career.jpg")
             msg = await callback_query.message.answer_photo(
-                photo=career_jpg, reply_markup=await generate_acquaintance_proceed_keyboard()
+                photo=career_jpg,
+                reply_markup=await generate_acquaintance_proceed_keyboard(),
             )
             photo_id = msg.photo[-1].file_id
             await redis_connection.set(RedisKeys.CAREER_IMAGE_ID, photo_id)
@@ -181,7 +183,8 @@ async def process_confirmation(callback_query: CallbackQuery, state: FSMContext)
                 if contacts_msg:
                     contacts_msg = f"Важные контакты:\n{contacts_msg}"
                     await callback_query.message.answer(
-                        contacts_msg, reply_markup=await generate_acquaintance_proceed_keyboard()
+                        contacts_msg,
+                        reply_markup=await generate_acquaintance_proceed_keyboard(),
                     )
             else:
                 await callback_query.message.answer(
@@ -190,7 +193,8 @@ async def process_confirmation(callback_query: CallbackQuery, state: FSMContext)
                 )
         elif confirmations == 3:
             await callback_query.message.answer(
-                PROMO_MESSAGE, reply_markup=await generate_acquaintance_proceed_keyboard()
+                PROMO_MESSAGE,
+                reply_markup=await generate_acquaintance_proceed_keyboard(),
             )
         else:
             await callback_query.message.answer(
@@ -268,7 +272,7 @@ async def process_confirmation(callback_query: CallbackQuery, state: FSMContext)
         await anotify_admins(
             callback_query.message.bot,
             f"Ошибка при назначении schedulers. Пользователь: {callback_query.from_user.id}",
-            ADMINS
+            ADMINS,
         )
         await callback_query.message.answer(
             "Произошла ошибка. Бот перезапущен, функции бота доступны. Нажмите команду /start"

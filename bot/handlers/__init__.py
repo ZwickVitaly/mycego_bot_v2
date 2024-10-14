@@ -54,5 +54,5 @@ __all__ = [
     "get_promo_handler",
     "get_vacancies_command_handler",
     "surveys_lock_message_handler",
-    "process_failed_confirmation"
+    "process_failed_confirmation",
 ]
