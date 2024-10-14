@@ -59,7 +59,7 @@ dp.include_router(monthly_survey_router)
 
 # Роутер знакомства
 dp.include_router(acquaintance_router)
-dp.message(
+dp.message.register(
     process_failed_confirmation,
     Command("proceed"),
     AcquaintanceState.waiting_for_confirmation,
@@ -84,6 +84,7 @@ dp.message.register(
 # Сообщение во время опроса/знакомства
 dp.message.register(
     surveys_lock_message_handler,
+    F.text != "/proceed",
     F.chat.type == "private",
     InStatesGroupFilter(
         survey_states + [AcquaintanceState],
