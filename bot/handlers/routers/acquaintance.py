@@ -8,7 +8,7 @@ from api_services import update_user_bio
 from constructors.scheduler_constructor import scheduler
 from FSM import AcquaintanceState
 from helpers import anotify_admins
-from keyboards import acquaintance_proceed_keyboard, menu_keyboard
+from keyboards import generate_acquaintance_proceed_keyboard, menu_keyboard
 from messages import (
     ACQUAINTANCE_ABOUT_US_MESSAGE,
     ACQUAINTANCE_SECOND_MESSAGE,
@@ -118,7 +118,7 @@ async def process_about_me_block(message: Message, state: FSMContext):
 
             await message.answer(
                 ACQUAINTANCE_ABOUT_US_MESSAGE,
-                reply_markup=acquaintance_proceed_keyboard,
+                reply_markup=await generate_acquaintance_proceed_keyboard(),
             )
             await state.set_state(AcquaintanceState.waiting_for_confirmation)
 
@@ -154,20 +154,22 @@ async def process_confirmation(callback_query: CallbackQuery, state: FSMContext)
             photo_id = await redis_connection.get(RedisKeys.CAREER_IMAGE_ID)
             if photo_id:
                 try:
-                    await callback_query.message.answer_photo(photo=photo_id)
+                    await callback_query.message.answer_photo(
+                        photo=photo_id, reply_markup=await generate_acquaintance_proceed_keyboard()
+                    )
                     return
                 except TelegramBadRequest:
                     pass
             career_jpg = FSInputFile(BASE_DIR / "static" / "career.jpg")
             msg = await callback_query.message.answer_photo(
-                photo=career_jpg, reply_markup=acquaintance_proceed_keyboard
+                photo=career_jpg, reply_markup=await generate_acquaintance_proceed_keyboard()
             )
             photo_id = msg.photo[-1].file_id
             await redis_connection.set(RedisKeys.CAREER_IMAGE_ID, photo_id)
         elif confirmations == 1:
             await callback_query.message.answer(
                 VACANCIES_LINK,
-                reply_markup=acquaintance_proceed_keyboard,
+                reply_markup=await generate_acquaintance_proceed_keyboard(),
                 disable_web_page_preview=True,
             )
         elif confirmations == 2:
@@ -179,16 +181,16 @@ async def process_confirmation(callback_query: CallbackQuery, state: FSMContext)
                 if contacts_msg:
                     contacts_msg = f"Важные контакты:\n{contacts_msg}"
                     await callback_query.message.answer(
-                        contacts_msg, reply_markup=acquaintance_proceed_keyboard
+                        contacts_msg, reply_markup=await generate_acquaintance_proceed_keyboard()
                     )
             else:
                 await callback_query.message.answer(
                     "Скоро мы добавим в этот раздел важные контакты. Пока что просто жмите 'Продолжить'",
-                    reply_markup=acquaintance_proceed_keyboard,
+                    reply_markup=await generate_acquaintance_proceed_keyboard(),
                 )
         elif confirmations == 3:
             await callback_query.message.answer(
-                PROMO_MESSAGE, reply_markup=acquaintance_proceed_keyboard
+                PROMO_MESSAGE, reply_markup=await generate_acquaintance_proceed_keyboard()
             )
         else:
             await callback_query.message.answer(

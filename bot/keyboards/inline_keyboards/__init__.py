@@ -1,6 +1,6 @@
 from .admin_edit_contacts import delete_or_edit_contact, select_contacts_keyboard
 from .cancel_keyboard import call_back
-from .continue_keyboard import acquaintance_proceed_keyboard
+from .continue_keyboard import generate_acquaintance_proceed_keyboard
 from .pay_sheets_keyboards import generate_pay_sheets
 from .surveys import (
     SurveyMappings,
@@ -40,5 +40,5 @@ __all__ = [
     "yes_or_no_keyboard",
     "one_to_range_keyboard",
     "team_atmosphere_keyboard",
-    "acquaintance_proceed_keyboard",
+    "generate_acquaintance_proceed_keyboard",
 ]

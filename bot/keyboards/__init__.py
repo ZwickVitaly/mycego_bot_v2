@@ -1,6 +1,6 @@
 from .inline_keyboards import (
     SurveyMappings,
-    acquaintance_proceed_keyboard,
+    generate_acquaintance_proceed_keyboard,
     call_back,
     create_works_list,
     delete_button,
@@ -42,5 +42,5 @@ __all__ = [
     "yes_or_no_keyboard",
     "one_to_range_keyboard",
     "team_atmosphere_keyboard",
-    "acquaintance_proceed_keyboard",
+    "generate_acquaintance_proceed_keyboard",
 ]
