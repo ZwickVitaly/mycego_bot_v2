@@ -56,7 +56,7 @@ async def first_week_first_q_handler(callback_query: CallbackQuery, state: FSMCo
                 await callback_query.message.delete()
                 user = await aget_user_by_id(callback_query.from_user.id)
                 admin_msg = make_survey_notification(
-                    user_name=user.username.split("_"),
+                    user_name=user.username.replace("_", " "),
                     user_role=user.role,
                     period="Первый день",
                     data=data,

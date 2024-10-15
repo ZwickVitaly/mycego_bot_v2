@@ -121,7 +121,7 @@ async def first_day_second_q_handler(callback_query: CallbackQuery, state: FSMCo
                 await state.clear()
                 await callback_query.message.delete()
                 admin_msg = make_survey_notification(
-                    user_name=user.username.split("_"),
+                    user_name=user.username.replace("_", " "),
                     user_role=user.role,
                     period="Первый день",
                     data=data,

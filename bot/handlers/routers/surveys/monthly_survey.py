@@ -114,7 +114,7 @@ async def monthly_second_q_handler(message: Message, state: FSMContext):
         month_no = data.pop("month_no")
         user = await aget_user_by_id(message.from_user.id)
         admin_msg = make_survey_notification(
-            user_name=user.username.split("_"),
+            user_name=user.username.replace("_", " "),
             user_role=user.role,
             period=f"{month_no}й месяц",
             data=data,
