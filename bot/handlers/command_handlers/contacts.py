@@ -13,7 +13,7 @@ async def get_contacts_command_handler(message: Message, state: FSMContext):
     """
     try:
         contacts = await redis_connection.hgetall(RedisKeys.CONTACTS_KEY)
-        msg = f"Контакты руководства:\n{'\n'.join([f'{key} - {val}' for key, val in contacts.items()])}"
+        msg = f"Контакты руководства:\n{'\n'.join([f'{val}' for val in contacts.values()])}"
         if message.from_user.id in ADMINS:
             await state.set_state(EditContactsState.waiting_for_selected_contact)
             await message.answer(

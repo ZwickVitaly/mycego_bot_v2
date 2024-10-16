@@ -8,9 +8,9 @@ async def select_contacts_keyboard(data: dict):
     keyboard = InlineKeyboardBuilder()
     keyboard.max_width = 2
     if data:
-        for key in data.keys():
+        for key, val in data.items():
             contact_select_button = InlineKeyboardButton(
-                text=f"{key}", callback_data=f"contact_{key}"
+                text=f"{val[:10]}...", callback_data=f"contact_{key}"
             )
             keyboard.add(contact_select_button)
     add_contact_button = InlineKeyboardButton(

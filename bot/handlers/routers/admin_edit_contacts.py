@@ -30,7 +30,7 @@ async def process_admin_contact_callback(
             selected = callback_query.data.split("_")[-1]
             contact = await redis_connection.hget(RedisKeys.CONTACTS_KEY, selected)
             await callback_query.message.answer(
-                f"Выберите действие для контакта: \n{selected} - {contact}",
+                f"Выберите действие для контакта: \n{contact}",
                 reply_markup=await delete_or_edit_contact(callback_query.data),
             )
             await state.set_state(EditContactsState.waiting_for_action_type)
@@ -48,24 +48,21 @@ async def process_admin_contact_callback(
 async def process_new_contact(message: Message, state: FSMContext):
     try:
         logger.info(f"{message.from_user.id} добавляет контакт: {message.text}")
-        contact = message.text.strip().split(" - ")
-        if len(contact) != 2:
-            await message.answer("Неправильный формат контакта.")
-        else:
-            edited = (await state.get_data()).get("edited_contact")
-            action = "добавлен"
-            if edited:
-                await redis_connection.hdel(RedisKeys.CONTACTS_KEY, edited)
-                action = "изменён"
-            await redis_connection.hset(RedisKeys.CONTACTS_KEY, contact[0], contact[1])
-            contacts = await redis_connection.hgetall(RedisKeys.CONTACTS_KEY)
-            msg = f"{'\n'.join([f'{key} - {val}' for key, val in contacts.items()])}"
-            await state.set_state(EditContactsState.waiting_for_selected_contact)
-            await message.answer(
-                f"Контакт {action}. Новый список:\n{msg}\n\nВыберите контакт, который нужно отредактировать или добавьте новый",
-                reply_markup=await select_contacts_keyboard(contacts),
-            )
-            await message.delete()
+        edited = (await state.get_data()).get("edited_contact")
+        action = "добавлен"
+        if edited:
+            await redis_connection.hdel(RedisKeys.CONTACTS_KEY, edited)
+            action = "изменён"
+        counter = await redis_connection.incrby(RedisKeys.CONTACTS_COUNTER_KEY)
+        await redis_connection.hset(RedisKeys.CONTACTS_KEY, counter, message.text)
+        contacts = await redis_connection.hgetall(RedisKeys.CONTACTS_KEY)
+        msg = f"{'\n'.join([f'{val}' for val in contacts.values()])}"
+        await state.set_state(EditContactsState.waiting_for_selected_contact)
+        await message.answer(
+            f"Контакт {action}. Новый список:\n{msg}\n\nВыберите контакт, который нужно отредактировать или добавьте новый",
+            reply_markup=await select_contacts_keyboard(contacts),
+        )
+        await message.delete()
     except Exception as e:
         # обрабатываем возможные исключения
         logger.exception(e)
