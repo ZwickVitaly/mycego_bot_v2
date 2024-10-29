@@ -1,4 +1,3 @@
-import asyncio
 from datetime import timedelta
 
 from aiogram.exceptions import TelegramBadRequest
@@ -90,6 +89,7 @@ async def renew_users_base():
                         await session.execute(
                             delete(User).where(User.telegram_id.in_(fired_ids))
                         )
+                        await session.commit()
                     logger.info("Удаление уволенных завершено")
 
                 else:
