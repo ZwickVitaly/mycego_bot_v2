@@ -158,18 +158,14 @@ async def process_confirmation(callback_query: CallbackQuery, state: FSMContext)
                         photo=photo_id,
                         reply_markup=await generate_acquaintance_proceed_keyboard(),
                     )
-                    data["confirmations"] = confirmations + 1
-                    await state.set_data(data)
-                    return
                 except TelegramBadRequest:
-                    pass
-            career_jpg = FSInputFile(BASE_DIR / "static" / "career.jpg")
-            msg = await callback_query.message.answer_photo(
-                photo=career_jpg,
-                reply_markup=await generate_acquaintance_proceed_keyboard(),
-            )
-            photo_id = msg.photo[-1].file_id
-            await redis_connection.set(RedisKeys.CAREER_IMAGE_ID, photo_id)
+                    career_jpg = FSInputFile(BASE_DIR / "static" / "career.jpg")
+                    msg = await callback_query.message.answer_photo(
+                        photo=career_jpg,
+                        reply_markup=await generate_acquaintance_proceed_keyboard(),
+                    )
+                    photo_id = msg.photo[-1].file_id
+                    await redis_connection.set(RedisKeys.CAREER_IMAGE_ID, photo_id)
         elif confirmations == 1:
             await callback_query.message.answer(
                 VACANCIES_LINK,
@@ -194,10 +190,21 @@ async def process_confirmation(callback_query: CallbackQuery, state: FSMContext)
                     reply_markup=await generate_acquaintance_proceed_keyboard(),
                 )
         elif confirmations == 3:
-            await callback_query.message.answer(
-                PROMO_MESSAGE,
-                reply_markup=await generate_acquaintance_proceed_keyboard(),
-            )
+            photo_id = await redis_connection.get(RedisKeys.PROMO_IMAGE_ID)
+            if photo_id:
+                try:
+                    await callback_query.message.answer_photo(
+                        photo=photo_id,
+                        reply_markup=await generate_acquaintance_proceed_keyboard(),
+                    )
+                except TelegramBadRequest:
+                    career_jpg = FSInputFile(BASE_DIR / "static" / "promo.jpg")
+                    msg = await callback_query.message.answer_photo(
+                        photo=career_jpg,
+                        reply_markup=await generate_acquaintance_proceed_keyboard(),
+                    )
+                    photo_id = msg.photo[-1].file_id
+                    await redis_connection.set(RedisKeys.PROMO_IMAGE_ID, photo_id)
         else:
             await callback_query.message.answer(
                 AFTER_ACQUAINTANCE_MESSAGE,

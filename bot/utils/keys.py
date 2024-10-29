@@ -12,3 +12,4 @@ class RedisKeys:
     SCHEDULES_HAPPY_BIRTHDAY_KEY = "happy_birthday"
 
     CAREER_IMAGE_ID = "career_image_id"
+    PROMO_IMAGE_ID = "promo_image_id"
