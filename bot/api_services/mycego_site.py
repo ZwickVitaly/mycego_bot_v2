@@ -250,6 +250,7 @@ async def post_request(user_id, type_r, comment):
     json_data = json.dumps(data)
     async with ClientSession(headers=JSON_HEADERS) as session:
         async with session.post(url=url, data=json_data) as response:
+            logger.info(f"{response}")
             return response.status
 
 
