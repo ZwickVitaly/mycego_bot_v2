@@ -15,17 +15,22 @@ from utils import RedisKeys
 async def fix_surveys_job():
     async with async_session() as session:
         async with session.begin():
-            q = await session.execute(select(User).options(selectinload(User.surveys)))
+            q = await session.execute(select(User))
             users = q.scalars()
+            q = await session.execute(select(Survey))
+            surveys = list(q.scalars())
+            surveys_users_ids = {s.user_id: [] for s in surveys}
+            for survey in surveys:
+                surveys_users_ids[survey.user_id].append(survey)
             for user in users:
-                surveys = user.surveys
-                print(surveys)
-                # tasks = [
-                #     scheduler.get_job(f"{RedisKeys.SCHEDULES_FIRST_DAY_KEY}_{user.telegram_id}"),
-                #     scheduler.get_job(f"{RedisKeys.SCHEDULES_ONE_WEEK_KEY}_{user.telegram_id}"),
-                #     scheduler.get_job(f"{RedisKeys.SCHEDULES_ONE_MONTH_KEY}_{user.telegram_id}"),
-                #     scheduler.get_job(f"{RedisKeys.SCHEDULES_TWO_MONTHS_KEY}_{user.telegram_id}"),
-                #     scheduler.get_job(f"{RedisKeys.SCHEDULES_THREE_MONTHS_KEY}_{user.telegram_id}"),
-                # ]
-                # jobs_pending = [job for job in tasks if job]
-                # logger.critical(f"User: {user.telegram_id}, Jobs: {len(jobs_pending)}, Surveys: {len(surveys)}")
+                if user.id in surveys_users_ids:
+                    tasks = [
+                        scheduler.get_job(f"{RedisKeys.SCHEDULES_FIRST_DAY_KEY}_{user.telegram_id}"),
+                        scheduler.get_job(f"{RedisKeys.SCHEDULES_ONE_WEEK_KEY}_{user.telegram_id}"),
+                        scheduler.get_job(f"{RedisKeys.SCHEDULES_ONE_MONTH_KEY}_{user.telegram_id}"),
+                        scheduler.get_job(f"{RedisKeys.SCHEDULES_TWO_MONTHS_KEY}_{user.telegram_id}"),
+                        scheduler.get_job(f"{RedisKeys.SCHEDULES_THREE_MONTHS_KEY}_{user.telegram_id}"),
+                    ]
+                    jobs_pending = [job for job in tasks if job]
+                    user_surveys = surveys_users_ids.get(user.id)
+                    logger.critical(f"User: {user.telegram_id}, Jobs: {len(jobs_pending)}, Surveys: {len(user_surveys)}")
