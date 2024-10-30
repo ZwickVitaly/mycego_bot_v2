@@ -26,7 +26,7 @@ async def fix_surveys_job():
                     scheduler.get_job(f"{RedisKeys.SCHEDULES_TWO_MONTHS_KEY}_{user.telegram_id}"),
                     scheduler.get_job(f"{RedisKeys.SCHEDULES_THREE_MONTHS_KEY}_{user.telegram_id}"),
                 ]
-                jobs_pending = [job for job in await asyncio.gather(*tasks) if job]
+                jobs_pending = [job for job in tasks if job]
                 if len(surveys) + len(jobs_pending) != 5:
                     logger.critical(user.telegram_id)
                 else:
