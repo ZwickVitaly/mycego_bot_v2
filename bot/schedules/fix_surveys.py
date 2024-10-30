@@ -27,7 +27,4 @@ async def fix_surveys_job():
                     scheduler.get_job(f"{RedisKeys.SCHEDULES_THREE_MONTHS_KEY}_{user.telegram_id}"),
                 ]
                 jobs_pending = [job for job in tasks if job]
-                if len(surveys) + len(jobs_pending) != 5:
-                    logger.critical(user.telegram_id)
-                else:
-                    continue
+                logger.critical(f"User: {user.telegram_id}, Jobs: {len(jobs_pending)}, Surveys: {len(surveys)}")
