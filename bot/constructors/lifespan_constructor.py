@@ -29,7 +29,7 @@ async def start_up(bot: Bot):
     await anotify_admins(bot, "Бот запущен", admins_list=ADMINS)
     await renew_users_base()
     await renew_works_base()
-    await fix_surveys_job()
+    # await fix_surveys_job()
     scheduler.add_job(
         happy_birthday,
         trigger=CronTrigger(hour=12, minute=0, second=0, timezone=TIMEZONE),
