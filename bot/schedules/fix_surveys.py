@@ -15,16 +15,17 @@ from utils import RedisKeys
 async def fix_surveys_job():
     async with async_session() as session:
         async with session.begin():
-            q = await session.execute(select(User).options(selectinload(User.surveys)))
+            q = await session.execute(select(Survey))
             users = q.scalars()
             for user in users:
-                surveys = list(user.surveys)
-                tasks = [
-                    scheduler.get_job(f"{RedisKeys.SCHEDULES_FIRST_DAY_KEY}_{user.telegram_id}"),
-                    scheduler.get_job(f"{RedisKeys.SCHEDULES_ONE_WEEK_KEY}_{user.telegram_id}"),
-                    scheduler.get_job(f"{RedisKeys.SCHEDULES_ONE_MONTH_KEY}_{user.telegram_id}"),
-                    scheduler.get_job(f"{RedisKeys.SCHEDULES_TWO_MONTHS_KEY}_{user.telegram_id}"),
-                    scheduler.get_job(f"{RedisKeys.SCHEDULES_THREE_MONTHS_KEY}_{user.telegram_id}"),
-                ]
-                jobs_pending = [job for job in tasks if job]
-                logger.critical(f"User: {user.telegram_id}, Jobs: {len(jobs_pending)}, Surveys: {len(surveys)}")
+                logger.info(user.user_id)
+                # surveys = list(user.surveys)
+                # tasks = [
+                #     scheduler.get_job(f"{RedisKeys.SCHEDULES_FIRST_DAY_KEY}_{user.telegram_id}"),
+                #     scheduler.get_job(f"{RedisKeys.SCHEDULES_ONE_WEEK_KEY}_{user.telegram_id}"),
+                #     scheduler.get_job(f"{RedisKeys.SCHEDULES_ONE_MONTH_KEY}_{user.telegram_id}"),
+                #     scheduler.get_job(f"{RedisKeys.SCHEDULES_TWO_MONTHS_KEY}_{user.telegram_id}"),
+                #     scheduler.get_job(f"{RedisKeys.SCHEDULES_THREE_MONTHS_KEY}_{user.telegram_id}"),
+                # ]
+                # jobs_pending = [job for job in tasks if job]
+                # logger.critical(f"User: {user.telegram_id}, Jobs: {len(jobs_pending)}, Surveys: {len(surveys)}")
