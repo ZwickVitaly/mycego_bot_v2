@@ -23,7 +23,7 @@ async def fix_surveys_job():
             for survey in surveys:
                 surveys_users_ids[survey.user_id].append(survey)
             for user in users:
-                if user.id in surveys_users_ids:
+                if int(user.telegram_id) in surveys_users_ids:
                     tasks = [
                         scheduler.get_job(f"{RedisKeys.SCHEDULES_FIRST_DAY_KEY}_{user.telegram_id}"),
                         scheduler.get_job(f"{RedisKeys.SCHEDULES_ONE_WEEK_KEY}_{user.telegram_id}"),
@@ -32,5 +32,5 @@ async def fix_surveys_job():
                         scheduler.get_job(f"{RedisKeys.SCHEDULES_THREE_MONTHS_KEY}_{user.telegram_id}"),
                     ]
                     jobs_pending = [job for job in tasks if job]
-                    user_surveys = surveys_users_ids.get(user.id)
+                    user_surveys = surveys_users_ids.get(int(user.telegram_id))
                     logger.critical(f"User: {user.telegram_id}, Jobs: {len(jobs_pending)}, Surveys: {len(user_surveys)}")
