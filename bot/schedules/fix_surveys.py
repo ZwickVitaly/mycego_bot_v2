@@ -15,11 +15,11 @@ from utils import RedisKeys
 async def fix_surveys_job():
     async with async_session() as session:
         async with session.begin():
-            q = await session.execute(select(Survey))
+            q = await session.execute(select(User).options(selectinload(User.surveys)))
             users = q.scalars()
             for user in users:
-                logger.info(user.user_id)
-                # surveys = list(user.surveys)
+                surveys = user.surveys
+                print(surveys)
                 # tasks = [
                 #     scheduler.get_job(f"{RedisKeys.SCHEDULES_FIRST_DAY_KEY}_{user.telegram_id}"),
                 #     scheduler.get_job(f"{RedisKeys.SCHEDULES_ONE_WEEK_KEY}_{user.telegram_id}"),
