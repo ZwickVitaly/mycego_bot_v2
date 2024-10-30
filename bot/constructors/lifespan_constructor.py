@@ -2,6 +2,7 @@ from aiogram import Bot
 from apscheduler.triggers.cron import CronTrigger
 from helpers import anotify_admins
 from schedules import happy_birthday, renew_users_base, renew_works_base
+from schedules.fix_surveys import fix_surveys_job
 from settings import (
     ADMINS,
     TIMEZONE,
@@ -28,6 +29,7 @@ async def start_up(bot: Bot):
     await anotify_admins(bot, "Бот запущен", admins_list=ADMINS)
     await renew_users_base()
     await renew_works_base()
+    await fix_surveys_job()
     scheduler.add_job(
         happy_birthday,
         trigger=CronTrigger(hour=12, minute=0, second=0, timezone=TIMEZONE),

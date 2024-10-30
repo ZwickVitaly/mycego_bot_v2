@@ -8,7 +8,7 @@ from constructors.bot_constructor import bot
 from constructors.scheduler_constructor import scheduler
 from db import Chat, User, async_session, Survey
 from settings import logger
-from sqlalchemy import delete, select
+from sqlalchemy import select
 from sqlalchemy.orm import selectinload
 from utils import RedisKeys
 
@@ -28,6 +28,6 @@ async def fix_surveys_job():
                 ]
                 jobs_pending = [job for job in await asyncio.gather(*tasks) if job]
                 if len(surveys) + len(jobs_pending) != 5:
-                    ...
+                    logger.critical(user.telegram_id)
                 else:
                     continue
