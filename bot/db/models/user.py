@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String
+from sqlalchemy import Column, Integer, String, DateTime, func
 from sqlalchemy.orm import relationship
 
 from ..base import Base
@@ -23,6 +23,7 @@ class User(Base):
     first_name = Column(String, nullable=True)  # из telegram
     last_name = Column(String, nullable=True)  # из telegram
     role = Column(String, nullable=True)  # должность с сайта
+    date_joined = Column(DateTime, server_default=func.now(), nullable=True) # дата регистрации в боте
     messages = relationship(
         "Message", back_populates="user", lazy="selectin"
     )  # отношение к сообщениям
