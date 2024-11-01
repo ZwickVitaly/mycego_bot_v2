@@ -3,7 +3,7 @@ from db import Chat, User, async_session, Survey
 from settings import logger
 from sqlalchemy import select
 from sqlalchemy.orm import selectinload
-from utils import RedisKeys, redis_connection
+from utils import RedisKeys, storage_connection
 
 
 async def fix_surveys_job():
@@ -14,11 +14,11 @@ async def fix_surveys_job():
                 users = q.unique().scalars()
                 for user in users:
                     tasks = [
-                        await redis_connection.hget("apscheduler.jobs", f"{RedisKeys.SCHEDULES_FIRST_DAY_KEY}_{user.telegram_id}"),
-                        await redis_connection.hget("apscheduler.jobs", f"{RedisKeys.SCHEDULES_ONE_WEEK_KEY}_{user.telegram_id}"),
-                        await redis_connection.hget("apscheduler.jobs", f"{RedisKeys.SCHEDULES_ONE_MONTH_KEY}_{user.telegram_id}"),
-                        await redis_connection.hget("apscheduler.jobs", f"{RedisKeys.SCHEDULES_TWO_MONTHS_KEY}_{user.telegram_id}"),
-                        await redis_connection.hget("apscheduler.jobs", f"{RedisKeys.SCHEDULES_THREE_MONTHS_KEY}_{user.telegram_id}"),
+                        await storage_connection.hget("apscheduler.jobs", f"{RedisKeys.SCHEDULES_FIRST_DAY_KEY}_{user.telegram_id}"),
+                        await storage_connection.hget("apscheduler.jobs", f"{RedisKeys.SCHEDULES_ONE_WEEK_KEY}_{user.telegram_id}"),
+                        await storage_connection.hget("apscheduler.jobs", f"{RedisKeys.SCHEDULES_ONE_MONTH_KEY}_{user.telegram_id}"),
+                        await storage_connection.hget("apscheduler.jobs", f"{RedisKeys.SCHEDULES_TWO_MONTHS_KEY}_{user.telegram_id}"),
+                        await storage_connection.hget("apscheduler.jobs", f"{RedisKeys.SCHEDULES_THREE_MONTHS_KEY}_{user.telegram_id}"),
                     ]
                     logger.info(tasks)
                     jobs_pending = [job for job in tasks if job]
