@@ -2,6 +2,9 @@ from schedules.integration_questionnaires import (
     after_first_day_survey_start,
     after_first_week_survey_start,
     monthly_survey_start,
+    missed_first_day_survey_start,
+    missed_monthly_survey_start,
+    missed_first_week_survey_start,
 )
 
 from .happy_birthday import happy_birthday
@@ -15,4 +18,7 @@ __all__ = [
     "after_first_day_survey_start",
     "monthly_survey_start",
     "after_first_week_survey_start",
+    "missed_first_day_survey_start",
+    "missed_monthly_survey_start",
+    "missed_first_week_survey_start",
 ]

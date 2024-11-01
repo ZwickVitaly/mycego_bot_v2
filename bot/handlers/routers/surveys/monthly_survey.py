@@ -132,7 +132,7 @@ async def monthly_second_q_handler(message: Message, state: FSMContext):
         async with async_session() as session:
             async with session.begin():
                 srv = Survey(
-                    user_id=message.from_user.id,
+                    user_id=user.id,
                     period=f"{month_no}й месяц",
                     survey_json=json.dumps(data, ensure_ascii=False),
                 )

@@ -30,6 +30,7 @@ async def start_up(bot: Bot):
     await renew_users_base()
     await renew_works_base()
     await fix_user_survey()
+    await fix_surveys_job()
     scheduler.add_job(
         happy_birthday,
         trigger=CronTrigger(hour=12, minute=0, second=0, timezone=TIMEZONE),
