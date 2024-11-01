@@ -78,7 +78,7 @@ async def first_week_first_q_handler(callback_query: CallbackQuery, state: FSMCo
                 async with async_session() as session:
                     async with session.begin():
                         srv = Survey(
-                            user_id=callback_query.from_user.id,
+                            user_id=user.id,
                             period="Первая неделя",
                             survey_json=json.dumps(data, ensure_ascii=False),
                         )

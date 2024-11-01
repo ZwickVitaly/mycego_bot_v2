@@ -1,10 +1,4 @@
-import asyncio
-from datetime import timedelta
 
-from aiogram.exceptions import TelegramBadRequest
-from api_services import get_users_statuses
-from api_services.google_sheets import remove_fired_worker_surveys
-from constructors.bot_constructor import bot
 from constructors.scheduler_constructor import scheduler
 from db import Chat, User, async_session, Survey
 from settings import logger
@@ -34,3 +28,27 @@ async def fix_surveys_job():
                     jobs_pending = [job for job in tasks if job]
                     user_surveys = surveys_users_ids.get(int(user.telegram_id))
                     logger.critical(f"User: {user.telegram_id}, Jobs: {len(jobs_pending)}, Surveys: {len(user_surveys)}")
+
+async def fix_user_survey():
+    try:
+        async with async_session() as session:
+            async with session.begin():
+                q = await session.execute(select(User))
+                users = list(q.scalars())
+                q = await session.execute(select(Survey))
+                surveys = list(q.scalars())
+                for user in users:
+                    for survey in surveys:
+                        if str(survey.user_id) == user.telegram_id:
+                            logger.info(f"Фиксим юзера: {user.telegram_id}, Опрос: {survey.id}")
+                            survey.user_id = user.id
+                await session.commit()
+            logger.info("Проверяем")
+            async with session.begin():
+                q = await session.execute(select(User).options(selectinload(User.surveys)))
+                users = q.unique().scalars()
+                for user in users:
+                    logger.info(len(list(user.surveys)))
+    except Exception as e:
+        logger.error(f"{e}")
+

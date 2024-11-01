@@ -22,7 +22,7 @@ async def renew_users_base():
         if users_statuses and isinstance(users_statuses, list):
             logger.info("Статусы получены")
             # получаем id тех, кто когда-либо был уволен
-            fired_ids = [
+            working_ids = [
                 user.get("telegram_id")
                 for user in users_statuses
                 if user.get("telegram_id") and user.get("status_work") is True
@@ -30,7 +30,7 @@ async def renew_users_base():
             async with async_session() as session:
                 async with session.begin():
                     q = await session.execute(
-                        select(User).filter(User.telegram_id.notin_(fired_ids))
+                        select(User).filter(User.telegram_id.notin_(working_ids))
                     )
                     fired_users: list[User] = q.scalars()
             fired_ids = [user.telegram_id for user in fired_users]
