@@ -15,6 +15,7 @@ async def fix_surveys_job():
                 q = await session.execute(select(User).options(selectinload(User.surveys)))
                 users = q.unique().scalars()
                 today = datetime.now()
+                broken_users = 0
                 for user in users:
                     user_completed_surveys = {
                         "Первый день": None,
@@ -44,27 +45,32 @@ async def fix_surveys_job():
                             logger.info("1А")
                         else:
                             logger.info("1Б")
+                        broken_users += 1
                     if not user_completed_surveys["Первая неделя"] and not user_pending_surveys["Первая неделя"]:
                         if user.date_joined and (today - user.date_joined).days > 7:
                             logger.info("2А")
                         else:
                             logger.info("2Б")
+                        broken_users += 1
                     if not user_completed_surveys["1й месяц"] and not user_pending_surveys["1й месяц"]:
                         if user.date_joined and (today - user.date_joined).days > 30:
                             logger.info("3А")
                         else:
                             logger.info("3Б")
+                        broken_users += 1
                     if not user_completed_surveys["2й месяц"] and not user_pending_surveys["2й месяц"]:
                         if user.date_joined and (today - user.date_joined).days > 60:
                             logger.info("4А")
                         else:
                             logger.info("4Б")
+                        broken_users += 1
                     if not user_completed_surveys["3й месяц"] and not user_pending_surveys["3й месяц"]:
                         if user.date_joined and (today - user.date_joined).days > 90:
                             logger.info("5А")
                         else:
                             logger.info("5Б")
-
+                        broken_users += 1
+                logger.info(f"Ломаные юзеры: {broken_users}")
     except Exception as e:
         logger.error(f"{e}")
 
@@ -82,18 +88,13 @@ async def fix_user_survey():
                             logger.info(f"Фиксим юзера: {user.telegram_id}, Опрос: {survey.id}")
                             survey.user_id = user.id
                 await session.commit()
-            logger.info("Проверяем")
-            async with session.begin():
-                q = await session.execute(select(User).options(selectinload(User.surveys)))
-                users = q.unique().scalars()
-                for user in users:
-                    logger.info(len(list(user.surveys)))
     except Exception as e:
         logger.error(f"{e}")
 
 
 async def fix_user_date_joined():
     try:
+        logger.info("Чиним даты регистрации пользователей")
         statuses = await get_users_statuses()
         users_date_joined = {user.get("telegram_id"): datetime.fromisoformat(user.get("date_joined")) for user in statuses.get("data", {}) if user.get("telegram_id")}
         async with async_session() as session:
