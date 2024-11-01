@@ -57,7 +57,7 @@ async def fix_user_date_joined():
     try:
         async with async_session() as session:
             async with session.begin():
-                q = await session.execute(select(User).filter(User.date_joined > datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)))
+                q = await session.execute(select(User).filter(User.date_joined == None))
                 users = list(q.scalars())
                 for user in users:
                     logger.info(user.user_id)
