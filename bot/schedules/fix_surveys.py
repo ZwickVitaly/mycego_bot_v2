@@ -55,15 +55,11 @@ async def fix_user_survey():
 
 async def fix_user_date_joined():
     try:
-        user_statuses = await get_users_statuses()
-        user_joined_dates = {user.get("telegram_id"): datetime.fromisoformat(user.get("date_joined")) for user in user_statuses.get("data")}
         async with async_session() as session:
             async with session.begin():
                 q = await session.execute(select(User))
                 users = list(q.scalars())
                 for user in users:
-                    if user.telegram_id in user_joined_dates:
-                        user.date_joined = user_joined_dates.get(user.telegram_id)
-                await session.commit()
+                    logger.info(user.date_joined)
     except Exception as e:
         logger.error(f"{e}")
