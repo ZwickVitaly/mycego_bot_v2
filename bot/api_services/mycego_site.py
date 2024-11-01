@@ -1,6 +1,7 @@
 import asyncio
 import json
 from copy import deepcopy
+from datetime import datetime
 
 from aiohttp import ClientSession
 from db import Works, async_session
@@ -286,4 +287,6 @@ async def update_user_bio(user_id_site, birth_date, hobbies):
 
 if __name__ == "__main__":
     # check_user_api('admin', 'fma160392')
-    logger.debug(asyncio.run(get_users_statuses()).get("data"))
+    p = asyncio.run(get_users_statuses()).get("data")
+    # dates = [datetime.fromisoformat(x.get("date_joined")) for x in p]
+    # print(dates)
