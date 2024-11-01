@@ -2,14 +2,13 @@ from datetime import datetime, timedelta
 
 from api_services import get_users_statuses
 from constructors.scheduler_constructor import scheduler
-from db import Chat, User, async_session, Survey
+from db import User, async_session, Survey
 from settings import logger, TIMEZONE
 from sqlalchemy import select, or_
 from sqlalchemy.orm import selectinload
 from utils import RedisKeys, storage_connection
 from schedules import missed_monthly_survey_start, missed_first_day_survey_start, missed_first_week_survey_start, \
     after_first_day_survey_start, after_first_week_survey_start, monthly_survey_start
-from messages import FIRST_WEEK_PASSED, MONTH_PASSED
 
 
 async def fix_surveys_job():
@@ -45,6 +44,7 @@ async def fix_surveys_job():
                     }
                     user_joined_days_delta = (today - user.date_joined).days if user.date_joined else 0
                     if not user_completed_surveys["Первый день"] and not user_pending_surveys["Первый день"]:
+                        logger.info(f"Создаём опросник для {user.username} за первый день")
                         if user.date_joined and (user_joined_days_delta > 0  or datetime.now(TIMEZONE).hour > 21):
                             missed_first_day_timer = today + timedelta(minutes=10)
                             scheduler.add_job(
@@ -70,6 +70,7 @@ async def fix_surveys_job():
                                 replace_existing=True,
                             )
                     if not user_completed_surveys["Первая неделя"] and not user_pending_surveys["Первая неделя"]:
+                        logger.info(f"Создаём опросник для {user.username} за первую неделю")
                         if user.date_joined and user_joined_days_delta > 7:
                             missed_first_week_timer = datetime.now(TIMEZONE).replace(hour=8, minute=0, second=0) + timedelta(days=1)
                             scheduler.add_job(
@@ -91,6 +92,7 @@ async def fix_surveys_job():
                                 replace_existing=True,
                             )
                     if not user_completed_surveys["1й месяц"] and not user_pending_surveys["1й месяц"]:
+                        logger.info(f"Создаём опросник для {user.username} за 1й месяц")
                         if user.date_joined and user_joined_days_delta > 31:
                             missed_first_month_timer = datetime.now(TIMEZONE).replace(hour=8, minute=0, second=0) + timedelta(days=2)
                             scheduler.add_job(
@@ -112,6 +114,7 @@ async def fix_surveys_job():
                                 replace_existing=True,
                             )
                     if not user_completed_surveys["2й месяц"] and not user_pending_surveys["2й месяц"]:
+                        logger.info(f"Создаём опросник для {user.username} за 2й месяц")
                         if user.date_joined and (today - user.date_joined).days > 61:
                             missed_first_month_timer = datetime.now(TIMEZONE).replace(hour=8, minute=0, second=0) + timedelta(days=3)
                             scheduler.add_job(
@@ -133,6 +136,7 @@ async def fix_surveys_job():
                                 replace_existing=True,
                             )
                     if not user_completed_surveys["3й месяц"] and not user_pending_surveys["3й месяц"]:
+                        logger.info(f"Создаём опросник для {user.username} за 3й месяц")
                         if user.date_joined and (today - user.date_joined).days > 91:
                             missed_first_month_timer = datetime.now(TIMEZONE).replace(hour=8, minute=0, second=0) + timedelta(days=4)
                             scheduler.add_job(
