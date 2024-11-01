@@ -1,11 +1,15 @@
-from datetime import datetime
+from datetime import datetime, timedelta
 
 from api_services import get_users_statuses
+from constructors.scheduler_constructor import scheduler
 from db import Chat, User, async_session, Survey
-from settings import logger
+from settings import logger, TIMEZONE
 from sqlalchemy import select, or_
 from sqlalchemy.orm import selectinload
 from utils import RedisKeys, storage_connection
+from schedules import missed_monthly_survey_start, missed_first_day_survey_start, missed_first_week_survey_start, \
+    after_first_day_survey_start, after_first_week_survey_start, monthly_survey_start
+from messages import FIRST_WEEK_PASSED, MONTH_PASSED
 
 
 async def fix_surveys_job():
@@ -15,9 +19,7 @@ async def fix_surveys_job():
                 q = await session.execute(select(User).options(selectinload(User.surveys)))
                 users = q.unique().scalars()
                 today = datetime.now()
-                broken_users_count = 0
                 for user in users:
-                    broken_users = 0
                     user_completed_surveys = {
                         "Первый день": None,
                         "Первая неделя": None,
@@ -41,40 +43,116 @@ async def fix_surveys_job():
                         "2й месяц": tasks[3],
                         "3й месяц": tasks[4],
                     }
-                    logger.info(f"Пользователь: {user.username}, отсутствуют: {[key for key in user_completed_surveys if not user_completed_surveys[key] and not user_pending_surveys[key]]}")
+                    user_joined_days_delta = (today - user.date_joined).days if user.date_joined else 0
                     if not user_completed_surveys["Первый день"] and not user_pending_surveys["Первый день"]:
-                        if user.date_joined and user.date_joined.day > today.day:
-                            ...
+                        if user.date_joined and (user_joined_days_delta > 0  or datetime.now(TIMEZONE).hour > 21):
+                            missed_first_day_timer = today + timedelta(minutes=10)
+                            scheduler.add_job(
+                                missed_first_day_survey_start,
+                                "date",
+                                id=f"{RedisKeys.SCHEDULES_FIRST_DAY_KEY}_{user.telegram_id}",
+                                next_run_time=missed_first_day_timer,
+                                args=[user.telegram_id],
+                                replace_existing=True,
+                            )
                         else:
-                            ...
-                        broken_users += 1
+                            first_day_timer = datetime.now(TIMEZONE)
+                            if first_day_timer.hour > 21:
+                                first_day_timer = first_day_timer + timedelta(minutes=10)
+                            else:
+                                first_day_timer = first_day_timer.replace(hour=21, minute=0, second=0)
+                            scheduler.add_job(
+                                after_first_day_survey_start,
+                                "date",
+                                id=f"{RedisKeys.SCHEDULES_FIRST_DAY_KEY}_{user.telegram_id}",
+                                next_run_time=first_day_timer,
+                                args=[user.telegram_id],
+                                replace_existing=True,
+                            )
                     if not user_completed_surveys["Первая неделя"] and not user_pending_surveys["Первая неделя"]:
-                        if user.date_joined and (today - user.date_joined).days > 7:
-                            ...
+                        if user.date_joined and user_joined_days_delta > 7:
+                            missed_first_week_timer = datetime.now(TIMEZONE).replace(hour=8, minute=0, second=0) + timedelta(days=1)
+                            scheduler.add_job(
+                                missed_first_week_survey_start,
+                                "date",
+                                id=f"{RedisKeys.SCHEDULES_ONE_WEEK_KEY}_{user.telegram_id}",
+                                next_run_time=missed_first_week_timer,
+                                args=[user.telegram_id],
+                                replace_existing=True,
+                            )
                         else:
-                            ...
-                        broken_users += 1
+                            first_week_timer = datetime.now(TIMEZONE).replace(hour=8, minute=0, second=0) + timedelta(days=7 - user_joined_days_delta)
+                            scheduler.add_job(
+                                after_first_week_survey_start,
+                                "date",
+                                id=f"{RedisKeys.SCHEDULES_ONE_WEEK_KEY}_{user.telegram_id}",
+                                next_run_time=first_week_timer,
+                                args=[user.telegram_id],
+                                replace_existing=True,
+                            )
                     if not user_completed_surveys["1й месяц"] and not user_pending_surveys["1й месяц"]:
-                        if user.date_joined and (today - user.date_joined).days > 30:
-                            ...
+                        if user.date_joined and user_joined_days_delta > 31:
+                            missed_first_month_timer = datetime.now(TIMEZONE).replace(hour=8, minute=0, second=0) + timedelta(days=2)
+                            scheduler.add_job(
+                                missed_monthly_survey_start,
+                                "date",
+                                id=f"{RedisKeys.SCHEDULES_ONE_MONTH_KEY}_{user.telegram_id}",
+                                next_run_time=missed_first_month_timer,
+                                args=[user.telegram_id, 1],
+                                replace_existing=True,
+                            )
                         else:
-                            ...
-                        broken_users += 1
+                            missed_first_month_timer = datetime.now(TIMEZONE).replace(hour=8, minute=0, second=0) + timedelta(days=31 - user_joined_days_delta)
+                            scheduler.add_job(
+                                monthly_survey_start,
+                                "date",
+                                id=f"{RedisKeys.SCHEDULES_ONE_MONTH_KEY}_{user.telegram_id}",
+                                next_run_time=missed_first_month_timer,
+                                args=[user.telegram_id, 1],
+                                replace_existing=True,
+                            )
                     if not user_completed_surveys["2й месяц"] and not user_pending_surveys["2й месяц"]:
-                        if user.date_joined and (today - user.date_joined).days > 60:
-                            ...
+                        if user.date_joined and (today - user.date_joined).days > 61:
+                            missed_first_month_timer = datetime.now(TIMEZONE).replace(hour=8, minute=0, second=0) + timedelta(days=3)
+                            scheduler.add_job(
+                                missed_monthly_survey_start,
+                                "date",
+                                id=f"{RedisKeys.SCHEDULES_TWO_MONTHS_KEY}_{user.telegram_id}",
+                                next_run_time=missed_first_month_timer,
+                                args=[user.telegram_id, 2],
+                                replace_existing=True,
+                            )
                         else:
-                            ...
-                        broken_users += 1
+                            missed_first_month_timer = datetime.now(TIMEZONE).replace(hour=8, minute=0, second=0) + timedelta(days=61 - user_joined_days_delta)
+                            scheduler.add_job(
+                                monthly_survey_start,
+                                "date",
+                                id=f"{RedisKeys.SCHEDULES_TWO_MONTHS_KEY}_{user.telegram_id}",
+                                next_run_time=missed_first_month_timer,
+                                args=[user.telegram_id, 2],
+                                replace_existing=True,
+                            )
                     if not user_completed_surveys["3й месяц"] and not user_pending_surveys["3й месяц"]:
-                        if user.date_joined and (today - user.date_joined).days > 90:
-                            ...
+                        if user.date_joined and (today - user.date_joined).days > 91:
+                            missed_first_month_timer = datetime.now(TIMEZONE).replace(hour=8, minute=0, second=0) + timedelta(days=4)
+                            scheduler.add_job(
+                                missed_monthly_survey_start,
+                                "date",
+                                id=f"{RedisKeys.SCHEDULES_THREE_MONTHS_KEY}_{user.telegram_id}",
+                                next_run_time=missed_first_month_timer,
+                                args=[user.telegram_id, 3],
+                                replace_existing=True,
+                            )
                         else:
-                            ...
-                        broken_users += 1
-                    if broken_users > 0:
-                        broken_users_count += 1
-                logger.info(f"Ломаные юзеры: {broken_users_count}")
+                            missed_first_month_timer = datetime.now(TIMEZONE).replace(hour=8, minute=0, second=0) + timedelta(days=91 - user_joined_days_delta)
+                            scheduler.add_job(
+                                monthly_survey_start,
+                                "date",
+                                id=f"{RedisKeys.SCHEDULES_THREE_MONTHS_KEY}_{user.telegram_id}",
+                                next_run_time=missed_first_month_timer,
+                                args=[user.telegram_id, 3],
+                                replace_existing=True,
+                            )
     except Exception as e:
         logger.error(f"{e}")
 

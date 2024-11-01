@@ -43,7 +43,7 @@ async def after_first_week_survey_start(user_id):
 async def missed_first_week_survey_start(user_id):
     user: User = await aget_user_by_id(user_id)
     if user:
-        logger.debug(f"User: {user.username} проходит опрос, первая неделя")
+        logger.debug(f"User: {user.username} проходит опрос, первая неделя (работает дольше)")
         await storage.set_data(
             StorageKey(user_id=user_id, chat_id=user_id, bot_id=bot.id), dict()
         )
@@ -60,5 +60,5 @@ async def missed_first_week_survey_start(user_id):
             reply_markup=await one_to_range_keyboard(),
         )
         await anotify_admins(
-            bot, f"User: {user.username} проходит опрос, первая неделя", ADMINS
+            bot, f"User: {user.username} проходит опрос, первая неделя (работает дольше)", ADMINS
         )
