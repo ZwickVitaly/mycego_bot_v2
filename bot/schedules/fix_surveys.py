@@ -15,8 +15,9 @@ async def fix_surveys_job():
                 q = await session.execute(select(User).options(selectinload(User.surveys)))
                 users = q.unique().scalars()
                 today = datetime.now()
-                broken_users = 0
+                broken_users_count = 0
                 for user in users:
+                    broken_users = 0
                     user_completed_surveys = {
                         "Первый день": None,
                         "Первая неделя": None,
@@ -70,7 +71,9 @@ async def fix_surveys_job():
                         else:
                             logger.info("5Б")
                         broken_users += 1
-                logger.info(f"Ломаные юзеры: {broken_users}")
+                    if broken_users > 0:
+                        broken_users_count += 1
+                logger.info(f"Ломаные юзеры: {broken_users_count}")
     except Exception as e:
         logger.error(f"{e}")
 
