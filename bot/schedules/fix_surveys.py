@@ -20,6 +20,7 @@ async def fix_surveys_job():
                         await redis_connection.hget("appscheduler.jobs", f"{RedisKeys.SCHEDULES_TWO_MONTHS_KEY}_{user.telegram_id}"),
                         await redis_connection.hget("appscheduler.jobs", f"{RedisKeys.SCHEDULES_THREE_MONTHS_KEY}_{user.telegram_id}"),
                     ]
+                    logger.info(tasks)
                     jobs_pending = [job for job in tasks if job]
                     user_surveys = list(user.surveys)
                     logger.critical(f"User: {user.telegram_id}, Jobs: {len(jobs_pending)}, Surveys: {len(user_surveys)}, REDIS_KEY: {RedisKeys.SCHEDULES_TWO_MONTHS_KEY}_{user.telegram_id}")
