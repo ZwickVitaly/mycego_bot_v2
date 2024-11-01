@@ -41,35 +41,36 @@ async def fix_surveys_job():
                         "2й месяц": tasks[3],
                         "3й месяц": tasks[4],
                     }
+                    logger.info(f"Пользователь: {user.username}, отсутствуют: {[key for key in user_completed_surveys if not user_completed_surveys[key] and not user_pending_surveys[key]]}")
                     if not user_completed_surveys["Первый день"] and not user_pending_surveys["Первый день"]:
                         if user.date_joined and user.date_joined.day > today.day:
-                            logger.info("1А")
+                            ...
                         else:
-                            logger.info("1Б")
+                            ...
                         broken_users += 1
                     if not user_completed_surveys["Первая неделя"] and not user_pending_surveys["Первая неделя"]:
                         if user.date_joined and (today - user.date_joined).days > 7:
-                            logger.info("2А")
+                            ...
                         else:
-                            logger.info("2Б")
+                            ...
                         broken_users += 1
                     if not user_completed_surveys["1й месяц"] and not user_pending_surveys["1й месяц"]:
                         if user.date_joined and (today - user.date_joined).days > 30:
-                            logger.info("3А")
+                            ...
                         else:
-                            logger.info("3Б")
+                            ...
                         broken_users += 1
                     if not user_completed_surveys["2й месяц"] and not user_pending_surveys["2й месяц"]:
                         if user.date_joined and (today - user.date_joined).days > 60:
-                            logger.info("4А")
+                            ...
                         else:
-                            logger.info("4Б")
+                            ...
                         broken_users += 1
                     if not user_completed_surveys["3й месяц"] and not user_pending_surveys["3й месяц"]:
                         if user.date_joined and (today - user.date_joined).days > 90:
-                            logger.info("5А")
+                            ...
                         else:
-                            logger.info("5Б")
+                            ...
                         broken_users += 1
                     if broken_users > 0:
                         broken_users_count += 1
