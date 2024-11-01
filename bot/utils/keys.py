@@ -18,6 +18,5 @@ class RedisKeys:
 class DatabaseKeys:
     SCHEDULES_FIRST_DAY_KEY = "Первый день"
     SCHEDULES_ONE_WEEK_KEY = "Первая неделя"
-    SCHEDULES_ONE_MONTH_KEY = "Первый месяц"
-    SCHEDULES_TWO_MONTHS_KEY = "Второй месяц"
-    SCHEDULES_THREE_MONTHS_KEY = "Третий месяц"
+    SCHEDULES_MONTH_KEY = "{}й месяц"
+
