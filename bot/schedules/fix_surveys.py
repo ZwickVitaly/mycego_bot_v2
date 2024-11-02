@@ -195,15 +195,14 @@ async def fix_user_date_joined():
     try:
         logger.info("Чиним даты регистрации пользователей")
         statuses = await get_users_statuses()
-        users_date_joined = {user.get("telegram_id"): datetime.fromisoformat(user.get("date_joined")) for user in statuses.get("data", {}) if user.get("telegram_id")}
+        users_date_joined = {user.get("telegram_id"): user.get("status_work") for user in statuses.get("data", {}) if user.get("telegram_id")}
         async with async_session() as session:
             async with session.begin():
-                q = await session.execute(select(User).filter(or_(User.date_joined == None, User.date_joined > datetime.now().replace(hour=0, microsecond=0, minute=0, second=0))))
+                q = await session.execute(select(User))
                 users = list(q.scalars())
                 for user in users:
-                    logger.info(user.username)
                     if user.telegram_id in users_date_joined:
-                        user.date_joined = users_date_joined.get(user.telegram_id)
+                        logger.info(users_date_joined[user.telegram_id])
                 await session.commit()
     except Exception as e:
         logger.error(f"{e}")
