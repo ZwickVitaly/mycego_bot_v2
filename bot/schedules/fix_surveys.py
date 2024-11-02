@@ -3,10 +3,10 @@ from datetime import datetime, timedelta
 from api_services import get_users_statuses
 from constructors.scheduler_constructor import scheduler
 from db import User, async_session, Survey
-from settings import logger, TIMEZONE
+from settings import logger, TIMEZONE, ADMINS
 from sqlalchemy import select, or_
 from sqlalchemy.orm import selectinload
-from utils import RedisKeys, storage_connection
+from utils import RedisKeys, storage_connection, DatabaseKeys
 from schedules import missed_monthly_survey_start, missed_first_day_survey_start, missed_first_week_survey_start, \
     after_first_day_survey_start, after_first_week_survey_start, monthly_survey_start
 
@@ -19,12 +19,14 @@ async def fix_surveys_job():
                 users = q.unique().scalars()
                 today = datetime.now()
                 for user in users:
+                    if int(user.telegram_id) in ADMINS:
+                        continue
                     user_completed_surveys = {
-                        "Первый день": None,
-                        "Первая неделя": None,
-                        "1й месяц": None,
-                        "2й месяц": None,
-                        "3й месяц": None,
+                        DatabaseKeys.SCHEDULES_FIRST_DAY_KEY: None,
+                        DatabaseKeys.SCHEDULES_ONE_WEEK_KEY: None,
+                        DatabaseKeys.SCHEDULES_MONTH_KEY.format(1): None,
+                        DatabaseKeys.SCHEDULES_MONTH_KEY.format(2): None,
+                        DatabaseKeys.SCHEDULES_MONTH_KEY.format(3): None,
                     }
                     for survey in user.surveys:
                         user_completed_surveys[survey.period] = 1
@@ -36,16 +38,27 @@ async def fix_surveys_job():
                         1 if await storage_connection.hget("apscheduler.jobs", f"{RedisKeys.SCHEDULES_THREE_MONTHS_KEY}_{user.telegram_id}") else None,
                     ]
                     user_pending_surveys =  {
-                        "Первый день": tasks[0],
-                        "Первая неделя": tasks[1],
-                        "1й месяц": tasks[2],
-                        "2й месяц": tasks[3],
-                        "3й месяц": tasks[4],
+                        DatabaseKeys.SCHEDULES_FIRST_DAY_KEY: tasks[0],
+                        DatabaseKeys.SCHEDULES_ONE_WEEK_KEY: tasks[1],
+                        DatabaseKeys.SCHEDULES_MONTH_KEY.format(1): tasks[2],
+                        DatabaseKeys.SCHEDULES_MONTH_KEY.format(2): tasks[3],
+                        DatabaseKeys.SCHEDULES_MONTH_KEY.format(3): tasks[4],
                     }
-                    # user_joined_days_delta = (today - user.date_joined).days if user.date_joined else 0
+                    user_joined_days_delta = (today - user.date_joined).days if user.date_joined else 0
+                    delete_following_jobs = False
+                    job_keys = {
+                        DatabaseKeys.SCHEDULES_FIRST_DAY_KEY: f"{RedisKeys.SCHEDULES_FIRST_DAY_KEY}_{user.telegram_id}",
+                        DatabaseKeys.SCHEDULES_ONE_WEEK_KEY: f"{RedisKeys.SCHEDULES_ONE_WEEK_KEY}_{user.telegram_id}",
+                        DatabaseKeys.SCHEDULES_MONTH_KEY.format(1): f"{RedisKeys.SCHEDULES_ONE_MONTH_KEY}_{user.telegram_id}",
+                        DatabaseKeys.SCHEDULES_MONTH_KEY.format(2): f"{RedisKeys.SCHEDULES_TWO_MONTHS_KEY}_{user.telegram_id}",
+                        DatabaseKeys.SCHEDULES_MONTH_KEY.format(3): f"{RedisKeys.SCHEDULES_THREE_MONTHS_KEY}_{user.telegram_id}",
+                    }
                     for key in user_pending_surveys:
                         if not user_pending_surveys.get(key) and not user_completed_surveys.get(key):
                             logger.error(f"Отсутствует опросник: {key} для юзера {user.username}")
+                            delete_following_jobs = True
+                        if delete_following_jobs:
+                            logger.info(f"Удаляем опросник: {key} из запланированного для: {user.username}")
                     continue
                     # if not user_completed_surveys["Первый день"] and not user_pending_surveys["Первый день"]:
                     #     logger.info(f"Создаём опросник для {user.username} за первый день")
