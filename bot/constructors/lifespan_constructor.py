@@ -29,7 +29,6 @@ async def start_up(bot: Bot):
     await anotify_admins(bot, "Бот запущен", admins_list=ADMINS)
     await renew_users_base()
     await renew_works_base()
-    await fix_user_date_joined()
     await fix_user_survey()
     await fix_surveys_job()
     scheduler.add_job(
