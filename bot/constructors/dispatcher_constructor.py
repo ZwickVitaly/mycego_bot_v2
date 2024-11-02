@@ -105,7 +105,12 @@ dp.message.register(
 )
 
 # Отмена
-dp.message.register(back_message_handler, F.text == "Назад", F.chat.type == "private")
+dp.message.register(
+    back_message_handler,
+    F.text == "Назад",
+    F.chat.type == "private",
+    NotStatesGroupFilter(survey_states + [AcquaintanceState]),
+)
 dp.callback_query.register(
     cancel_operations_handler,
     F.data == "exit",
