@@ -201,6 +201,7 @@ async def fix_user_date_joined():
                 q = await session.execute(select(User).filter(or_(User.date_joined == None, User.date_joined > datetime.now().replace(hour=0, microsecond=0, minute=0, second=0))))
                 users = list(q.scalars())
                 for user in users:
+                    logger.info(user.username)
                     if user.telegram_id in users_date_joined:
                         user.date_joined = users_date_joined.get(user.telegram_id)
                 await session.commit()
