@@ -2,7 +2,7 @@ from aiogram import Bot
 from apscheduler.triggers.cron import CronTrigger
 from helpers import anotify_admins
 from schedules import happy_birthday, renew_users_base, renew_works_base
-from schedules.fix_surveys import fix_surveys_job, fix_user_survey, fix_user_date_joined
+from schedules.fix_surveys import fix_surveys_job
 from settings import (
     ADMINS,
     TIMEZONE,
@@ -29,7 +29,6 @@ async def start_up(bot: Bot):
     await anotify_admins(bot, "Бот запущен", admins_list=ADMINS)
     await renew_users_base()
     await renew_works_base()
-    await fix_user_survey()
     await fix_surveys_job()
     scheduler.add_job(
         happy_birthday,
@@ -47,6 +46,12 @@ async def start_up(bot: Bot):
         renew_works_base,
         trigger=CronTrigger(minute=0, second=0, timezone=TIMEZONE),
         id=RedisKeys.SCHEDULES_STANDARDS_RENEW_KEY,
+        replace_existing=True,
+    )
+    scheduler.add_job(
+        fix_surveys_job,
+        trigger=CronTrigger(minute=0, second=0, hour=21, timezone=TIMEZONE),
+        id=RedisKeys.SCHEDULES_FIX_SURVEYS_KEY,
         replace_existing=True,
     )
     logger.info("Запускаем задачи по расписанию")
