@@ -38,28 +38,28 @@ async def fix_surveys_job():
                         #     "period": survey.period,
                         #     "data": list[srv_data.values()]
                         # })
-                    tasks = [
-                        1 if await storage_connection.hget("apscheduler.jobs", f"{RedisKeys.SCHEDULES_FIRST_DAY_KEY}_{user.telegram_id}") else None,
-                        1 if await storage_connection.hget("apscheduler.jobs", f"{RedisKeys.SCHEDULES_ONE_WEEK_KEY}_{user.telegram_id}") else None,
-                        1 if await storage_connection.hget("apscheduler.jobs", f"{RedisKeys.SCHEDULES_ONE_MONTH_KEY}_{user.telegram_id}") else None,
-                        1 if await storage_connection.hget("apscheduler.jobs", f"{RedisKeys.SCHEDULES_TWO_MONTHS_KEY}_{user.telegram_id}") else None,
-                        1 if await storage_connection.hget("apscheduler.jobs", f"{RedisKeys.SCHEDULES_THREE_MONTHS_KEY}_{user.telegram_id}") else None,
-                    ]
-                    user_pending_surveys =  {
-                        DatabaseKeys.SCHEDULES_FIRST_DAY_KEY: tasks[0],
-                        DatabaseKeys.SCHEDULES_ONE_WEEK_KEY: tasks[1],
-                        DatabaseKeys.SCHEDULES_MONTH_KEY.format(1): tasks[2],
-                        DatabaseKeys.SCHEDULES_MONTH_KEY.format(2): tasks[3],
-                        DatabaseKeys.SCHEDULES_MONTH_KEY.format(3): tasks[4],
-                    }
-                    user_joined_days_delta = (today - user.date_joined).days if user.date_joined else 0
-                    logger.info(f"{user.username}: {user_joined_days_delta} дней")
-                    delete_following_jobs = False
-                    for key in user_pending_surveys:
-                        if not user_pending_surveys.get(key) and not user_completed_surveys.get(key):
-                            delete_following_jobs = True
-                        if delete_following_jobs:
-                            user_pending_surveys[key] = None
+                    # tasks = [
+                    #     1 if await storage_connection.hget("apscheduler.jobs", f"{RedisKeys.SCHEDULES_FIRST_DAY_KEY}_{user.telegram_id}") else None,
+                    #     1 if await storage_connection.hget("apscheduler.jobs", f"{RedisKeys.SCHEDULES_ONE_WEEK_KEY}_{user.telegram_id}") else None,
+                    #     1 if await storage_connection.hget("apscheduler.jobs", f"{RedisKeys.SCHEDULES_ONE_MONTH_KEY}_{user.telegram_id}") else None,
+                    #     1 if await storage_connection.hget("apscheduler.jobs", f"{RedisKeys.SCHEDULES_TWO_MONTHS_KEY}_{user.telegram_id}") else None,
+                    #     1 if await storage_connection.hget("apscheduler.jobs", f"{RedisKeys.SCHEDULES_THREE_MONTHS_KEY}_{user.telegram_id}") else None,
+                    # ]
+                    # user_pending_surveys =  {
+                    #     DatabaseKeys.SCHEDULES_FIRST_DAY_KEY: tasks[0],
+                    #     DatabaseKeys.SCHEDULES_ONE_WEEK_KEY: tasks[1],
+                    #     DatabaseKeys.SCHEDULES_MONTH_KEY.format(1): tasks[2],
+                    #     DatabaseKeys.SCHEDULES_MONTH_KEY.format(2): tasks[3],
+                    #     DatabaseKeys.SCHEDULES_MONTH_KEY.format(3): tasks[4],
+                    # }
+                    # user_joined_days_delta = (today - user.date_joined).days if user.date_joined else 0
+                    # logger.info(f"{user.username}: {user_joined_days_delta} дней")
+                    # delete_following_jobs = False
+                    # for key in user_pending_surveys:
+                    #     if not user_pending_surveys.get(key) and not user_completed_surveys.get(key):
+                    #         delete_following_jobs = True
+                    #     if delete_following_jobs:
+                    #         user_pending_surveys[key] = None
 
                     # days_offset = 1
                     # if not user_completed_surveys["Первый день"] and not user_pending_surveys["Первый день"]:
