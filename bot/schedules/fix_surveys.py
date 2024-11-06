@@ -34,10 +34,10 @@ async def fix_surveys_job():
                         user_completed_surveys[survey.period] = 1
                         srv_data = json.loads(survey.survey_json)
                         logger.info(srv_data)
-                        # await update_worker_surveys_v2(user_id=user.telegram_id, survey={
-                        #     "period": survey.period,
-                        #     "data": list[srv_data.values()]
-                        # })
+                        await update_worker_surveys_v2(user_id=user.telegram_id, survey={
+                            "period": survey.period,
+                            "data": list[srv_data.values()]
+                        })
                     # tasks = [
                     #     1 if await storage_connection.hget("apscheduler.jobs", f"{RedisKeys.SCHEDULES_FIRST_DAY_KEY}_{user.telegram_id}") else None,
                     #     1 if await storage_connection.hget("apscheduler.jobs", f"{RedisKeys.SCHEDULES_ONE_WEEK_KEY}_{user.telegram_id}") else None,
