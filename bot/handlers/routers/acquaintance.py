@@ -5,9 +5,10 @@ from aiogram.exceptions import TelegramBadRequest
 from aiogram.fsm.context import FSMContext
 from aiogram.types import CallbackQuery, FSInputFile, Message
 from api_services import update_user_bio
+from api_services.google_sheets import create_new_worker_cell
 from constructors.scheduler_constructor import scheduler
 from FSM import AcquaintanceState
-from helpers import anotify_admins
+from helpers import anotify_admins, aget_user_by_id
 from keyboards import generate_acquaintance_proceed_keyboard, menu_keyboard
 from messages import (
     ACQUAINTANCE_ABOUT_US_MESSAGE,
@@ -210,6 +211,9 @@ async def process_confirmation(callback_query: CallbackQuery, state: FSMContext)
                 AFTER_ACQUAINTANCE_MESSAGE,
                 reply_markup=menu_keyboard(callback_query.from_user.id),
             )
+            user = await aget_user_by_id(callback_query.from_user.id)
+            logger.info(f"Создаём новую ячейку в гугл-таблицах для пользователя: {user.username}")
+            await create_new_worker_cell(user)
             logger.warning(
                 f"Устанавливаем таймеры опросников для {callback_query.from_user.id}"
             )

@@ -1,7 +1,41 @@
 import asyncio
 
-from constructors.google_sheets_constructor import fired, working
+from constructors.google_sheets_constructor import fired, working, SURVEYS_COLUMNS
+from db import User
 from settings import logger
+
+
+async def create_new_worker_cell(user: User):
+    if working:
+        try:
+            await asyncio.to_thread(working.append_row, [user.telegram_id, user.role, user.username.replace("_", " ")])
+            return True
+        except Exception as e:
+            logger.error(f"{e}")
+    return False
+
+
+async def update_worker_surveys_v2(user_id: int | str, survey: dict) -> bool:
+    user_id = str(user_id)
+    row = await asyncio.to_thread(find_worker_row, user_id)
+    if not row:
+        return False
+    if not survey.get("period") or not survey.get("data"):
+        return False
+    logger.debug(f"Ряд: {row}")
+    if working:
+        try:
+            await asyncio.to_thread(
+                working.update,
+                [
+                    survey.get("data"),
+                ],
+                range_name=SURVEYS_COLUMNS.get(survey.get("period")).format(row, row),
+            )
+            return True
+        except Exception as e:
+            logger.error(f"{e}")
+    return False
 
 
 async def append_new_worker_surveys(survey_data: list):
@@ -15,6 +49,9 @@ async def append_new_worker_surveys(survey_data: list):
         except Exception as e:
             logger.error(f"{e}")
     return False
+
+
+
 
 
 def find_worker_row(user_id: str) -> int:

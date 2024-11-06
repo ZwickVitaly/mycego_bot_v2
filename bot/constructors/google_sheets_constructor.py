@@ -1,5 +1,6 @@
 from gspread import service_account
 from settings import BASE_DIR, CITY_MARKER, SURVEY_GOOGLE_SHEET_URL, logger
+from utils import DatabaseKeys
 
 try:
     gs = service_account(BASE_DIR / "gc.json")
@@ -21,3 +22,13 @@ try:
 except Exception as e:
     logger.error(f"Не удалось создать сервисный аккаунт google-sheets: {e}")
     gs, working, fired = False, False, False
+
+
+SURVEYS_COLUMNS = {
+    DatabaseKeys.SCHEDULES_FIRST_DAY_KEY: "D{}:J{}",
+    DatabaseKeys.SCHEDULES_ONE_WEEK_KEY: "K{}:M{}",
+    DatabaseKeys.SCHEDULES_MONTH_KEY.format(1): "N{}:S{}",
+    DatabaseKeys.SCHEDULES_MONTH_KEY.format(2): "T{}:Y{}",
+    DatabaseKeys.SCHEDULES_MONTH_KEY.format(3): "Z{}:AE{}",
+    "Уволен": "AF{}:AL{}"
+}

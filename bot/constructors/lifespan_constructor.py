@@ -48,12 +48,12 @@ async def start_up(bot: Bot):
         id=RedisKeys.SCHEDULES_STANDARDS_RENEW_KEY,
         replace_existing=True,
     )
-    scheduler.add_job(
-        fix_surveys_job,
-        trigger=CronTrigger(minute=0, second=0, hour=21, timezone=TIMEZONE),
-        id=RedisKeys.SCHEDULES_FIX_SURVEYS_KEY,
-        replace_existing=True,
-    )
+    # scheduler.add_job(
+    #     fix_surveys_job,
+    #     trigger=CronTrigger(minute=0, second=0, hour=21, timezone=TIMEZONE),
+    #     id=RedisKeys.SCHEDULES_FIX_SURVEYS_KEY,
+    #     replace_existing=True,
+    # )
     logger.info("Запускаем задачи по расписанию")
     scheduler.start()
 

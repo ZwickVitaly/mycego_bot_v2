@@ -3,7 +3,7 @@ import json
 from aiogram import F, Router
 from aiogram.fsm.context import FSMContext
 from aiogram.types import CallbackQuery, Message
-from api_services.google_sheets import update_worker_surveys
+from api_services.google_sheets import update_worker_surveys, update_worker_surveys_v2
 from db import Survey, async_session
 from FSM.surveys import MonthlySurveyStates
 from helpers import (
@@ -124,7 +124,10 @@ async def monthly_second_q_handler(message: Message, state: FSMContext):
             bot=message.bot, message=admin_msg, admins_list=SURVEY_ADMINS
         )
         new_data = list(data.values())
-        survey = await update_worker_surveys(str(message.from_user.id), new_data)
+        survey = await update_worker_surveys_v2(user_id=user.telegram_id, survey={
+                    "period": DatabaseKeys.SCHEDULES_MONTH_KEY.format(month_no),
+                    "data": new_data
+                })
         if not survey:
             logger.warning(
                 "Не получилось внести данные опроса в таблицу для "
