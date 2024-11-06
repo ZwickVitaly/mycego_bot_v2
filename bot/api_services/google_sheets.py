@@ -25,10 +25,12 @@ async def update_worker_surveys_v2(user_id: int | str, survey: dict) -> bool:
     logger.debug(f"Ряд: {row}")
     if working:
         try:
+            logger.info(survey)
+            logger.info(list(survey.values()))
             await asyncio.to_thread(
                 working.update,
                 [
-                    survey.get("data"),
+                    *survey.get("data"),
                 ],
                 range_name=SURVEYS_COLUMNS.get(survey.get("period")).format(row, row),
             )
