@@ -33,7 +33,7 @@ async def fix_surveys_job():
                     for survey in user.surveys:
                         user_completed_surveys[survey.period] = 1
                         srv_data = json.loads(survey.survey_json)
-                        srv_data.pop("user_name")
+                        srv_data.pop("user_name", 0)
                         logger.info(srv_data)
                         await update_worker_surveys_v2(user_id=user.telegram_id, survey={
                             "period": survey.period,
