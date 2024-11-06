@@ -28,7 +28,7 @@ async def update_worker_surveys_v2(user_id: int | str, survey: dict) -> bool:
             await asyncio.to_thread(
                 working.update,
                 [
-                    *survey.get("data"),
+                    survey.get("data"),
                 ],
                 range_name=SURVEYS_COLUMNS.get(survey.get("period")).format(row, row),
             )
