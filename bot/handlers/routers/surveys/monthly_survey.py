@@ -22,6 +22,7 @@ from messages import (
     MONTHLY_THIRD_QUESTION,
 )
 from settings import ADMINS, SURVEY_ADMINS, logger
+from utils import DatabaseKeys
 
 # Роутер знакомства
 monthly_survey_router = Router()
@@ -133,7 +134,7 @@ async def monthly_second_q_handler(message: Message, state: FSMContext):
             async with session.begin():
                 srv = Survey(
                     user_id=user.id,
-                    period=f"{month_no}й месяц",
+                    period=DatabaseKeys.SCHEDULES_MONTH_KEY.format(month_no),
                     survey_json=json.dumps(data, ensure_ascii=False),
                 )
                 session.add(srv)

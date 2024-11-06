@@ -24,6 +24,7 @@ from messages import (
     FIRST_DAY_THIRD_QUESTION_MESSAGE,
 )
 from settings import ADMINS, SURVEY_ADMINS, logger
+from utils import DatabaseKeys
 
 # Роутер знакомства
 first_day_survey_router = Router()
@@ -144,7 +145,7 @@ async def first_day_second_q_handler(callback_query: CallbackQuery, state: FSMCo
                     async with session.begin():
                         srv = Survey(
                             user_id=user.id,
-                            period="Первый день",
+                            period=DatabaseKeys.SCHEDULES_FIRST_DAY_KEY,
                             survey_json=json.dumps(data, ensure_ascii=False),
                         )
                         session.add(srv)

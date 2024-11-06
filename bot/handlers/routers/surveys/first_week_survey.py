@@ -20,6 +20,7 @@ from messages import (
     FIRST_WEEK_FIVE_STAR_3,
 )
 from settings import ADMINS, SURVEY_ADMINS, logger
+from utils import DatabaseKeys
 
 # Роутер знакомства
 first_week_survey_router = Router()
@@ -79,7 +80,7 @@ async def first_week_first_q_handler(callback_query: CallbackQuery, state: FSMCo
                     async with session.begin():
                         srv = Survey(
                             user_id=user.id,
-                            period="Первая неделя",
+                            period=DatabaseKeys.SCHEDULES_ONE_WEEK_KEY,
                             survey_json=json.dumps(data, ensure_ascii=False),
                         )
                         session.add(srv)
