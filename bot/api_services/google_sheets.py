@@ -22,6 +22,8 @@ async def update_worker_surveys_v2(user_id: int | str, survey: dict) -> bool:
         return False
     if not survey.get("period") or not survey.get("data"):
         return False
+    if "user_name" in survey:
+        survey.pop("user_name", 0)
     logger.debug(f"Ряд: {row}")
     if working:
         try:

@@ -50,7 +50,7 @@ for admin_id in survey_admins_list:
 JSON_HEADERS = {"Content-Type": "application/json"}
 
 # Домен сайта
-SITE_DOMAIN = getenv("SITE_DOMAIN") or "https://mycego.ru"
+SITE_DOMAIN = getenv("SITE_DOMAIN", "https://mycego.ru")
 
 # Базовая директория
 BASE_DIR = Path(__file__).parent

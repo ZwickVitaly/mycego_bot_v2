@@ -11,6 +11,7 @@ from .kick_fired import kick_fired_on_admin
 from .make_survey_admin_message import make_survey_notification
 from .sanitize import sanitize_string
 from .seconds_to_time import seconds_to_time
+from .delivery_helpers import make_delivery_works_done_msg, make_delivery_works_staged_msg
 
 __all__ = [
     "get_username_or_name",
@@ -26,4 +27,6 @@ __all__ = [
     "aget_users_count",
     "sanitize_string",
     "make_survey_notification",
+    "make_delivery_works_done_msg",
+    "make_delivery_works_staged_msg"
 ]

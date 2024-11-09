@@ -5,7 +5,6 @@ from .inline_keyboards import (
     create_works_list,
     delete_button,
     delete_or_edit_contact,
-    delivery_keyboard,
     generate_current_week_works_dates,
     generate_departments,
     generate_next_week_dates_keyboard,
@@ -17,6 +16,10 @@ from .inline_keyboards import (
     select_contacts_keyboard,
     team_atmosphere_keyboard,
     yes_or_no_keyboard,
+    marketplaces_keyboard,
+    deliveries_keyboard,
+    delivery_products_keyboard,
+    delivery_product_works_keyboard,
 )
 from .reply_keyboards import menu_keyboard, ready, second_menu, type_request
 
@@ -30,7 +33,6 @@ __all__ = [
     "generate_time_keyboard",
     "generate_current_week_works_dates",
     "generate_next_week_dates_keyboard",
-    "delivery_keyboard",
     "call_back",
     "create_works_list",
     "delete_button",
@@ -43,4 +45,8 @@ __all__ = [
     "one_to_range_keyboard",
     "team_atmosphere_keyboard",
     "generate_acquaintance_proceed_keyboard",
+    "marketplaces_keyboard",
+    "deliveries_keyboard",
+    "delivery_products_keyboard",
+    "delivery_product_works_keyboard",
 ]

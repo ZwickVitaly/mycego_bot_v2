@@ -1,3 +1,4 @@
+import json
 from itertools import groupby
 
 from aiogram import F, Router, types
@@ -10,6 +11,7 @@ from api_services import (  # get_data_delivery,
     get_statistic,
     get_works_lists,
 )
+from api_services.mycego_site import get_deliveries_in_progress
 from custom_filters import NotStatesGroupFilter
 from db import Message, Works, async_session
 from FSM import (  # WorkListDelivery
@@ -19,7 +21,7 @@ from FSM import (  # WorkListDelivery
     ViewWorkList,
     WorkGraf,
     WorkList,
-    survey_states,
+    survey_states, WorkListDelivery,
 )
 from helpers import (
     aget_user_by_id,
@@ -33,7 +35,7 @@ from keyboards import (
     generate_next_week_dates_keyboard,
     generate_pay_sheets,
     menu_keyboard,
-    type_request,
+    type_request, marketplaces_keyboard,
 )
 from settings import ADMINS, logger
 from sqlalchemy import select
@@ -135,48 +137,25 @@ async def main_menu_message_handler(message: types.Message, state: FSMContext):
                         reply_markup=menu_keyboard(message.from_user.id),
                     )
             # ВРЕМЕННО УДАЛЕНО
-            # elif text == "🛠️Заполнить работы по поставке":
-            #     await message.answer(
-            #         "⚠️Заполните все работы проведенные по поставке, "
-            #         "Можно заполнить несколько поставок за день.⚠️"
-            #     )
-            #     mes = await message.answer(
-            #         "Выберите дату:", reply_markup=await generate_current_week_works_dates()
-            #     )
-            #     await state.update_data(data={"mes": mes})
-            #     await state.set_state(WorkListDelivery.choice_date)
-            # elif text == "📦Мои поставки":
-            #     await state.set_state(ViewWorkList.del_work)
-            #     await message.answer(
-            #         "Ваши сдельные листы на поставки за неделю:",
-            #         reply_markup=menu_keyboard(message.from_user.id),
-            #     )
-            #     data_delivery = (await get_data_delivery(user_id_site)).get("data", None)
-            #     if data_delivery:
-            #         logger.success(data_delivery)
-            #         for key, value in data_delivery.items():
-            #             message_bot = ""
-            #
-            #             key_list = key.split(";")
-            #             message_bot += f"\n{key_list[0]} - {key_list[1]}\n"
-            #             for i, j in value.items():
-            #                 message_bot += f"    {i}: {j}\n"
-            #             keyboard = InlineKeyboardBuilder()
-            #             if key_list[3] == "False":
-            #                 delete_button = types.InlineKeyboardButton(
-            #                     text="🚫Удалить", callback_data=f"delete_{key_list[2]}"
-            #                 )
-            #                 keyboard.add(delete_button)
-            #             else:
-            #                 message_bot += "✅ Проверенно"
-            #             await message.answer(message_bot, reply_markup=keyboard.as_markup())
-            #     else:
-            #         await message.answer(
-            #             "Не найдено за неделю",
-            #             reply_markup=menu_keyboard(message.from_user.id),
-            #         )
-            # ВРЕМЕННО УДАЛЕНО
-
+            elif text == "🛠️Заполнить работы по поставке" and message.from_user.id in ADMINS:
+                deliveries = await get_deliveries_in_progress()
+                if deliveries:
+                    marketplaces = dict()
+                    for dlv in deliveries:
+                        mp_name = dlv.get("marketplace_name")
+                        if mp_name in marketplaces:
+                            marketplaces[mp_name].update({dlv.get("id"): dlv.get("name")})
+                        else:
+                            marketplaces[mp_name] = {dlv.get("id"): dlv.get("name")}
+                    mp_string = json.dumps(marketplaces)
+                    await state.set_data({"marketplaces": mp_string})
+                    await state.set_state(WorkListDelivery.choice_marketplace)
+                    await message.answer(
+                        "Выберите маркетплейс:️",
+                        reply_markup=await marketplaces_keyboard([key for key in marketplaces.keys()])
+                    )
+                else:
+                    await message.answer("Активные поставки не найдены.")
             elif text == "😵‍💫Нормативы":
                 # обрабатываем команду "Нормативы", достаём нормативы из бд
                 async with async_session() as session:

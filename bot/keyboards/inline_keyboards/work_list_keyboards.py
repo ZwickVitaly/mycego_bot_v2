@@ -2,7 +2,6 @@ import datetime
 
 from aiogram.types import InlineKeyboardButton
 from aiogram.utils.keyboard import InlineKeyboardBuilder
-from api_services import get_delivery
 from db import Works, async_session
 from loguru import logger
 from sqlalchemy import select
@@ -97,16 +96,5 @@ async def delete_button(data):
     del_button = InlineKeyboardButton(text="Удалить", callback_data=f"del_{data}")
     keyboard.row(del_button)
 
-    keyboard.row(cancel_inline_button)
-    return keyboard.as_markup()
-
-
-async def delivery_keyboard():
-    data = await get_delivery()
-    keyboard = InlineKeyboardBuilder()
-    keyboard.max_width = 2
-    for i in data:
-        delivery_button = InlineKeyboardButton(text=str(i[1]), callback_data=f"{i[0]}")
-        keyboard.add(delivery_button)
     keyboard.row(cancel_inline_button)
     return keyboard.as_markup()

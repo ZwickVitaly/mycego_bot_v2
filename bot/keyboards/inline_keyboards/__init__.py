@@ -16,10 +16,15 @@ from .work_graf_keyboards import (
 from .work_list_keyboards import (
     create_works_list,
     delete_button,
-    delivery_keyboard,
     generate_current_week_works_dates,
     generate_departments,
     generate_works,
+)
+from .work_delivery_keyboards import (
+    marketplaces_keyboard,
+    deliveries_keyboard,
+    delivery_products_keyboard,
+    delivery_product_works_keyboard,
 )
 
 __all__ = [
@@ -28,7 +33,6 @@ __all__ = [
     "generate_time_keyboard",
     "generate_current_week_works_dates",
     "generate_next_week_dates_keyboard",
-    "delivery_keyboard",
     "call_back",
     "create_works_list",
     "delete_button",
@@ -41,4 +45,8 @@ __all__ = [
     "one_to_range_keyboard",
     "team_atmosphere_keyboard",
     "generate_acquaintance_proceed_keyboard",
+    "marketplaces_keyboard",
+    "deliveries_keyboard",
+    "delivery_products_keyboard",
+    "delivery_product_works_keyboard",
 ]

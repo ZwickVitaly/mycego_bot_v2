@@ -33,10 +33,10 @@ class WorkListDelivery(StatesGroup):
     Состояния заполнения листа работ ДОСТАВКИ
     """
 
-    choice_date = State()
+    choice_marketplace = State()
     choice_delivery = State()
-    choice_work = State()
-    input_num = State()
+    choice_product = State()
+    choice_works = State()
 
 
 class ViewWorkList(StatesGroup):

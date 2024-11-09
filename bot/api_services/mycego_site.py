@@ -158,14 +158,14 @@ async def del_works_lists(work_id, user_id):
             return response.status
 
 
-async def get_delivery():
-    """
-    Функция для получения списка доставок с сайта
-    """
-    url = f"{SITE_DOMAIN}/api-auth/get_delivery/"
-    async with ClientSession() as session:
-        async with session.get(url=url) as response:
-            return (await response.json()).get("data", None)
+# async def get_delivery():
+#     """
+#     Функция для получения списка доставок с сайта
+#     """
+#     url = f"{SITE_DOMAIN}/api-auth/get_delivery/"
+#     async with ClientSession() as session:
+#         async with session.get(url=url) as response:
+#             return (await response.json()).get("data", None)
 
 
 async def get_data_delivery(user_id):
@@ -285,8 +285,48 @@ async def update_user_bio(user_id_site, birth_date, hobbies):
             return False
 
 
+async def get_categories():
+    """
+    Функция для получения категорий с сайта
+    """
+    url = f"{SITE_DOMAIN}/api-auth/categories/"
+    async with ClientSession() as session:
+        async with session.get(url=url) as response:
+            if response.status == 200:
+                return await response.json()
+            return None
+
+
+async def get_deliveries_in_progress():
+    """
+    Функция для получения активных поставок с сайта
+    """
+    url = f"{SITE_DOMAIN}/api-auth/deliveries-in-progress/"
+    async with ClientSession() as session:
+        async with session.get(url=url) as response:
+            if response.status == 200:
+                return await response.json()
+            return []
+
+
+
+async def get_delivery_products(delivery_id):
+    """
+    Функция для получения ордеров и работ по поставкам
+    """
+    url = f"{SITE_DOMAIN}/api-auth/delivery-products/{delivery_id}/"
+    async with ClientSession() as session:
+        async with session.get(url=url) as response:
+            if response.status == 200:
+                return await response.json()
+            return None
+
+
+
 if __name__ == "__main__":
     # check_user_api('admin', 'fma160392')
-    p = asyncio.run(get_users_statuses()).get("data")
+    # print(asyncio.run(get_categories()))
     # dates = [datetime.fromisoformat(x.get("date_joined")) for x in p]
     # print(dates)
+    # print(asyncio.run(get_deliveries_in_progress()))
+    print(asyncio.run(get_delivery_products(16)))
