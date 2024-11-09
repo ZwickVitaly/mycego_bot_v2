@@ -87,6 +87,10 @@ async def choose_delivery_handler(callback_query: CallbackQuery, state: FSMConte
                         w_id: w_name for w_id, w_name in category_standards.items() if w_id not in product_works
                     }
                 }
+        if not available_products:
+            await callback_query.message.answer("В поставке нет доступных для работ товаров. Возвращаю главное меню.", reply_markup=menu_keyboard(callback_query.from_user.id))
+            await state.clear()
+            return
         staged_delivery = deliveries.get(str(delivery_id))
         await state.update_data({"available_products": json.dumps(available_products)})
         await state.update_data({"staged_delivery": staged_delivery})

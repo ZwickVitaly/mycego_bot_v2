@@ -329,4 +329,4 @@ if __name__ == "__main__":
     # dates = [datetime.fromisoformat(x.get("date_joined")) for x in p]
     # print(dates)
     # print(asyncio.run(get_deliveries_in_progress()))
-    print(asyncio.run(get_delivery_products(16)))
+    print(asyncio.run(get_delivery_products(1)))
