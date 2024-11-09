@@ -37,7 +37,7 @@ async def fix_surveys_job():
                         logger.info(srv_data)
                         await update_worker_surveys_v2(user_id=user.telegram_id, survey={
                             "period": survey.period,
-                            "data": [val for val in srv_data.values()]
+                            "data": [val for key, val in srv_data.items() if key != "user_name"]
                         })
                         await asyncio.sleep(0.2)
                     # tasks = [
