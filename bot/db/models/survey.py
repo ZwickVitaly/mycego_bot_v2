@@ -15,9 +15,7 @@ class Survey(Base):
     __tablename__ = "surveys"
 
     id = Column(Integer, primary_key=True, autoincrement=True)  # id опроса
-    user_id = Column(
-        ForeignKey("user.id", ondelete="CASCADE")
-    )  # id пользователя из бд
+    user_id = Column(ForeignKey("user.id", ondelete="CASCADE"))  # id пользователя из бд
     period = Column(String, nullable=False)
     survey_json = Column(
         Text, nullable=False

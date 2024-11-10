@@ -30,5 +30,5 @@ SURVEYS_COLUMNS = {
     DatabaseKeys.SCHEDULES_MONTH_KEY.format(1): "N{}:S{}",
     DatabaseKeys.SCHEDULES_MONTH_KEY.format(2): "T{}:Y{}",
     DatabaseKeys.SCHEDULES_MONTH_KEY.format(3): "Z{}:AE{}",
-    "Уволен": "AF{}:AL{}"
+    "Уволен": "AF{}:AL{}",
 }

@@ -21,7 +21,8 @@ from FSM import (  # WorkListDelivery
     ViewWorkList,
     WorkGraf,
     WorkList,
-    survey_states, WorkListDelivery,
+    survey_states,
+    WorkListDelivery,
 )
 from helpers import (
     aget_user_by_id,
@@ -35,7 +36,8 @@ from keyboards import (
     generate_next_week_dates_keyboard,
     generate_pay_sheets,
     menu_keyboard,
-    type_request, marketplaces_keyboard,
+    type_request,
+    marketplaces_keyboard,
 )
 from settings import ADMINS, logger
 from sqlalchemy import select
@@ -137,14 +139,19 @@ async def main_menu_message_handler(message: types.Message, state: FSMContext):
                         reply_markup=menu_keyboard(message.from_user.id),
                     )
             # ВРЕМЕННО УДАЛЕНО
-            elif text == "🛠️Заполнить работы по поставке" and message.from_user.id in ADMINS:
+            elif (
+                text == "🛠️Заполнить работы по поставке"
+                and message.from_user.id in ADMINS
+            ):
                 deliveries = await get_deliveries_in_progress()
                 if deliveries:
                     marketplaces = dict()
                     for dlv in deliveries:
                         mp_name = dlv.get("marketplace_name")
                         if mp_name in marketplaces:
-                            marketplaces[mp_name].update({dlv.get("id"): dlv.get("name")})
+                            marketplaces[mp_name].update(
+                                {dlv.get("id"): dlv.get("name")}
+                            )
                         else:
                             marketplaces[mp_name] = {dlv.get("id"): dlv.get("name")}
                     mp_string = json.dumps(marketplaces)
@@ -152,7 +159,9 @@ async def main_menu_message_handler(message: types.Message, state: FSMContext):
                     await state.set_state(WorkListDelivery.choice_marketplace)
                     await message.answer(
                         "Выберите маркетплейс:️",
-                        reply_markup=await marketplaces_keyboard([key for key in marketplaces.keys()])
+                        reply_markup=await marketplaces_keyboard(
+                            [key for key in marketplaces.keys()]
+                        ),
                     )
                 else:
                     await message.answer("Активные поставки не найдены.")

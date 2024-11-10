@@ -26,5 +26,5 @@ __all__ = [
     "OneWeekSurveyStates",
     "MonthlySurveyStates",
     "survey_states",
-    "QuestionState"
+    "QuestionState",
 ]

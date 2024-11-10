@@ -36,6 +36,7 @@ class WorkListDelivery(StatesGroup):
     choice_marketplace = State()
     choice_delivery = State()
     choice_product = State()
+    choice_category = State()
     choice_works = State()
 
 

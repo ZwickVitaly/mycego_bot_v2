@@ -10,15 +10,23 @@ from settings import logger, TIMEZONE, ADMINS
 from sqlalchemy import select, or_
 from sqlalchemy.orm import selectinload
 from utils import RedisKeys, storage_connection, DatabaseKeys, redis_connection
-from schedules import missed_monthly_survey_start, missed_first_day_survey_start, missed_first_week_survey_start, \
-    after_first_day_survey_start, after_first_week_survey_start, monthly_survey_start
+from schedules import (
+    missed_monthly_survey_start,
+    missed_first_day_survey_start,
+    missed_first_week_survey_start,
+    after_first_day_survey_start,
+    after_first_week_survey_start,
+    monthly_survey_start,
+)
 
 
 async def fix_surveys_job():
     try:
         async with async_session() as session:
             async with session.begin():
-                q = await session.execute(select(User).options(selectinload(User.surveys)))
+                q = await session.execute(
+                    select(User).options(selectinload(User.surveys))
+                )
                 users = q.unique().scalars()
                 today = datetime.now()
                 for user in users:
@@ -35,10 +43,17 @@ async def fix_surveys_job():
                         user_completed_surveys[survey.period] = 1
                         srv_data = json.loads(survey.survey_json)
                         logger.info(srv_data)
-                        await update_worker_surveys_v2(user_id=user.telegram_id, survey={
-                            "period": survey.period,
-                            "data": [val for key, val in srv_data.items() if key != "user_name"]
-                        })
+                        await update_worker_surveys_v2(
+                            user_id=user.telegram_id,
+                            survey={
+                                "period": survey.period,
+                                "data": [
+                                    val
+                                    for key, val in srv_data.items()
+                                    if key != "user_name"
+                                ],
+                            },
+                        )
                         await asyncio.sleep(0.2)
                     # tasks = [
                     #     1 if await storage_connection.hget("apscheduler.jobs", f"{RedisKeys.SCHEDULES_FIRST_DAY_KEY}_{user.telegram_id}") else None,
@@ -184,6 +199,7 @@ async def fix_surveys_job():
     except Exception as e:
         logger.error(f"{e}")
 
+
 async def fix_user_survey():
     try:
         async with async_session() as session:
@@ -195,9 +211,11 @@ async def fix_user_survey():
                 for user in users:
                     for survey in surveys:
                         if str(survey.user_id) == user.telegram_id:
-                            logger.info(f"Фиксим юзера: {user.telegram_id}, Опрос: {survey.id}")
+                            logger.info(
+                                f"Фиксим юзера: {user.telegram_id}, Опрос: {survey.id}"
+                            )
                             survey.user_id = user.id
-                for survey in  surveys:
+                for survey in surveys:
                     logger.info(survey.user_id)
                 await session.commit()
     except Exception as e:
@@ -208,10 +226,24 @@ async def fix_user_date_joined():
     try:
         logger.info("Чиним даты регистрации пользователей")
         statuses = await get_users_statuses()
-        users_date_joined = {user.get("telegram_id"): datetime.fromisoformat(user.get("date_joined")) for user in statuses.get("data", {}) if user.get("telegram_id")}
+        users_date_joined = {
+            user.get("telegram_id"): datetime.fromisoformat(user.get("date_joined"))
+            for user in statuses.get("data", {})
+            if user.get("telegram_id")
+        }
         async with async_session() as session:
             async with session.begin():
-                q = await session.execute(select(User).filter(or_(User.date_joined == None, User.date_joined > datetime.now().replace(hour=0, microsecond=0, minute=0, second=0))))
+                q = await session.execute(
+                    select(User).filter(
+                        or_(
+                            User.date_joined == None,
+                            User.date_joined
+                            > datetime.now().replace(
+                                hour=0, microsecond=0, minute=0, second=0
+                            ),
+                        )
+                    )
+                )
                 users = list(q.scalars())
                 for user in users:
                     if user.telegram_id in users_date_joined:

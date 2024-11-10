@@ -3,7 +3,10 @@ import json
 from aiogram import F, Router
 from aiogram.fsm.context import FSMContext
 from aiogram.types import CallbackQuery
-from api_services.google_sheets import append_new_worker_surveys, update_worker_surveys_v2
+from api_services.google_sheets import (
+    append_new_worker_surveys,
+    update_worker_surveys_v2,
+)
 from db import Survey, async_session
 from FSM import FirstDaySurveyStates
 from helpers import (
@@ -133,10 +136,13 @@ async def first_day_second_q_handler(callback_query: CallbackQuery, state: FSMCo
                     admins_list=SURVEY_ADMINS,
                 )
                 data_list = [val for val in data.values()]
-                survey = await update_worker_surveys_v2(user_id=user.telegram_id, survey={
-                    "period": DatabaseKeys.SCHEDULES_FIRST_DAY_KEY,
-                    "data": data_list
-                })
+                survey = await update_worker_surveys_v2(
+                    user_id=user.telegram_id,
+                    survey={
+                        "period": DatabaseKeys.SCHEDULES_FIRST_DAY_KEY,
+                        "data": data_list,
+                    },
+                )
                 if not survey:
                     logger.warning(
                         "Не получилось внести данные опроса в таблицу для "

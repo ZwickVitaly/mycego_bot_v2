@@ -212,7 +212,9 @@ async def process_confirmation(callback_query: CallbackQuery, state: FSMContext)
                 reply_markup=menu_keyboard(callback_query.from_user.id),
             )
             user = await aget_user_by_id(callback_query.from_user.id)
-            logger.info(f"Создаём новую ячейку в гугл-таблицах для пользователя: {user.username}")
+            logger.info(
+                f"Создаём новую ячейку в гугл-таблицах для пользователя: {user.username}"
+            )
             await create_new_worker_cell(user)
             logger.warning(
                 f"Устанавливаем таймеры опросников для {callback_query.from_user.id}"

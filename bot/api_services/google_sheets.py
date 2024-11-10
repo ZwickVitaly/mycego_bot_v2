@@ -8,7 +8,10 @@ from settings import logger
 async def create_new_worker_cell(user: User):
     if working:
         try:
-            await asyncio.to_thread(working.append_row, [user.telegram_id, user.role, user.username.replace("_", " ")])
+            await asyncio.to_thread(
+                working.append_row,
+                [user.telegram_id, user.role, user.username.replace("_", " ")],
+            )
             return True
         except Exception as e:
             logger.error(f"{e}")
@@ -49,9 +52,6 @@ async def append_new_worker_surveys(survey_data: list):
         except Exception as e:
             logger.error(f"{e}")
     return False
-
-
-
 
 
 def find_worker_row(user_id: str) -> int:

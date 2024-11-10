@@ -21,7 +21,11 @@ async def process_date(message: Message, state: FSMContext):
             "пожалуйста, подождите немного. Пока можете вернуться к работе."
         )
         user = await aget_user_by_id(message.from_user.id)
-        await message.bot.send_message(12345678, f"Работник: {user.username.split('_')}\nДолжность: {user.role}\nГород: {CITY_MARKER}\nВопрос: {message.text}", reply_markup=...)
+        await message.bot.send_message(
+            12345678,
+            f"Работник: {user.username.split('_')}\nДолжность: {user.role}\nГород: {CITY_MARKER}\nВопрос: {message.text}",
+            reply_markup=...,
+        )
         await state.clear()
     except Exception as e:
         # обрабатываем возможные исключения

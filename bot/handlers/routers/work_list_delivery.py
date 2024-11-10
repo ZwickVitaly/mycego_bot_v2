@@ -1,44 +1,56 @@
 import json
+from asyncio import TaskGroup
 
 from aiogram import F, Router
 from aiogram.fsm.context import FSMContext
-from aiogram.types import CallbackQuery
+from aiogram.types import CallbackQuery, Message
 from aiogram.exceptions import TelegramBadRequest
 from aiogram.enums import ParseMode
 
 from FSM import WorkListDelivery
 from api_services.mycego_site import get_delivery_products, get_categories
-from helpers import aget_user_by_id, anotify_admins, make_delivery_works_done_msg, make_delivery_works_staged_msg
+from helpers import (
+    aget_user_by_id,
+    anotify_admins,
+    make_delivery_works_done_msg,
+    make_delivery_works_staged_msg,
+    try_parse_delivery_works_nums,
+)
 from keyboards import (
     deliveries_keyboard,
-    delivery_products_keyboard,
-    delivery_product_works_keyboard, menu_keyboard,
+    delivery_product_works_keyboard,
+    menu_keyboard,
+    delivery_category_keyboard,
+    send_delivery_keyboard,
 )
 from settings import ADMINS, logger
 
 work_list_delivery_router = Router()
 
 
-@work_list_delivery_router.callback_query(WorkListDelivery.choice_marketplace, F.data.startswith("marketplace"))
+@work_list_delivery_router.callback_query(
+    WorkListDelivery.choice_marketplace, F.data.startswith("marketplace")
+)
 async def choose_marketplace_handler(callback_query: CallbackQuery, state: FSMContext):
     """
     Обрабатываем выбор маркетплейса поставки
     """
     try:
-        # удаляем сообщение
         try:
             await callback_query.message.delete()
         except TelegramBadRequest:
             pass
-        # получаем данные из машины состояний
         data = await state.get_data()
-        # получаем выбранный маркетплейс
         marketplace = callback_query.data.split("_")[-1]
         marketplaces = json.loads(data.get("marketplaces"))
-        deliveries = {d_id: name for d_id, name in marketplaces.get(marketplace, {}).items()}
+        deliveries = {
+            d_id: name for d_id, name in marketplaces.get(marketplace, {}).items()
+        }
         data["deliveries"] = json.dumps(deliveries)
         await state.set_data(data)
-        await callback_query.message.answer("Выберите поставку:", reply_markup=await deliveries_keyboard(deliveries))
+        await callback_query.message.answer(
+            "Выберите поставку:", reply_markup=await deliveries_keyboard(deliveries)
+        )
         await state.set_state(WorkListDelivery.choice_delivery)
 
     except Exception as e:
@@ -51,53 +63,141 @@ async def choose_marketplace_handler(callback_query: CallbackQuery, state: FSMCo
         # уведомляем админов
         await anotify_admins(
             callback_query.bot,
-            f"Ошибка обработки: лист работ - дата; пользователь: "
+            f"Ошибка обработки: лист поставки, маркетплейс; пользователь: "
             f"{callback_query.from_user.id}; данные: {callback_query.data}, причина: {e}",
             admins_list=ADMINS,
         )
 
 
-@work_list_delivery_router.callback_query(WorkListDelivery.choice_delivery, F.data.startswith("delivery"))
+@work_list_delivery_router.callback_query(
+    WorkListDelivery.choice_delivery, F.data.startswith("delivery")
+)
 async def choose_delivery_handler(callback_query: CallbackQuery, state: FSMContext):
     """
     Обрабатываем выбор поставки
     """
     try:
-        # получаем данные из машины состояний
         try:
             await callback_query.message.delete()
         except TelegramBadRequest:
             pass
         delivery_id = int(callback_query.data.split("_")[-1])
-        # получаем работу, данные о которой вносим сейчас
         data = await state.get_data()
         deliveries = json.loads(data.get("deliveries"))
-        products = await get_delivery_products(delivery_id)
-        categories = {c.get("id"): {s.get("id"): s.get("name") for s in c.get("standards")} for c in await get_categories()}
-        available_products = dict()
+        async with TaskGroup() as tg:
+            products = tg.create_task(get_delivery_products(delivery_id))
+            categories_data = tg.create_task(get_categories())
+        products = products.result()
+        categories_data = categories_data.result()
+        categories_standards = {
+            c.get("id"): {
+                "name": c.get("name"),
+                "standards": {s.get("id"): s.get("name") for s in c.get("standards")},
+            }
+            for c in categories_data
+        }
+        delivery_available = dict()
         for product in products:
             product_category = product.get("product_category")
-            category_standards = categories.get(product_category, {})
+            c_in_a = delivery_available.get(product_category)
+            if not c_in_a:
+                delivery_available[product_category] = {
+                    "name": categories_standards.get(product_category, {}).get("name"),
+                    "standards": categories_standards.get(product_category, {}).get(
+                        "standards"
+                    ),
+                    "products": {},
+                }
+            category_standards = categories_standards.get(product_category, {}).get(
+                "standards", dict()
+            )
             product_works = [w.get("standard_id") for w in product.get("works")]
             if len(category_standards) > len(product_works):
-                available_products[product.get("id")] = {
-                    "order": product.get("order"),
+                delivery_available[product_category]["products"][
+                    product.get("order")
+                ] = {
+                    "id": product.get("id"),
                     "name": product.get("product_art"),
                     "available_works": {
-                        w_id: w_name for w_id, w_name in category_standards.items() if w_id not in product_works
-                    }
+                        w_id: w_name
+                        for w_id, w_name in category_standards.items()
+                        if w_id not in product_works
+                    },
+                    "works_done": {},
                 }
-        if not available_products:
-            await callback_query.message.answer("В поставке нет доступных для работ товаров. Возвращаю главное меню.", reply_markup=menu_keyboard(callback_query.from_user.id))
+        if not delivery_available:
+            await callback_query.message.answer(
+                "В поставке нет доступных для работ товаров. Возвращаю главное меню.",
+                reply_markup=menu_keyboard(callback_query.from_user.id),
+            )
             await state.clear()
             return
         staged_delivery = deliveries.get(str(delivery_id))
-        await state.update_data({"available_products": json.dumps(available_products)})
+        await state.update_data({"delivery_available": json.dumps(delivery_available)})
         await state.update_data({"staged_delivery": staged_delivery})
         await callback_query.message.answer(
-            f"Поставка: {staged_delivery}\n\nВыберите ❗❗❗ПОРЯДКОВЫЙ НОМЕР❗❗❗ товара в поставке:",
-            reply_markup=await delivery_products_keyboard(available_products)
+            f"Поставка: {staged_delivery}\n\nВыберите категорию товаров:",
+            reply_markup=await delivery_category_keyboard(delivery_available),
         )
+        await state.set_state(WorkListDelivery.choice_category)
+    except Exception as e:
+        # обрабатываем возможные исключения
+        logger.exception(e)
+        # очищаем машину состояний
+        await state.clear()
+        # информируем пользователя
+        await callback_query.message.answer("☣️Возникла ошибка☣️")
+        # уведомляем админов
+        await anotify_admins(
+            callback_query.message.bot,
+            f"Ошибка обработки: лист поставки, категория; пользователь: "
+            f"{callback_query.message.from_user.id}; данные: {callback_query.message.text}, причина: {e}",
+            admins_list=ADMINS,
+        )
+
+
+@work_list_delivery_router.callback_query(
+    WorkListDelivery.choice_category, F.data.startswith("delivery_category")
+)
+async def choose_category_handler(callback_query: CallbackQuery, state: FSMContext):
+    """
+    Обрабатываем выбор категории
+    """
+    try:
+        try:
+            await callback_query.message.delete()
+        except TelegramBadRequest:
+            pass
+        category_id = callback_query.data.split("_")[-1]
+        data = await state.get_data()
+        data["staged_category"] = category_id
+
+        works_done = data.get("works_done")
+        delivery_name = data.get("staged_delivery")
+        delivery_available = json.loads(data["delivery_available"])
+        category_available = delivery_available.get(category_id).get("products")
+        available_products_msg = (
+            f"\n".join(
+                [
+                    f"{p_o}. {p.get('name')}"
+                    for p_o, p in category_available.items()
+                    if p.get("available_works")
+                ]
+            )
+            + "\n"
+        )
+        works_done = json.loads(works_done) if works_done else dict()
+        works_done_msg = make_delivery_works_done_msg(delivery_name, works_done)
+        await callback_query.message.answer(
+            f"{works_done_msg}\nВ категории <b>{delivery_available.get(category_id).get('name')}</b> "
+            f"доступны товары:\n{available_products_msg}\n"
+            f"Напишите номера товаров через запятую или интервал от - до через тире (максимальный 1-99).\n"
+            f"<b>Например</b>:\n"
+            f"1-10, 15, 17\n\n"
+            f"<i>такая запись будет соответствовать номерам с 1 по 10, а также 15 и 17</i>",
+            parse_mode=ParseMode.HTML,
+        )
+        await state.set_data(data)
         await state.set_state(WorkListDelivery.choice_product)
     except Exception as e:
         # обрабатываем возможные исключения
@@ -115,9 +215,90 @@ async def choose_delivery_handler(callback_query: CallbackQuery, state: FSMConte
         )
 
 
+@work_list_delivery_router.message(
+    WorkListDelivery.choice_product, F.chat.type == "private"
+)
+async def choose_products_handler(message: Message, state: FSMContext):
+    """
+    Обрабатываем выбранные товары
+    """
+    try:
+        logger.info(message.text)
+        try:
+            works_orders = try_parse_delivery_works_nums(message.text)
+        except Exception as e:
+            logger.error(f"{e}")
+            await message.answer(
+                "<b>Неправильный формат ввода номеров товаров</b>.\nПожалуйста напишите номера товаров через запятую или интервал от - до через тире (максимальный 1-99).\n<b>Например</b>:\n"
+                f"1 - 7, 8, 16\n\n"
+                f"<i>такая запись будет соответствовать номерам с 1 по 7, а также 8 и 16</i>",
+                parse_mode=ParseMode.HTML,
+            )
+            return
 
-@work_list_delivery_router.callback_query(WorkListDelivery.choice_product, F.data.startswith("delivery_product"))
-async def choose_products_handler(callback_query: CallbackQuery, state: FSMContext):
+        # получаем работу, данные о которой вносим сейчас
+        data = await state.get_data()
+        delivery_available = json.loads(data.get("delivery_available"))
+        staged_category = data["staged_category"]
+        staged_category_products = delivery_available.get(staged_category).get(
+            "products"
+        )
+        error_products = []
+        staged_products = dict()
+        available_works = dict()
+        for w_o in works_orders:
+            w_o = str(w_o)
+            if not staged_category_products.get(w_o, {}).get("available_works"):
+                error_products.append(w_o)
+            else:
+                product = staged_category_products[w_o]
+                staged_products[w_o] = product
+                available_works.update(product.get("available_works"))
+        if not staged_products:
+            await message.answer(
+                "Нет доступных работ для выбранных номеров товаров\nВыберите другие товары\n\nПожалуйста напишите номера товаров через запятую или интервал от - до через тире (максимальный 1-99).\n<b>Например</b>:\n"
+                f"1 - 7, 8, 16\n\n"
+                f"<i>такая запись будет соответствовать номерам с 1 по 7, а также 8 и 16</i>"
+            )
+            return
+        data["staged_products"] = json.dumps(staged_products)
+        data["available_works"] = json.dumps(available_works)
+        msg = f"{
+            ('<b>Не доступны товары с номерами:</b>\n' + ','.join(error_products) + '\n\n') if error_products else ''
+        }<b>Выбранные товары:</b>\n{
+            '\n'.join([f"{p_o}. {p.get('name')}" for p_o, p in staged_products.items()])
+        }"
+        await message.answer(msg, parse_mode=ParseMode.HTML)
+        await message.answer(
+            "Выберите работы, которые вы выполнили по товарам.\n\n⚠️⚠️⚠️<b>!!! Важно !!!</b>⚠️⚠️⚠️\n"
+            "Если Вы НЕ выполняли какую-то работу хотя-бы по одному товару из списка - <b>Не указывайте работу! "
+            "После подтверждения сформируйте новый список и укажите работу в новом списке!</b>\n\n"
+            "⚠️Работы, которые УЖЕ выполнены по выбранному товару, засчитаны не будут!⚠️",
+            parse_mode=ParseMode.HTML,
+            reply_markup=await delivery_product_works_keyboard(available_works),
+        )
+        await state.set_data(data)
+        await state.set_state(WorkListDelivery.choice_works)
+    except Exception as e:
+        # обрабатываем возможные исключения
+        logger.exception(e)
+        # очищаем машину состояний
+        await state.clear()
+        # информируем пользователя
+        await message.answer("☣️Возникла ошибка☣️")
+        # уведомляем админов
+        await anotify_admins(
+            message.bot,
+            f"Ошибка обработки: лист работ - количество работ; пользователь: "
+            f"{message.from_user.id}; данные: {message.text}, причина: {e}",
+            admins_list=ADMINS,
+        )
+
+
+@work_list_delivery_router.callback_query(
+    WorkListDelivery.choice_works, F.data.startswith("delivery_work")
+)
+async def choose_work_handler(callback_query: CallbackQuery, state: FSMContext):
     """
     Обрабатываем выбор товара
     """
@@ -126,40 +307,30 @@ async def choose_products_handler(callback_query: CallbackQuery, state: FSMConte
             await callback_query.message.delete()
         except TelegramBadRequest:
             pass
-        product_id = callback_query.data.split("_")[-1]
+        standard_id = callback_query.data.split("_")[-1]
         data = await state.get_data()
-
-        works_done = data.get("works_done")
-        delivery_name = data.get("staged_delivery")
-        works_done = json.loads(works_done) if works_done else dict()
-        works_done_msg = make_delivery_works_done_msg(delivery_name, works_done)
-        products = json.loads(data.get("available_products"))
-        if product_id not in products or products.get(product_id, None) is None:
-            await callback_query.message.answer("Товар не найден. Пожалуйста, используйте предложенную клавиатуру.")
-            await callback_query.message.answer(
-                f"{works_done_msg}\nВыберите ❗❗❗ПОРЯДКОВЫЙ НОМЕР❗❗❗ товара в поставке:",
-                reply_markup=await delivery_products_keyboard(products)
-            )
-            return
-        product = products.get(product_id)
-        product["id"] = product_id
-        available_works = product.get("available_works")
-        if not available_works:
-            await callback_query.message.answer("По товару не найдено доступных работ. Пожалуйста, выберите другой.")
-            await callback_query.message.answer(
-                f"{works_done_msg}\nВыберите ❗❗❗ПОРЯДКОВЫЙ НОМЕР❗❗❗ товара в поставке:",
-                reply_markup=await delivery_products_keyboard(products)
-            )
-            return
-        await callback_query.message.answer(
-            f"{works_done_msg}Выбран товар:\n{product.get('name')}\nПорядковый номер в поставке: "
-            f"{product.get('order')}\n\nВыберите проделанные работы\n"
-            f"*Если работ в списке нет, значит кто-то уже отметил выполнение работы.",
-            reply_markup=await delivery_product_works_keyboard(available_works)
+        staged_standards = data.get("staged_standards")
+        staged_standards = json.loads(staged_standards) if staged_standards else dict()
+        available_works = json.loads(data["available_works"])
+        staged_standards[standard_id] = available_works.pop(standard_id, None)
+        staged_works_msg = make_delivery_works_staged_msg(staged_standards)
+        chosen_standards_msg = (
+            f"{staged_works_msg}\n"
+            "Выберите работы, которые вы выполнили по товарам.\n\n⚠️⚠️⚠️<b>!!! Важно !!!</b>⚠️⚠️⚠️\n"
+            "Если Вы НЕ выполняли какую-то работу хотя-бы по одному товару из списка - <b>Не указывайте работу! "
+            "После подтверждения сформируйте новый список и укажите работу в новом списке!</b>\n\n"
+            "⚠️Работы, которые УЖЕ выполнены по выбранному товару, засчитаны не будут!⚠️"
         )
-        data["staged_product"] = json.dumps(product)
+        await callback_query.message.answer(
+            chosen_standards_msg,
+            parse_mode=ParseMode.HTML,
+            reply_markup=await delivery_product_works_keyboard(
+                available_works, confirm=True
+            ),
+        )
+        data["staged_standards"] = json.dumps(staged_standards)
+        data["available_works"] = json.dumps(available_works)
         await state.set_data(data)
-        await state.set_state(WorkListDelivery.choice_works)
     except Exception as e:
         # обрабатываем возможные исключения
         logger.exception(e)
@@ -176,73 +347,12 @@ async def choose_products_handler(callback_query: CallbackQuery, state: FSMConte
         )
 
 
-@work_list_delivery_router.callback_query(WorkListDelivery.choice_works, F.data.startswith("delivery_work"))
-async def choose_work_handler(callback_query: CallbackQuery, state: FSMContext):
-    """
-    Обрабатываем выбранную работу
-    """
-    try:
-        try:
-            await callback_query.message.delete()
-        except TelegramBadRequest:
-            pass
-        work_id = callback_query.data.split("_")[-1]
-        # получаем работу, данные о которой вносим сейчас
-        data = await state.get_data()
-        product = json.loads(data.get("staged_product"))
-        available_works = product.get("available_works", dict())
-        works_staged = product.get("staged_works", dict())
-        works_done = data.get("works_done")
-        delivery_name = data.get("staged_delivery")
-        works_done = json.loads(works_done) if works_done else dict()
-        works_done_msg = make_delivery_works_done_msg(delivery_name, works_done)
-        logger.info(works_staged)
-        if work_id not in available_works:
-            confirm = True if works_staged else None
-            if not available_works:
-                await callback_query.message.answer("Что-то пошло не так. Возвращаю главное меню.", reply_markup=menu_keyboard(callback_query.from_user.id))
-                await state.clear()
-            else:
-                works_staged_msg = make_delivery_works_staged_msg(works_staged)
-                await callback_query.message.answer("Нельзя выполнить работу по этому товару. Пожалуйста, используйте предложенную клавиатуру.")
-                await callback_query.message.answer(
-                    f"{works_done_msg}\nВыбран товар:\n{product.get('name')}\nПорядковый номер в поставке: "
-                    f"{product.get('order')}{works_staged_msg}\nВыберите проделанные работы\n"
-                    f"*Если работ в списке нет, значит кто-то уже отметил выполнение работы.",
-                    reply_markup=await delivery_product_works_keyboard(available_works, confirm=confirm)
-                )
-            return
-        work_chosen = available_works.pop(work_id)
-        works_staged.update({work_id: work_chosen})
-        confirm = True if works_staged else None
-        product["staged_works"] = works_staged
-        data["staged_product"] = json.dumps(product)
-        works_staged_msg = make_delivery_works_staged_msg(works_staged)
-        await callback_query.message.answer(
-            f"{works_done_msg}\nВыбран товар:\n{product.get('name')}\nПорядковый номер в поставке: "
-            f"{product.get('order')}{works_staged_msg}\nВыберите проделанные работы\n"
-            f"*Если работ в списке нет, значит кто-то уже отметил выполнение работы.",
-            reply_markup=await delivery_product_works_keyboard(available_works, confirm=confirm)
-        )
-        await state.set_data(data)
-        await state.set_state(WorkListDelivery.choice_works)
-    except Exception as e:
-        # обрабатываем возможные исключения
-        logger.exception(e)
-        # очищаем машину состояний
-        await state.clear()
-        # информируем пользователя
-        await callback_query.message.answer("☣️Возникла ошибка☣️")
-        # уведомляем админов
-        await anotify_admins(
-            callback_query.message.bot,
-            f"Ошибка обработки: лист работ - количество работ; пользователь: "
-            f"{callback_query.message.from_user.id}; данные: {callback_query.message.text}, причина: {e}",
-            admins_list=ADMINS,
-        )
-
-@work_list_delivery_router.callback_query(WorkListDelivery.choice_works, F.data.startswith("confirm"))
-@work_list_delivery_router.callback_query(WorkListDelivery.choice_works, F.data.startswith("back"))
+@work_list_delivery_router.callback_query(
+    WorkListDelivery.choice_works, F.data.startswith("confirm")
+)
+@work_list_delivery_router.callback_query(
+    WorkListDelivery.choice_works, F.data.startswith("back")
+)
 async def choose_work_handler(callback_query: CallbackQuery, state: FSMContext):
     """
     Обрабатываем выбранную работу
@@ -255,36 +365,82 @@ async def choose_work_handler(callback_query: CallbackQuery, state: FSMContext):
 
         # получаем работу, данные о которой вносим сейчас
         data = await state.get_data()
-        staged_product = json.loads(data.pop("staged_product"))
-        works_done = data.get("works_done")
-        works_done = json.loads(works_done) if works_done else dict()
-        available_products = json.loads(data.get("available_products"))
-        delivery_name = data.get("staged_delivery")
+        staged_products = json.loads(data.pop("staged_products"))
+        staged_delivery = data["staged_delivery"]
+        staged_category_id = data.pop("staged_category")
+        staged_standards = json.loads(data.pop("staged_standards", "null"))
+        delivery_available = json.loads(data.get("delivery_available"))
         if callback_query.data == "back":
+            if staged_standards:
+                await callback_query.message.answer(
+                    "❌ОТМЕНЕНО❌ заполнение работ по товарам:\n"
+                    f"{'\n'.join(f'{p_o}. {p.get('name')}' for p_o, p in staged_products.items())}",
+                )
+        else:
+            staged_category = delivery_available.pop(staged_category_id)
+            available_products = staged_category.pop("products")
+            unavailable_works = {}
+            available_works = {}
+            for p_o, p in staged_products.items():
+                for s_id, s_name in staged_standards.items():
+                    aw = available_products[p_o].get("available_works")
+                    if s_id in aw:
+                        available_products[p_o]["works_done"].update(
+                            {s_id: aw.pop(s_id)}
+                        )
+                        available_works[p_o] = available_works.get(
+                            p_o, {"works": {}, "name": p.get("name")}
+                        )
+                        available_works[p_o]["works"].update({s_id: s_name})
+                    else:
+                        unavailable_works[p_o] = unavailable_works.get(
+                            p_o, {"works": {}, "name": p.get("name")}
+                        )
+                        unavailable_works[p_o]["works"].update({s_id: s_name})
+
+            staged_category["products"] = available_products
+            delivery_available[staged_category_id] = staged_category
+            data["delivery_available"] = json.dumps(delivery_available)
             await callback_query.message.answer(
-                "❌ОТМЕНЕНО❌ заполнение работ по товару:\n"
-                f"{staged_product.get('name')}\nПорядковый номер в поставке: {staged_product.get('order')}\n"
+                "✅Сохранено✅ заполнение работ по товарам:\n"
+                f"{'\n'.join(f'{p_o}. {p.get('name')}' for p_o, p in available_works.items())}\n\n"
+                f"❌Не приняты❌ работы по товарам:\n"
+                f"{'\n'.join(f'{p_o}. {p.get('name')}\n{'\n'.join(s for s in p.get('works',{}).values())}' for p_o, p in unavailable_works.items())}",
             )
-        elif callback_query.data == "confirm":
-            p_id = staged_product.get('id')
-            product = available_products.pop(p_id)
-            if staged_product.get("available_works"):
-                product["available_works"] = staged_product["available_works"]
-                available_products[p_id] = product
-                available_products = dict(sorted(available_products.items(), key=lambda x:x[0]))
-            data["available_products"] = json.dumps(available_products)
-            if p_id in works_done:
-                works_done[p_id]["works_done"].update(staged_product.get("staged_works"))
-            else:
-                works_done[p_id] = {"works_done": staged_product.get("staged_works"), "name": staged_product.get("name"), "order": staged_product.get("order")}
-            data["works_done"] = json.dumps(works_done)
-        works_done_msg = make_delivery_works_done_msg(delivery_name, works_done)
-        await callback_query.message.answer(
-            f"{works_done_msg}"
-            f"Выберите ❗❗❗ПОРЯДКОВЫЙ НОМЕР❗❗❗ товара в поставке:",
-            reply_markup=await delivery_products_keyboard(available_products)
+        products_left = any(
+            [
+                p.get("available_works")
+                for c in delivery_available.values()
+                for p in c.get("products").values()
+            ]
         )
-        await state.set_state(WorkListDelivery.choice_product)
+        products_works = {}
+        for c in delivery_available.values():
+            c_name = c.get("name")
+            products_works[c_name] = dict()
+            for p_o, p in c.get("products").items():
+                for w in p.get("works_done").values():
+                    w_list = products_works[c_name].get(w, [])
+                    w_list.append(p_o)
+                    products_works[c_name][w] = w_list
+        logger.info(products_works)
+
+        works_done_msg = make_delivery_works_done_msg(staged_delivery, products_works)
+        await callback_query.message.answer(
+            f"{works_done_msg}\n{'Выберите категорию товаров:' if products_left else 'Не осталось работ по товарам в поставке. Отправьте заполненные работы или нажмите \"Отмена\"'}",
+            reply_markup=(
+                await delivery_category_keyboard(delivery_available)
+                if products_left
+                else await send_delivery_keyboard()
+            ),
+        )
+        # works_done_msg = make_delivery_works_done_msg(delivery_name, works_done)
+        # await callback_query.message.answer(
+        #     f"{works_done_msg}"
+        #     f"Выберите ❗❗❗ПОРЯДКОВЫЙ НОМЕР❗❗❗ товара в поставке:",
+        #     reply_markup=await delivery_products_keyboard(available_products)
+        # )
+        await state.set_state(WorkListDelivery.choice_category)
         await state.set_data(data)
     except Exception as e:
         # обрабатываем возможные исключения
@@ -302,8 +458,9 @@ async def choose_work_handler(callback_query: CallbackQuery, state: FSMContext):
         )
 
 
-
-@work_list_delivery_router.callback_query(F.data == "send", WorkListDelivery.choice_product)
+@work_list_delivery_router.callback_query(
+    F.data == "send", WorkListDelivery.choice_category
+)
 async def send_works(callback_query: CallbackQuery, state: FSMContext):
     """
     Обрабатываем запрос отправки заполненного листа работ
@@ -311,19 +468,28 @@ async def send_works(callback_query: CallbackQuery, state: FSMContext):
     try:
         # удаляем сообщение
         data = await state.get_data()
-        works = data.get("works_done")
-        if not works:
-            await callback_query.message.answer("Вы не заполнили работы. Сначала заполните работы, потом отправляйте.")
+        delivery_available = json.loads(data.get("delivery_available"))
+        products_works = {
+            int(p.get("id")): [s for s in p.get("works_done")]
+            for c in delivery_available.values()
+            for p in c.get("products").values()
+            if p.get("works_done")
+        }
+        if not any([w for w in products_works.values()]):
+            await callback_query.message.answer(
+                "Вы не заполнили работы. Сначала заполните работы, потом отправляйте."
+            )
             return
         try:
             await callback_query.message.delete()
         except TelegramBadRequest:
             pass
-        works = json.loads(works)
-        logger.info(works)
         user = await aget_user_by_id(callback_query.from_user.id)
-        payload = {"user_id": int(user.site_user_id), "orders": {int(key): [int(w) for w in item.get("works_done", {}).keys()] for key, item in works.items()}}
-        await callback_query.message.answer(f"<code>{json.dumps(payload, indent=2, ensure_ascii=False)}</code>", parse_mode=ParseMode.HTML)
+        payload = {"user_id": int(user.site_user_id), "products": products_works}
+        await callback_query.message.answer(
+            f"<code>{json.dumps(payload, indent=2, ensure_ascii=False)}</code>",
+            parse_mode=ParseMode.HTML,
+        )
         await state.clear()
 
     except Exception as e:

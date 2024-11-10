@@ -20,4 +20,3 @@ class DatabaseKeys:
     SCHEDULES_FIRST_DAY_KEY = "Первый день"
     SCHEDULES_ONE_WEEK_KEY = "Первая неделя"
     SCHEDULES_MONTH_KEY = "{}й месяц"
-

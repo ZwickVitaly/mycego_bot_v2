@@ -68,10 +68,13 @@ async def first_week_first_q_handler(callback_query: CallbackQuery, state: FSMCo
                     admins_list=SURVEY_ADMINS,
                 )
                 new_data = list(data.values())
-                survey = await update_worker_surveys_v2(user_id=user.telegram_id, survey={
-                    "period": DatabaseKeys.SCHEDULES_ONE_WEEK_KEY,
-                    "data": new_data
-                })
+                survey = await update_worker_surveys_v2(
+                    user_id=user.telegram_id,
+                    survey={
+                        "period": DatabaseKeys.SCHEDULES_ONE_WEEK_KEY,
+                        "data": new_data,
+                    },
+                )
                 if not survey:
                     logger.warning(
                         "Не получилось внести данные опроса в таблицу для "

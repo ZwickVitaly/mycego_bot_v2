@@ -9,7 +9,7 @@ from messages import (
     AFTER_FIRST_DAY_MESSAGE,
     FIRST_DAY_FIRST_QUESTION_MESSAGE,
     SURVEY_DISCLAIMER,
-    MISSED_FIRST_DAY_SURVEY
+    MISSED_FIRST_DAY_SURVEY,
 )
 from settings import ADMINS, logger
 
@@ -42,7 +42,9 @@ async def after_first_day_survey_start(user_id):
 async def missed_first_day_survey_start(user_id):
     user: User = await aget_user_by_id(user_id)
     if user:
-        logger.debug(f"User: {user.username} проходит опрос, первый день (работает дольше)")
+        logger.debug(
+            f"User: {user.username} проходит опрос, первый день (работает дольше)"
+        )
         await storage.set_state(
             StorageKey(user_id=user_id, chat_id=user_id, bot_id=bot.id),
             state=FirstDaySurveyStates.first_q.state,
@@ -60,5 +62,7 @@ async def missed_first_day_survey_start(user_id):
             reply_markup=await yes_or_no_keyboard(maybe=True),
         )
         await anotify_admins(
-            bot, f"User: {user.username} проходит опрос, первый день (работает дольше)", ADMINS
+            bot,
+            f"User: {user.username} проходит опрос, первый день (работает дольше)",
+            ADMINS,
         )

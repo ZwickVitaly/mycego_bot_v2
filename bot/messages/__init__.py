@@ -34,7 +34,6 @@ from .survey_messages import (
     FIRST_WEEK_PASSED,
     MISSED_ALL_SURVEY,
     MONTH_PASSED,
-
 )
 
 __all__ = [

@@ -28,7 +28,7 @@ from handlers import (  # work_list_delivery_router,
     work_graf_router,
     work_list_router,
     process_failed_confirmation,
-    work_list_delivery_router
+    work_list_delivery_router,
 )
 from settings import logger
 from utils import storage_connection

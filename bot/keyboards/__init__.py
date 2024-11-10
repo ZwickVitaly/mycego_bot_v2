@@ -20,6 +20,8 @@ from .inline_keyboards import (
     deliveries_keyboard,
     delivery_products_keyboard,
     delivery_product_works_keyboard,
+    delivery_category_keyboard,
+    send_delivery_keyboard,
 )
 from .reply_keyboards import menu_keyboard, ready, second_menu, type_request
 
@@ -49,4 +51,6 @@ __all__ = [
     "deliveries_keyboard",
     "delivery_products_keyboard",
     "delivery_product_works_keyboard",
+    "delivery_category_keyboard",
+    "send_delivery_keyboard",
 ]

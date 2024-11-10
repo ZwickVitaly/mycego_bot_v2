@@ -309,7 +309,6 @@ async def get_deliveries_in_progress():
             return []
 
 
-
 async def get_delivery_products(delivery_id):
     """
     Функция для получения ордеров и работ по поставкам
@@ -322,11 +321,10 @@ async def get_delivery_products(delivery_id):
             return None
 
 
-
 if __name__ == "__main__":
     # check_user_api('admin', 'fma160392')
     # print(asyncio.run(get_categories()))
     # dates = [datetime.fromisoformat(x.get("date_joined")) for x in p]
     # print(dates)
     # print(asyncio.run(get_deliveries_in_progress()))
-    print(asyncio.run(get_delivery_products(1)))
+    print(asyncio.run(get_categories()))
