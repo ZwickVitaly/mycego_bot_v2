@@ -8,6 +8,7 @@ from .command_handlers import (
     new_link_command_handler,
     start_command_handler,
     process_failed_confirmation,
+    survey_command_handler,
 )
 from .join_chat_request import request_join_channel_handler
 from .message_handlers import back_message_handler, surveys_lock_message_handler

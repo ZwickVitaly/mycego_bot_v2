@@ -28,7 +28,7 @@ from handlers import (  # work_list_delivery_router,
     work_graf_router,
     work_list_router,
     process_failed_confirmation,
-    work_list_delivery_router,
+    work_list_delivery_router, survey_command_handler,
 )
 from settings import logger
 from utils import storage_connection
@@ -81,6 +81,7 @@ dp.message.register(get_promo_handler, Command("promo"), F.chat.type == "private
 dp.message.register(
     get_vacancies_command_handler, Command("vacancies"), F.chat.type == "private"
 )
+dp.message.register(survey_command_handler, Command('survey'), F.chat.type == "private")
 
 # Сообщение во время опроса/знакомства
 dp.message.register(
