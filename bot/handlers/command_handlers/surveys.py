@@ -14,7 +14,7 @@ async def survey_command_handler(message: Message) -> None:
             tg_id = message.text.split(" ")[-1].strip()
             async with async_session() as session:
                 async with session.begin():
-                    q = select(Survey).options(joinedload(User)).filter(Survey.user.has(telegram_id=tg_id))
+                    q = select(Survey).options(joinedload(Survey.user)).filter(Survey.user.has(telegram_id=tg_id))
                     surveys = await session.execute(q)
                     surveys = surveys.scalars()
             result = {
