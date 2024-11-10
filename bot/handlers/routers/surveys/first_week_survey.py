@@ -67,6 +67,8 @@ async def first_week_first_q_handler(callback_query: CallbackQuery, state: FSMCo
                     message=admin_msg,
                     admins_list=SURVEY_ADMINS,
                 )
+                data.pop("user_name", 0)
+                data.pop("username", 0)
                 new_data = list(data.values())
                 survey = await update_worker_surveys_v2(
                     user_id=user.telegram_id,

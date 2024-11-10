@@ -123,6 +123,8 @@ async def monthly_second_q_handler(message: Message, state: FSMContext):
         await anotify_admins(
             bot=message.bot, message=admin_msg, admins_list=SURVEY_ADMINS
         )
+        data.pop("user_name", 0)
+        data.pop("username", 0)
         new_data = list(data.values())
         survey = await update_worker_surveys_v2(
             user_id=user.telegram_id,
