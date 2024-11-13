@@ -33,7 +33,7 @@ async def start_up(bot: Bot):
         tg.create_task(anotify_admins(bot, "Бот запущен", admins_list=ADMINS))
         tg.create_task(renew_users_base())
         tg.create_task(renew_works_base())
-        tg.create_task(fix_surveys_job())
+        # tg.create_task(fix_surveys_job())
     logger.info("Запускаем задачи по расписанию")
     scheduler.add_job(
         happy_birthday,
