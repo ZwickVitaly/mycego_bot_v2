@@ -28,6 +28,21 @@ async def fix_surveys_job():
                 users = q.unique().scalars()
                 today = datetime.now()
                 for user in users:
+                    tasks = [
+                        1 if await storage_connection.hget("apscheduler.jobs", f"{RedisKeys.SCHEDULES_FIRST_DAY_KEY}_{user.telegram_id}") else None,
+                        1 if await storage_connection.hget("apscheduler.jobs", f"{RedisKeys.SCHEDULES_ONE_WEEK_KEY}_{user.telegram_id}") else None,
+                        1 if await storage_connection.hget("apscheduler.jobs", f"{RedisKeys.SCHEDULES_ONE_MONTH_KEY}_{user.telegram_id}") else None,
+                        1 if await storage_connection.hget("apscheduler.jobs", f"{RedisKeys.SCHEDULES_TWO_MONTHS_KEY}_{user.telegram_id}") else None,
+                        1 if await storage_connection.hget("apscheduler.jobs", f"{RedisKeys.SCHEDULES_THREE_MONTHS_KEY}_{user.telegram_id}") else None,
+                    ]
+
+                    user_pending_surveys =  {
+                        DatabaseKeys.SCHEDULES_FIRST_DAY_KEY: tasks[0],
+                        DatabaseKeys.SCHEDULES_ONE_WEEK_KEY: tasks[1],
+                        DatabaseKeys.SCHEDULES_MONTH_KEY.format(1): tasks[2],
+                        DatabaseKeys.SCHEDULES_MONTH_KEY.format(2): tasks[3],
+                        DatabaseKeys.SCHEDULES_MONTH_KEY.format(3): tasks[4],
+                    }
                     q = await session.execute(select(Survey).filter(Survey.user_id == int(user.telegram_id)))
                     dipshit_mistake = list(q.scalars())
                     if int(user.telegram_id) in ADMINS:
@@ -43,7 +58,7 @@ async def fix_surveys_job():
                     #     DatabaseKeys.SCHEDULES_MONTH_KEY.format(3): None,
                     # }
                     user_surveys = list(user.surveys)
-                    logger.info(f"{user.username} ({(today - user.date_joined).days}): {len(user_surveys)} mistake({dipshit_mistake})")
+                    logger.info(f"{user.username} ({(today - user.date_joined).days}): {len(user_surveys)} tasks:{json.dumps(user_pending_surveys, ensure_ascii=False, indent=1)}")
                 await session.commit()
                     # for survey in user_surveys:
                     #     user_completed_surveys[survey.period] = 1
@@ -68,7 +83,7 @@ async def fix_surveys_job():
                     #     1 if await storage_connection.hget("apscheduler.jobs", f"{RedisKeys.SCHEDULES_TWO_MONTHS_KEY}_{user.telegram_id}") else None,
                     #     1 if await storage_connection.hget("apscheduler.jobs", f"{RedisKeys.SCHEDULES_THREE_MONTHS_KEY}_{user.telegram_id}") else None,
                     # ]
-
+                    #
                     # user_pending_surveys =  {
                     #     DatabaseKeys.SCHEDULES_FIRST_DAY_KEY: tasks[0],
                     #     DatabaseKeys.SCHEDULES_ONE_WEEK_KEY: tasks[1],
