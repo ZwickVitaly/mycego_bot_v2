@@ -29,7 +29,7 @@ async def fix_surveys_job():
                 today = datetime.now()
                 for user in users:
                     q = await session.execute(select(Survey).filter(Survey.user_id == int(user.telegram_id)))
-                    dipshit_mistake = len(q.scalars())
+                    dipshit_mistake = len(list(q.scalars()))
                     if int(user.telegram_id) in ADMINS:
                         continue
                     # user_completed_surveys = {
