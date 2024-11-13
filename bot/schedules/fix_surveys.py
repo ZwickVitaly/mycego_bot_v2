@@ -29,9 +29,12 @@ async def fix_surveys_job():
                 today = datetime.now()
                 for user in users:
                     q = await session.execute(select(Survey).filter(Survey.user_id == int(user.telegram_id)))
-                    dipshit_mistake = len(list(q.scalars()))
+                    dipshit_mistake = list(q.scalars())
                     if int(user.telegram_id) in ADMINS:
                         continue
+                    for m in dipshit_mistake:
+                        m.user_id = user.id
+                        await session.merge(m)
                     # user_completed_surveys = {
                     #     DatabaseKeys.SCHEDULES_FIRST_DAY_KEY: None,
                     #     DatabaseKeys.SCHEDULES_ONE_WEEK_KEY: None,
@@ -41,6 +44,7 @@ async def fix_surveys_job():
                     # }
                     user_surveys = list(user.surveys)
                     logger.info(f"{user.username} ({(today - user.date_joined).days}): {len(user_surveys)} mistake({dipshit_mistake})")
+                await session.commit()
                     # for survey in user_surveys:
                     #     user_completed_surveys[survey.period] = 1
                     #     srv_data = json.loads(survey.survey_json)
@@ -57,13 +61,13 @@ async def fix_surveys_job():
                     #         },
                     #     )
                     #     await asyncio.sleep(0.2)
-                    tasks = [
-                        1 if await storage_connection.hget("apscheduler.jobs", f"{RedisKeys.SCHEDULES_FIRST_DAY_KEY}_{user.telegram_id}") else None,
-                        1 if await storage_connection.hget("apscheduler.jobs", f"{RedisKeys.SCHEDULES_ONE_WEEK_KEY}_{user.telegram_id}") else None,
-                        1 if await storage_connection.hget("apscheduler.jobs", f"{RedisKeys.SCHEDULES_ONE_MONTH_KEY}_{user.telegram_id}") else None,
-                        1 if await storage_connection.hget("apscheduler.jobs", f"{RedisKeys.SCHEDULES_TWO_MONTHS_KEY}_{user.telegram_id}") else None,
-                        1 if await storage_connection.hget("apscheduler.jobs", f"{RedisKeys.SCHEDULES_THREE_MONTHS_KEY}_{user.telegram_id}") else None,
-                    ]
+                    # tasks = [
+                    #     1 if await storage_connection.hget("apscheduler.jobs", f"{RedisKeys.SCHEDULES_FIRST_DAY_KEY}_{user.telegram_id}") else None,
+                    #     1 if await storage_connection.hget("apscheduler.jobs", f"{RedisKeys.SCHEDULES_ONE_WEEK_KEY}_{user.telegram_id}") else None,
+                    #     1 if await storage_connection.hget("apscheduler.jobs", f"{RedisKeys.SCHEDULES_ONE_MONTH_KEY}_{user.telegram_id}") else None,
+                    #     1 if await storage_connection.hget("apscheduler.jobs", f"{RedisKeys.SCHEDULES_TWO_MONTHS_KEY}_{user.telegram_id}") else None,
+                    #     1 if await storage_connection.hget("apscheduler.jobs", f"{RedisKeys.SCHEDULES_THREE_MONTHS_KEY}_{user.telegram_id}") else None,
+                    # ]
 
                     # user_pending_surveys =  {
                     #     DatabaseKeys.SCHEDULES_FIRST_DAY_KEY: tasks[0],
@@ -199,6 +203,7 @@ async def fix_surveys_job():
                     #             args=[user.telegram_id, 3],
                     #             replace_existing=True,
                     #         )
+
     except Exception as e:
         logger.error(f"{e}")
 
