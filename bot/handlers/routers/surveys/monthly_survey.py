@@ -126,13 +126,17 @@ async def monthly_second_q_handler(message: Message, state: FSMContext):
         data.pop("user_name", 0)
         data.pop("username", 0)
         new_data = list(data.values())
-        survey = await update_worker_surveys_v2(
-            user_id=user.telegram_id,
-            survey={
-                "period": DatabaseKeys.SCHEDULES_MONTH_KEY.format(month_no),
-                "data": new_data,
-            },
-        )
+        try:
+            survey = await update_worker_surveys_v2(
+                user_id=user.telegram_id,
+                survey={
+                    "period": DatabaseKeys.SCHEDULES_MONTH_KEY.format(month_no),
+                    "data": new_data,
+                },
+            )
+        except Exception as e:
+                    logger.error(f"Не удалось записать результаты опроса. Пользователь: {user.username}; Ошибка: {e}")
+                    survey = None
         if not survey:
             logger.warning(
                 "Не получилось внести данные опроса в таблицу для "

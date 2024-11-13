@@ -70,13 +70,17 @@ async def first_week_first_q_handler(callback_query: CallbackQuery, state: FSMCo
                 data.pop("user_name", 0)
                 data.pop("username", 0)
                 new_data = list(data.values())
-                survey = await update_worker_surveys_v2(
-                    user_id=user.telegram_id,
-                    survey={
-                        "period": DatabaseKeys.SCHEDULES_ONE_WEEK_KEY,
-                        "data": new_data,
-                    },
-                )
+                try:
+                    survey = await update_worker_surveys_v2(
+                        user_id=user.telegram_id,
+                        survey={
+                            "period": DatabaseKeys.SCHEDULES_ONE_WEEK_KEY,
+                            "data": new_data,
+                        },
+                    )
+                except Exception as e:
+                    logger.error(f"Не удалось записать результаты опроса. Пользователь: {user.username}; Ошибка: {e}")
+                    survey = None
                 if not survey:
                     logger.warning(
                         "Не получилось внести данные опроса в таблицу для "
