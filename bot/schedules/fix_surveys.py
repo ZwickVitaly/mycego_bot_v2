@@ -24,9 +24,9 @@ async def fix_surveys_job():
     try:
         async with async_session() as session:
             async with session.begin():
-                q = await session.execute(select(User).options(selectinload(User.surveys)))
+                q = await session.execute(select(User).options(selectinload(User.surveys)).order_by(User.date_joined))
                 users = q.unique().scalars()
-                # today = datetime.now()
+                today = datetime.now()
                 for user in users:
                     if int(user.telegram_id) in ADMINS:
                         continue
@@ -38,7 +38,7 @@ async def fix_surveys_job():
                     #     DatabaseKeys.SCHEDULES_MONTH_KEY.format(3): None,
                     # }
                     user_surveys = list(user.surveys)
-                    logger.info(f"{user.username}: {len(user_surveys)}")
+                    logger.info(f"{user.username} ({(today - user.date_joined).days}): {len(user_surveys)}")
                     # for survey in user_surveys:
                     #     user_completed_surveys[survey.period] = 1
                     #     srv_data = json.loads(survey.survey_json)
