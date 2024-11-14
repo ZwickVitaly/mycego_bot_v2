@@ -25,6 +25,36 @@ services:
     networks:
       - proxy_net
 
+  celery:
+    build:
+      dockerfile: ./Dockerfile
+    container_name: ${CELERY_CONTAINER}
+    entrypoint: celery -A celery_main.bot_celery worker --autoscale=2,1 --loglevel=info
+    env_file:
+      - .env
+    volumes:
+      - ./logs:/app_data/logs/celery
+      - ./app_data:/bot/app_data
+    depends_on:
+      - redis
+    networks:
+      - proxy_net
+
+  celery-beat:
+    build:
+      dockerfile: ./Dockerfile
+    container_name: ${CELERY_BEAT_CONTAINER}
+    entrypoint: celery -A celery_main.bot_celery beat --loglevel=info
+    env_file:
+      - .env
+    volumes:
+      - ./logs:/app_data/logs/celery_beat
+      - ./app_data:/bot/app_data
+    depends_on:
+      - redis
+    networks:
+      - proxy_net
+
 networks:
   proxy_net:
     name: proxy_net

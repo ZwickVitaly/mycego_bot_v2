@@ -4,7 +4,6 @@ from aiogram import F, Router
 from aiogram.fsm.context import FSMContext
 from aiogram.types import CallbackQuery
 from api_services.google_sheets import (
-    append_new_worker_surveys,
     update_worker_surveys_v2,
 )
 from db import Survey, async_session
@@ -123,7 +122,6 @@ async def first_day_second_q_handler(callback_query: CallbackQuery, state: FSMCo
                 data["Условия работы"] = callback_query.data.split("_")[-1]
                 await callback_query.message.answer(AFTER_SURVEY_MESSAGE)
                 await state.clear()
-                await callback_query.message.delete()
                 admin_msg = make_survey_notification(
                     user_name=user.username.replace("_", " "),
                     user_role=user.role,

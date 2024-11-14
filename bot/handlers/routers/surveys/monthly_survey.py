@@ -3,7 +3,7 @@ import json
 from aiogram import F, Router
 from aiogram.fsm.context import FSMContext
 from aiogram.types import CallbackQuery, Message
-from api_services.google_sheets import update_worker_surveys, update_worker_surveys_v2
+from api_services.google_sheets import update_worker_surveys_v2
 from db import Survey, async_session
 from FSM.surveys import MonthlySurveyStates
 from helpers import (

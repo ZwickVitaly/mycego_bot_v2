@@ -12,7 +12,7 @@ DEBUG = getenv("DEBUG", "1") == "1"
 # конфигурируем логгер
 logger.remove()
 logger.add(
-    "app_data/logs/debug_logs.log" if DEBUG else "app_data/logs/bot.log",
+    "app_data/logs/bot/debug_logs.log" if DEBUG else "app_data/logs/bot/bot.log",
     rotation="00:00:00",
     level="DEBUG" if DEBUG else "INFO",
 )
@@ -58,7 +58,7 @@ BASE_DIR = Path(__file__).parent
 TIMEZONE = timezone(getenv("TIMEZONE", "Europe/Moscow"))
 
 # Ссылка на базу данных
-DATABASE_NAME = f'sqlite+aiosqlite:///{BASE_DIR / "app_data" / "telegram_bot.db"}'
+DATABASE_NAME = f'sqlite+aiosqlite:///{BASE_DIR / "app_data" / "telegram_bot.db"}?timeout=10'
 
 # Словарь комментируемых работ
 COMMENTED_WORKS: dict[int, str] = dict()

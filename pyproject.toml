@@ -52,6 +52,7 @@ redis = "^5.0.8"
 apscheduler = "^3.10.4"
 gspread = "^6.1.2"
 uvicorn = "^0.31.1"
+celery = {extras = ["redis"], version = "^5.4.0"}
 
 
 [build-system]
