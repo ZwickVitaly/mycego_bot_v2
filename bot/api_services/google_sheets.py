@@ -27,7 +27,8 @@ async def update_worker_surveys_v2(user_id: int | str, survey: dict, user=None) 
             row = await asyncio.to_thread(find_worker_row, user_id)
             if not row:
                 return False
-        return False
+        else:
+            return False
     if not survey.get("period") or not survey.get("data"):
         return False
     logger.debug(f"Ряд: {row}")
