@@ -31,5 +31,8 @@ bot_celery.conf.beat_schedule = {
         "task": "renew_users_db",
         "schedule": crontab(hour="*/3", minute="0"),
     },
-
+    "happy_birthday": {
+        "task": "happy_birthday",
+        "schedule": crontab(hour="12", minute="0"),
+    },
 }
