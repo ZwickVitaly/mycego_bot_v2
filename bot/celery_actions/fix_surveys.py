@@ -65,6 +65,7 @@ async def fix_surveys_job():
                                 if key != "user_name"
                             ],
                         },
+                        user=user
                     )
                 else:
                     srv_to_delete.append(survey)
