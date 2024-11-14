@@ -60,8 +60,6 @@ TIMEZONE = timezone(getenv("TIMEZONE", "Europe/Moscow"))
 # Ссылка на базу данных
 DATABASE_NAME = f'sqlite+aiosqlite:///{BASE_DIR / "app_data" / "telegram_bot.db"}?timeout=10'
 
-# Словарь комментируемых работ
-COMMENTED_WORKS: dict[int, str] = dict()
 
 # Redis
 REDIS_HOST = getenv("REDIS_HOST") or "localhost"

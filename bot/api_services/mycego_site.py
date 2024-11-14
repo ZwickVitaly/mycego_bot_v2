@@ -4,8 +4,10 @@ from copy import deepcopy
 
 from aiohttp import ClientSession, ClientOSError
 from db import Works, async_session
-from settings import COMMENTED_WORKS, JSON_HEADERS, SITE_DOMAIN, logger
+from settings import JSON_HEADERS, SITE_DOMAIN, logger
 from sqlalchemy import delete
+
+from utils import redis_connection
 
 
 async def check_user_api(username, password, user_id, retries=3):
@@ -272,6 +274,7 @@ async def generate_works_base(retries=3):
                 await session.execute(delete(Works))
                 await session.commit()
         async with session.begin():
+            commented_works = dict()
             for department, works in data.items():
                 for name, work in works.items():
                     session.add(
@@ -286,8 +289,9 @@ async def generate_works_base(retries=3):
                     )
                     if department == "Общий":
                         if any([name.lower().startswith(nc) for nc in needs_comment]):
-                            COMMENTED_WORKS[work.get("id")] = name
+                            commented_works[work.get("id")] = name
             await session.commit()
+            await redis_connection.hset("commented_works", mapping=commented_works)
         logger.info("Обновление нормативов завершено")
     else:
         logger.error("Не получилось обновить нормативы!")

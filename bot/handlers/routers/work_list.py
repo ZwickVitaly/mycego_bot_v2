@@ -7,7 +7,8 @@ from custom_filters import not_digits_filter
 from FSM import WorkList
 from helpers import aform_works_done_message, aget_user_by_id, anotify_admins
 from keyboards import call_back, generate_departments, generate_works, menu_keyboard
-from settings import ADMINS, COMMENTED_WORKS, logger
+from settings import ADMINS, logger
+from utils import redis_connection
 
 # роутер листов работ
 work_list_router = Router()
@@ -86,7 +87,9 @@ async def nums_works(message: Message, state: FSMContext):
             # получаем количество работы, введённое пользователем
             quantity = int(message.text)
             # проверяем есть ли работа в обязательно комментируемых
-            commented = COMMENTED_WORKS.get(current_work)
+            commented_works = (await redis_connection.hgetall("commented_works")) or dict()
+            commented = commented_works.get(current_work)
+            print(commented_works, commented)
             if quantity <= 0:
                 # обрабатываем возможность отрицательного числа или нуля
                 await message.answer("Ошибка: количество не может быть отрицательным.")
@@ -206,14 +209,15 @@ async def send_works(callback_query: CallbackQuery, state: FSMContext):
             comment = data.get("comment", None)
             logger.success(works)
             # ищем есть ли комментируемые работы без комментария
+            commented_works = await redis_connection.hgetall("commented_works")
             for key, value in works.items():
                 if (
-                    int(key) in COMMENTED_WORKS
-                    and COMMENTED_WORKS[int(key)] not in comment
+                    int(key) in commented_works
+                    and commented_works[int(key)] not in comment
                 ):
                     # просим добавить комментарий
                     await callback_query.message.answer(
-                        f'⚠️Вы заполнили работы: "{COMMENTED_WORKS[int(key)]}" необходимо указать комментарий, '
+                        f'⚠️Вы заполнили работы: "{commented_works[int(key)]}" необходимо указать комментарий, '
                         "что именно они в себя включали⚠️",
                     )
                     # устанавливаем id работы, к которой требуется комментарий как current_work
@@ -395,12 +399,13 @@ async def comment_work(message: Message, state: FSMContext):
         new_comment = message.text.replace(";", ".")
         # получаем current_work
         current_work = data.get("current_work")
-        if comment and COMMENTED_WORKS[current_work] in comment:
+        commented_works = await redis_connection.hgetall("commented_works")
+        if comment and commented_works[current_work] in comment:
             comment = comment.split("; ")
             for i, sub in enumerate(comment):
-                if COMMENTED_WORKS[current_work] in sub:
+                if commented_works[current_work] in sub:
                     # если комментарий к этой работе уже есть - меняем его на новый
-                    comment[i] = f"{COMMENTED_WORKS[current_work]}: {new_comment}"
+                    comment[i] = f"{commented_works[current_work]}: {new_comment}"
                     break
             # собираем комментарий обратно
             comment = "; ".join(comment)
@@ -409,7 +414,7 @@ async def comment_work(message: Message, state: FSMContext):
                 # если комментарий уже есть - добавляем разделитель
                 comment += f"; "
             # добавляем комментарий в комментарии
-            comment += f"{COMMENTED_WORKS[current_work]}: {new_comment}"
+            comment += f"{commented_works[current_work]}: {new_comment}"
         # сохраняем комментарии в данные
         data["comment"] = comment
         # получаем данные о заполненных работах
