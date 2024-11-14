@@ -1,6 +1,7 @@
 class RedisKeys:
     CONTACTS_KEY = "contacts"
     CONTACTS_COUNTER_KEY = "contacts_counter"
+
     SCHEDULES_FIRST_DAY_KEY = "first_day"
     SCHEDULES_ONE_WEEK_KEY = "one_week"
     SCHEDULES_ONE_MONTH_KEY = "one_month"
@@ -15,8 +16,14 @@ class RedisKeys:
     CAREER_IMAGE_ID = "career_image_id"
     PROMO_IMAGE_ID = "promo_image_id"
 
+    COMMENTED_WORKS = "commented_works"
+
 
 class DatabaseKeys:
     SCHEDULES_FIRST_DAY_KEY = "Первый день"
     SCHEDULES_ONE_WEEK_KEY = "Первая неделя"
     SCHEDULES_MONTH_KEY = "{}й месяц"
+
+
+class VariousKeys:
+    FIRED_KEY = "Уволен"

@@ -1,6 +1,6 @@
 from gspread import service_account
 from settings import BASE_DIR, CITY_MARKER, SURVEY_GOOGLE_SHEET_URL, logger
-from utils import DatabaseKeys
+from utils import DatabaseKeys, VariousKeys
 
 try:
     gs = service_account(BASE_DIR / "gc.json")
@@ -30,5 +30,5 @@ SURVEYS_COLUMNS = {
     DatabaseKeys.SCHEDULES_MONTH_KEY.format(1): "N{}:S{}",
     DatabaseKeys.SCHEDULES_MONTH_KEY.format(2): "T{}:Y{}",
     DatabaseKeys.SCHEDULES_MONTH_KEY.format(3): "Z{}:AE{}",
-    "Уволен": "AF{}:AL{}",
+    VariousKeys.FIRED_KEY: "AF{}:AL{}",
 }

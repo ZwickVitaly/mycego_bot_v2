@@ -1,16 +1,16 @@
 import asyncio
-from datetime import timedelta
+from datetime import timedelta, datetime
 
 from aiogram.exceptions import TelegramBadRequest
 from api_services import get_users_statuses
 from api_services.google_sheets import remove_fired_worker_surveys
+from celery_actions.integration_questionnaires.fired import run_fired_survey
 from celery_main import bot_celery
 from constructors.bot_constructor import bot
-from constructors.scheduler_constructor import scheduler
 from db import Chat, User, async_session
 from settings import logger
 from sqlalchemy import delete, select
-from utils import RedisKeys
+from dateutil.relativedelta import relativedelta
 
 
 async def renew_users_base():
@@ -34,34 +34,26 @@ async def renew_users_base():
                     q = await session.execute(
                         select(User).filter(User.telegram_id.notin_(working_ids))
                     )
-                    fired_users: list[User] = q.scalars()
+                    fired_users: list[User] = list(q.scalars())
             fired_ids = [user.telegram_id for user in fired_users]
             logger.info(fired_ids)
-            for fired_id in fired_ids:
+            for fired_id, user in zip(fired_ids, fired_users):
                 try:
-                    # удаляем опросники
-                    scheduler.remove_job(
-                        job_id=f"{RedisKeys.SCHEDULES_THREE_MONTHS_KEY}_{fired_id}"
-                    )
-                    scheduler.remove_job(
-                        job_id=f"{RedisKeys.SCHEDULES_TWO_MONTHS_KEY}_{fired_id}"
-                    )
-                    scheduler.remove_job(
-                        job_id=f"{RedisKeys.SCHEDULES_ONE_MONTH_KEY}_{fired_id}"
-                    )
-                    scheduler.remove_job(
-                        job_id=f"{RedisKeys.SCHEDULES_ONE_WEEK_KEY}_{fired_id}"
-                    )
-                    scheduler.remove_job(
-                        job_id=f"{RedisKeys.SCHEDULES_FIRST_DAY_KEY}_{fired_id}"
-                    )
-                except Exception as e:
-                    logger.error(f"Ошибка при удалении триггеров кронтаба: {e}")
-                try:
-                    # перебрасываем юзера в таблицу уволенных
                     await remove_fired_worker_surveys(fired_id)
                 except Exception as e:
                     logger.error(f"Не получилось удалить данные из гугл-таблицы: {e}")
+                worked_delta = relativedelta(datetime.now(), user.date_joined)
+                worked_msg = f"{f'{worked_delta.years} лет ' if worked_delta.years else ''}{f'{worked_delta.months} месяцев 'if worked_delta.months else ''}{f'{worked_delta.days} дней 'if worked_delta.days else ''}"
+                if not worked_msg:
+                    worked_msg = f"{worked_delta.hours} часов"
+                run_fired_survey.delay(
+                    {
+                        "telegram_id": user.telegram_id,
+                        "username": user.username.replace("_", ""),
+                        "role": user.role,
+                        "worked": worked_msg,
+                    }
+                )
             async with async_session() as session:
                 async with session.begin():
                     q2 = await session.execute(select(Chat).where(Chat.admin == True))

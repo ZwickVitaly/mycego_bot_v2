@@ -58,7 +58,9 @@ BASE_DIR = Path(__file__).parent
 TIMEZONE = timezone(getenv("TIMEZONE", "Europe/Moscow"))
 
 # Ссылка на базу данных
-DATABASE_NAME = f'sqlite+aiosqlite:///{BASE_DIR / "app_data" / "telegram_bot.db"}?timeout=10'
+DATABASE_NAME = (
+    f'sqlite+aiosqlite:///{BASE_DIR / "app_data" / "telegram_bot.db"}?timeout=10'
+)
 
 
 # Redis

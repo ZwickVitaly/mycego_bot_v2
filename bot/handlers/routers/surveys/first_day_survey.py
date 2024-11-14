@@ -28,7 +28,7 @@ from messages import (
 from settings import ADMINS, SURVEY_ADMINS, logger
 from utils import DatabaseKeys
 
-# Роутер знакомства
+# Роутер опросников первого дня
 first_day_survey_router = Router()
 
 
@@ -145,7 +145,9 @@ async def first_day_second_q_handler(callback_query: CallbackQuery, state: FSMCo
                         },
                     )
                 except Exception as e:
-                    logger.error(f"Не удалось записать результаты опроса. Пользователь: {user.username}; Ошибка: {e}")
+                    logger.error(
+                        f"Не удалось записать результаты опроса. Пользователь: {user.username}; Ошибка: {e}"
+                    )
                     survey = None
                 if not survey:
                     logger.warning(

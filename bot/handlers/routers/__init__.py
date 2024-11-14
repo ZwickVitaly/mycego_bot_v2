@@ -2,6 +2,7 @@ from handlers.routers.surveys import (
     first_day_survey_router,
     first_week_survey_router,
     monthly_survey_router,
+    fired_survey_router,
 )
 
 from .acquaintance import acquaintance_router
@@ -29,4 +30,5 @@ __all__ = [
     "first_day_survey_router",
     "monthly_survey_router",
     "first_week_survey_router",
+    "fired_survey_router",
 ]

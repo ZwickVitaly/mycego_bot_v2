@@ -1,8 +1,11 @@
 from aiogram import Bot
+from dateutil.relativedelta import relativedelta
+from datetime import datetime
+from celery_actions.integration_questionnaires.fired import run_fired_survey
 from celery_actions.renew_db import run_renew_users_db
 from celery_actions.renew_standards import run_renew_works_base
 from celery_actions.fix_surveys import run_fix_surveys_job
-from helpers import anotify_admins
+from helpers import anotify_admins, aget_user_by_id
 from settings import (
     ADMINS,
     WEBHOOK_BASE,
@@ -28,9 +31,10 @@ async def start_up(bot: Bot):
     logger.info("Запускаем on-startup")
     run_renew_works_base.delay()
     run_renew_users_db.delay()
-    run_fix_surveys_job.delay()
+    # run_fix_surveys_job.delay()
     logger.info("Бот готов принимать сообщения")
     await anotify_admins(bot, "Бот запущен", admins_list=ADMINS)
+
 
 async def shut_down(bot: Bot):
     await anotify_admins(bot, "Бот остановлен", admins_list=ADMINS)

@@ -28,7 +28,9 @@ from handlers import (  # work_list_delivery_router,
     work_graf_router,
     work_list_router,
     process_failed_confirmation,
-    work_list_delivery_router, survey_command_handler,
+    work_list_delivery_router,
+    survey_command_handler,
+    fired_survey_router,
 )
 from settings import logger
 from utils import storage_connection
@@ -57,6 +59,7 @@ logger.debug("Registering bot reply functions")
 dp.include_router(first_day_survey_router)
 dp.include_router(first_week_survey_router)
 dp.include_router(monthly_survey_router)
+dp.include_router(fired_survey_router)
 
 # Роутер знакомства
 dp.include_router(acquaintance_router)
@@ -81,7 +84,7 @@ dp.message.register(get_promo_handler, Command("promo"), F.chat.type == "private
 dp.message.register(
     get_vacancies_command_handler, Command("vacancies"), F.chat.type == "private"
 )
-dp.message.register(survey_command_handler, Command('survey'), F.chat.type == "private")
+dp.message.register(survey_command_handler, Command("survey"), F.chat.type == "private")
 
 # Сообщение во время опроса/знакомства
 dp.message.register(

@@ -24,7 +24,7 @@ from messages import (
 from settings import ADMINS, SURVEY_ADMINS, logger
 from utils import DatabaseKeys
 
-# Роутер знакомства
+# Роутер опросников n месяца
 monthly_survey_router = Router()
 
 
@@ -135,8 +135,10 @@ async def monthly_second_q_handler(message: Message, state: FSMContext):
                 },
             )
         except Exception as e:
-                    logger.error(f"Не удалось записать результаты опроса. Пользователь: {user.username}; Ошибка: {e}")
-                    survey = None
+            logger.error(
+                f"Не удалось записать результаты опроса. Пользователь: {user.username}; Ошибка: {e}"
+            )
+            survey = None
         if not survey:
             logger.warning(
                 "Не получилось внести данные опроса в таблицу для "

@@ -8,7 +8,7 @@ from FSM import WorkList
 from helpers import aform_works_done_message, aget_user_by_id, anotify_admins
 from keyboards import call_back, generate_departments, generate_works, menu_keyboard
 from settings import ADMINS, logger
-from utils import redis_connection
+from utils import redis_connection, RedisKeys
 
 # роутер листов работ
 work_list_router = Router()
@@ -87,7 +87,9 @@ async def nums_works(message: Message, state: FSMContext):
             # получаем количество работы, введённое пользователем
             quantity = int(message.text)
             # проверяем есть ли работа в обязательно комментируемых
-            commented_works = (await redis_connection.hgetall("commented_works")) or dict()
+            commented_works = (
+                await redis_connection.hgetall(RedisKeys.COMMENTED_WORKS)
+            ) or dict()
             commented = commented_works.get(str(current_work))
             if quantity <= 0:
                 # обрабатываем возможность отрицательного числа или нуля
@@ -208,12 +210,9 @@ async def send_works(callback_query: CallbackQuery, state: FSMContext):
             comment = data.get("comment", None)
             logger.success(works)
             # ищем есть ли комментируемые работы без комментария
-            commented_works = await redis_connection.hgetall("commented_works")
+            commented_works = await redis_connection.hgetall(RedisKeys.COMMENTED_WORKS)
             for key, value in works.items():
-                if (
-                    key in commented_works
-                    and commented_works[key] not in comment
-                ):
+                if key in commented_works and commented_works[key] not in comment:
                     # просим добавить комментарий
                     await callback_query.message.answer(
                         f'⚠️Вы заполнили работы: "{commented_works[key]}" необходимо указать комментарий, '
@@ -398,7 +397,7 @@ async def comment_work(message: Message, state: FSMContext):
         new_comment = message.text.replace(";", ".")
         # получаем current_work
         current_work = str(data.get("current_work"))
-        commented_works = await redis_connection.hgetall("commented_works")
+        commented_works = await redis_connection.hgetall(RedisKeys.COMMENTED_WORKS)
         if comment and commented_works[current_work] in comment:
             comment = comment.split("; ")
             for i, sub in enumerate(comment):

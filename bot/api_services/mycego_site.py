@@ -7,7 +7,7 @@ from db import Works, async_session
 from settings import JSON_HEADERS, SITE_DOMAIN, logger
 from sqlalchemy import delete
 
-from utils import redis_connection
+from utils import redis_connection, RedisKeys
 
 
 async def check_user_api(username, password, user_id, retries=3):
@@ -55,6 +55,7 @@ async def create_or_get_apport(date, start_time, end_time, user_id_site, retries
         except ClientOSError:
             continue
     return 0
+
 
 async def get_users_statuses(retries=3):
     """
@@ -212,6 +213,7 @@ async def get_details_works_lists(work_id, retries=3):
             continue
     return dict()
 
+
 async def del_works_lists(work_id, user_id, retries=3):
     """
     Функция для удаления листа работ с сайта
@@ -261,6 +263,7 @@ async def get_data_delivery(user_id, retries=3):
             continue
     return dict()
 
+
 async def generate_works_base(retries=3):
     """
     Функция для обновления базы нормативов
@@ -292,7 +295,9 @@ async def generate_works_base(retries=3):
                         if any([name.lower().startswith(nc) for nc in needs_comment]):
                             commented_works[work.get("id")] = name
             await session.commit()
-            await redis_connection.hset("commented_works", mapping=commented_works)
+            await redis_connection.hset(
+                RedisKeys.COMMENTED_WORKS, mapping=commented_works
+            )
         logger.info("Обновление нормативов завершено")
     else:
         logger.error("Не получилось обновить нормативы!")

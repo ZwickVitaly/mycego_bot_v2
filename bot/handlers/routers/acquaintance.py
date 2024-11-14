@@ -219,27 +219,37 @@ async def process_confirmation(callback_query: CallbackQuery, state: FSMContext)
             now = datetime.now(tz=TIMEZONE)
             first_day_timer = now.replace(hour=21, minute=0, second=0)
             # first_day_timer = now + timedelta(seconds=5)
-            run_first_day_survey.apply_async(args=[callback_query.from_user.id], eta=first_day_timer)
+            run_first_day_survey.apply_async(
+                args=[callback_query.from_user.id], eta=first_day_timer
+            )
             first_week_timer = now.replace(hour=8, minute=0, second=0) + timedelta(
                 weeks=(1 if now.weekday() <= 1 else 2), days=(1 - now.weekday())
             )
             # first_week_timer = now + timedelta(seconds=35)
-            run_first_week_survey.apply_async(args=[callback_query.from_user.id], eta=first_week_timer)
+            run_first_week_survey.apply_async(
+                args=[callback_query.from_user.id], eta=first_week_timer
+            )
             first_month_timer = now.replace(hour=8, minute=0, second=0) + timedelta(
                 days=31
             )
             # first_month_timer = now + timedelta(seconds=60)
-            run_monthly_survey.apply_async(args=[callback_query.from_user.id, 1], eta=first_month_timer)
+            run_monthly_survey.apply_async(
+                args=[callback_query.from_user.id, 1], eta=first_month_timer
+            )
             second_month_timer = now.replace(hour=8, minute=0, second=0) + timedelta(
                 days=61
             )
             # second_month_timer = now + timedelta(seconds=90)
-            run_monthly_survey.apply_async(args=[callback_query.from_user.id, 2], eta=second_month_timer)
+            run_monthly_survey.apply_async(
+                args=[callback_query.from_user.id, 2], eta=second_month_timer
+            )
             third_month_timer = now.replace(hour=8, minute=0, second=0) + timedelta(
                 days=91
             )
             # third_month_timer = now + timedelta(seconds=120)
-            run_monthly_survey.apply_async(args=[callback_query.from_user.id, 3], eta=third_month_timer)
+            run_monthly_survey.apply_async(
+                args=[callback_query.from_user.id, 3], eta=third_month_timer
+            )
             await state.clear()
             return
         data["confirmations"] = confirmations + 1

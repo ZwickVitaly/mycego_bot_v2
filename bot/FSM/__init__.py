@@ -7,6 +7,7 @@ from .surveys import (
     FirstDaySurveyStates,
     MonthlySurveyStates,
     OneWeekSurveyStates,
+    FiredSurveyStates,
     survey_states,
 )
 from .work import ViewWorkList, WorkGraf, WorkList, WorkListDelivery
@@ -27,4 +28,5 @@ __all__ = [
     "MonthlySurveyStates",
     "survey_states",
     "QuestionState",
+    "FiredSurveyStates",
 ]
