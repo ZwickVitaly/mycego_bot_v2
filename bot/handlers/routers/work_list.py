@@ -88,8 +88,7 @@ async def nums_works(message: Message, state: FSMContext):
             quantity = int(message.text)
             # проверяем есть ли работа в обязательно комментируемых
             commented_works = (await redis_connection.hgetall("commented_works")) or dict()
-            commented = commented_works.get(current_work)
-            print(commented_works, commented)
+            commented = commented_works.get(str(current_work))
             if quantity <= 0:
                 # обрабатываем возможность отрицательного числа или нуля
                 await message.answer("Ошибка: количество не может быть отрицательным.")
@@ -212,12 +211,12 @@ async def send_works(callback_query: CallbackQuery, state: FSMContext):
             commented_works = await redis_connection.hgetall("commented_works")
             for key, value in works.items():
                 if (
-                    int(key) in commented_works
-                    and commented_works[int(key)] not in comment
+                    key in commented_works
+                    and commented_works[key] not in comment
                 ):
                     # просим добавить комментарий
                     await callback_query.message.answer(
-                        f'⚠️Вы заполнили работы: "{commented_works[int(key)]}" необходимо указать комментарий, '
+                        f'⚠️Вы заполнили работы: "{commented_works[key]}" необходимо указать комментарий, '
                         "что именно они в себя включали⚠️",
                     )
                     # устанавливаем id работы, к которой требуется комментарий как current_work
@@ -398,7 +397,7 @@ async def comment_work(message: Message, state: FSMContext):
         # на всякий случай меняем ';' на '.' т.к. ';' - это наш разделитель комментариев
         new_comment = message.text.replace(";", ".")
         # получаем current_work
-        current_work = data.get("current_work")
+        current_work = str(data.get("current_work"))
         commented_works = await redis_connection.hgetall("commented_works")
         if comment and commented_works[current_work] in comment:
             comment = comment.split("; ")

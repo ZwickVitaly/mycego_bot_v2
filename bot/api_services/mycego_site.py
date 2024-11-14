@@ -158,6 +158,7 @@ async def post_works(date, user_id_site, works, delivery=None, comment=None, ret
         "delivery": delivery,
         "comment": comment,
     }
+    print(data)
     json_data = json.dumps(data)
     headers = deepcopy(JSON_HEADERS)
     count = 0
