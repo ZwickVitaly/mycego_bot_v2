@@ -34,9 +34,9 @@ async def fix_surveys_job():
                 users = q.unique().scalars()
         srv_to_delete = []
         for user in users:
-            # if int(user.telegram_id) in ADMINS:
-            #     logger.info(f"Пользователь: {user.username} админ - пропускаем.")
-            #     continue
+            if int(user.telegram_id) in ADMINS:
+                logger.info(f"Пользователь: {user.username} админ - пропускаем.")
+                continue
             #     # user_completed_surveys = {
             #     #     DatabaseKeys.SCHEDULES_FIRST_DAY_KEY: None,
             #     #     DatabaseKeys.SCHEDULES_ONE_WEEK_KEY: None,

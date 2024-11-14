@@ -288,7 +288,7 @@ async def generate_works_base(retries=3):
                             department_name=department,
                         )
                     )
-                    if department == "Общий":
+                    if department in ["Общий", "Основное производство"]:
                         if any([name.lower().startswith(nc) for nc in needs_comment]):
                             commented_works[work.get("id")] = name
             await session.commit()
