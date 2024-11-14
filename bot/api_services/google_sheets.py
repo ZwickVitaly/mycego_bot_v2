@@ -59,7 +59,7 @@ def find_worker_row(user_id: str) -> int:
         logger.debug("Ищем ряд пользователя")
         user_tg_id_cell = working.find(user_id, in_column=1)
         if not user_tg_id_cell:
-            logger.debug(f"НЕ НАШЛИ ЯЧЕЙКУ!!!!")
+            logger.debug(f"НЕ НАШЛИ ЯЧЕЙКУ!!!! User: {user_id}")
             return None
         else:
             return user_tg_id_cell.row
