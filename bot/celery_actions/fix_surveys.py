@@ -232,4 +232,5 @@ async def fix_surveys_job():
 
 @bot_celery.task(name="fix_surveys_job")
 def run_fix_surveys_job():
-    asyncio.run(fix_surveys_job())
+    ioloop = asyncio.get_event_loop()
+    ioloop.run_until_complete(fix_surveys_job())

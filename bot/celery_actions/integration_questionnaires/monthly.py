@@ -76,7 +76,8 @@ async def missed_monthly_survey_start(user_id: str | int, month_no: str | int):
 
 @bot_celery.task(name="monthly_survey")
 def run_monthly_survey(user_id, month_no, missed=False):
+    ioloop = asyncio.get_event_loop()
     if missed:
-        asyncio.run(missed_monthly_survey_start(user_id, month_no))
+        ioloop.run_until_complete(missed_monthly_survey_start(user_id, month_no))
     else:
-        asyncio.run(monthly_survey_start(user_id, month_no))
+        ioloop.run_until_complete(monthly_survey_start(user_id, month_no))

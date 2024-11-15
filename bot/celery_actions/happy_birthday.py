@@ -71,4 +71,5 @@ async def happy_birthday():
 
 @bot_celery.task(name="happy_birthday")
 def run_happy_birthday():
-    asyncio.run(happy_birthday())
+    ioloop = asyncio.get_event_loop()
+    ioloop.run_until_complete(happy_birthday())

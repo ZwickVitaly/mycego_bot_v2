@@ -99,4 +99,5 @@ async def renew_users_base():
 
 @bot_celery.task(name="renew_users_db")
 def run_renew_users_db():
-    asyncio.run(renew_users_base())
+    ioloop = asyncio.get_event_loop()
+    ioloop.run_until_complete(renew_users_base())

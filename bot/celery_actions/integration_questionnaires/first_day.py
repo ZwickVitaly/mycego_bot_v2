@@ -73,7 +73,8 @@ async def missed_first_day_survey_start(user_id):
 
 @bot_celery.task(name="first_day_survey")
 def run_first_day_survey(user_id, missed=False):
+    ioloop = asyncio.get_event_loop()
     if missed:
-        asyncio.run(missed_first_day_survey_start(user_id))
+        ioloop.run_until_complete(missed_first_day_survey_start(user_id))
     else:
-        asyncio.run(after_first_day_survey_start(user_id))
+        ioloop.run_until_complete(after_first_day_survey_start(user_id))

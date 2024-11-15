@@ -13,4 +13,5 @@ async def renew_works_base():
 
 @bot_celery.task(name="renew_standards")
 def run_renew_works_base():
-    asyncio.run(renew_works_base())
+    ioloop = asyncio.get_event_loop()
+    ioloop.run_until_complete(renew_works_base())

@@ -58,4 +58,5 @@ async def fired_survey_start(user):
 
 @bot_celery.task(name="fired_survey")
 def run_fired_survey(user):
-    asyncio.run(fired_survey_start(user))
+    ioloop = asyncio.get_event_loop()
+    ioloop.run_until_complete(fired_survey_start(user))
