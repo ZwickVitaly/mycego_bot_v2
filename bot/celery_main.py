@@ -33,6 +33,6 @@ bot_celery.conf.beat_schedule = {
     },
     "happy_birthday": {
         "task": "happy_birthday",
-        "schedule": crontab(hour="12", minute="0"),
+        "schedule": crontab(hour="12", minute="6"),
     },
 }
