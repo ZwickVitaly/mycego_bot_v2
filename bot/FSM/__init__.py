@@ -10,7 +10,7 @@ from .surveys import (
     FiredSurveyStates,
     survey_states,
 )
-from .work import ViewWorkList, WorkGraf, WorkList, WorkListDelivery
+from .work import ViewWorkList, WorkGraf, WorkList, WorkListDelivery, WorkDeliveryView
 from .question import QuestionState
 
 __all__ = [
@@ -29,4 +29,5 @@ __all__ = [
     "survey_states",
     "QuestionState",
     "FiredSurveyStates",
+    "WorkDeliveryView"
 ]

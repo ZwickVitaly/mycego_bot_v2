@@ -15,6 +15,7 @@ from .view_work_list import view_work_list_router
 from .work_graf import work_graf_router
 from .work_list import work_list_router
 from .work_list_delivery import work_list_delivery_router
+from .work_list_delivery_view_delete import work_list_delivery_view_router
 
 __all__ = [
     "auth_router",
@@ -31,4 +32,5 @@ __all__ = [
     "monthly_survey_router",
     "first_week_survey_router",
     "fired_survey_router",
+    "work_list_delivery_view_router",
 ]

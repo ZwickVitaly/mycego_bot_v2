@@ -17,6 +17,9 @@ from .mycego_site import (
     post_request,
     post_works,
     update_user_bio,
+    post_user_delivery_products,
+    get_user_delivery_works,
+    delete_user_delivery_works,
 )
 
 __all__ = [
@@ -38,4 +41,7 @@ __all__ = [
     "get_users_statuses",
     "get_happy_birthday_message",
     "update_user_bio",
+    "post_user_delivery_products",
+    "get_user_delivery_works",
+    "delete_user_delivery_works"
 ]

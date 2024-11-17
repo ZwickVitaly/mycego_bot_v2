@@ -31,6 +31,7 @@ from handlers import (  # work_list_delivery_router,
     work_list_delivery_router,
     survey_command_handler,
     fired_survey_router,
+    work_list_delivery_view_router,
 )
 from settings import logger
 from utils import storage_connection
@@ -127,6 +128,9 @@ dp.include_router(work_list_router)
 
 # Роутер листа доставок
 dp.include_router(work_list_delivery_router)
+
+# Роутер просмотра поставок
+dp.include_router(work_list_delivery_view_router)
 
 # Роутер просмотра работ
 dp.include_router(view_work_list_router)

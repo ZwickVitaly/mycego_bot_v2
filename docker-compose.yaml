@@ -17,6 +17,7 @@ services:
     restart: on-failure
     volumes:
       - ./app_data:/bot/app_data
+      - ./logs/bot:/bot/logs
     env_file:
       - .env
     depends_on:
@@ -33,7 +34,7 @@ services:
     env_file:
       - .env
     volumes:
-      - ./logs:/app_data/logs/celery
+      - ./logs/celery:/bot/logs
       - ./app_data:/bot/app_data
     depends_on:
       - redis
@@ -48,7 +49,7 @@ services:
     env_file:
       - .env
     volumes:
-      - ./logs:/app_data/logs/celery_beat
+      - ./logs/celery_beat:/bot/logs
       - ./app_data:/bot/app_data
     depends_on:
       - redis

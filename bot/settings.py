@@ -12,7 +12,7 @@ DEBUG = getenv("DEBUG", "1") == "1"
 # конфигурируем логгер
 logger.remove()
 logger.add(
-    "app_data/logs/bot/debug_logs.log" if DEBUG else "app_data/logs/bot/bot.log",
+    "logs/debug_logs.log" if DEBUG else "logs/bot.log",
     rotation="00:00:00",
     level="DEBUG" if DEBUG else "INFO",
 )

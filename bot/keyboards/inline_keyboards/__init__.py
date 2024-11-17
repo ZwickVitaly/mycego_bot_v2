@@ -27,6 +27,7 @@ from .work_delivery_keyboards import (
     delivery_product_works_keyboard,
     delivery_category_keyboard,
     send_delivery_keyboard,
+    deliveries_view_keyboard,
 )
 
 __all__ = [
@@ -53,4 +54,5 @@ __all__ = [
     "delivery_product_works_keyboard",
     "delivery_category_keyboard",
     "send_delivery_keyboard",
+    "deliveries_view_keyboard"
 ]

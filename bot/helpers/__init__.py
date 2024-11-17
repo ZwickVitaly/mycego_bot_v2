@@ -16,6 +16,7 @@ from .delivery_helpers import (
     make_delivery_works_staged_msg,
 )
 from .parse_delivery_nums import try_parse_delivery_works_nums
+from .make_delivery_view_message import make_delivery_view_message, make_confirmed_delete_message
 
 __all__ = [
     "get_username_or_name",
@@ -34,4 +35,6 @@ __all__ = [
     "make_delivery_works_done_msg",
     "make_delivery_works_staged_msg",
     "try_parse_delivery_works_nums",
+    "make_delivery_view_message",
+    "make_confirmed_delete_message"
 ]

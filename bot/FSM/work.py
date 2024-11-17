@@ -40,6 +40,19 @@ class WorkListDelivery(StatesGroup):
     choice_works = State()
 
 
+class WorkDeliveryView(StatesGroup):
+    """
+    Состояния заполнения листа работ ДОСТАВКИ
+    """
+
+    choice_marketplace = State()
+    choice_delivery = State()
+    choice_product = State()
+    choice_category = State()
+    choice_works = State()
+
+
+
 class ViewWorkList(StatesGroup):
     """
     Состояния просмотра заполненных рабочих листов

@@ -28,6 +28,7 @@ from .routers import (
     work_list_delivery_router,
     work_list_router,
     fired_survey_router,
+    work_list_delivery_view_router,
 )
 
 __all__ = [
@@ -59,4 +60,5 @@ __all__ = [
     "process_failed_confirmation",
     "fired_survey_router",
     "survey_command_handler",
+    "work_list_delivery_view_router",
 ]

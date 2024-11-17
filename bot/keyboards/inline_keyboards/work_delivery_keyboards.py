@@ -33,6 +33,19 @@ async def deliveries_keyboard(deliveries: dict[int, str]):
     keyboard.row(cancel_inline_button)
     return keyboard.as_markup()
 
+async def deliveries_view_keyboard(deliveries: dict[int | str, dict]):
+    keyboard = InlineKeyboardBuilder()
+    keyboard.max_width = 1
+    for d_id, d in deliveries.items():
+        name = d.get("name")
+        delivery_button = InlineKeyboardButton(
+            text=f"{name[:17] + '...' if len(name) > 17 else name}",
+            callback_data=f"delivery_{d_id}",
+        )
+        keyboard.add(delivery_button)
+    keyboard.row(cancel_inline_button)
+    return keyboard.as_markup()
+
 
 async def delivery_products_keyboard(products: dict[int, dict]):
     keyboard = InlineKeyboardBuilder()
@@ -65,6 +78,19 @@ async def delivery_product_works_keyboard(
 
 
 async def delivery_category_keyboard(categories: dict[int | str, dict]):
+    keyboard = InlineKeyboardBuilder()
+    keyboard.max_width = 2
+    for c_id, c in categories.items():
+        product_button = InlineKeyboardButton(
+            text=f"{c.get('name')}", callback_data=f"delivery_category_{c_id}"
+        )
+        keyboard.add(product_button)
+    keyboard.row(send_inline_button)
+    keyboard.row(cancel_inline_button)
+    return keyboard.as_markup()
+
+
+async def delivery_category_view_keyboard(categories: dict[int | str, dict]):
     keyboard = InlineKeyboardBuilder()
     keyboard.max_width = 2
     for c_id, c in categories.items():

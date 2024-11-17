@@ -9,7 +9,7 @@ from api_services import (  # get_data_delivery,
     get_pay_sheet,
     get_request,
     get_statistic,
-    get_works_lists,
+    get_works_lists, get_user_delivery_works,
 )
 from api_services.mycego_site import get_deliveries_in_progress
 from custom_filters import NotStatesGroupFilter
@@ -22,13 +22,13 @@ from FSM import (  # WorkListDelivery
     WorkGraf,
     WorkList,
     survey_states,
-    WorkListDelivery,
+    WorkListDelivery, WorkDeliveryView,
 )
 from helpers import (
     aget_user_by_id,
     aget_users_count,
     anotify_admins,
-    get_message_counts_by_group,
+    get_message_counts_by_group, make_delivery_view_message,
 )
 from keyboards import (
     create_works_list,
@@ -165,6 +165,30 @@ async def main_menu_message_handler(message: types.Message, state: FSMContext):
                     )
                 else:
                     await message.answer("Активные поставки не найдены.")
+            elif (
+                text == "📦Мои поставки"
+                and message.from_user.id in ADMINS
+            ):
+                data = await get_user_delivery_works(user.site_user_id)
+                if data is not None:
+                    marketplaces = data.get("data")
+                    if not marketplaces:
+                        await message.answer("Не найдено работ по активным поставкам.")
+                    else:
+                        await message.answer("📦Ваши работы по поставкам📦\n Формат:\n<code>Название маркетплейса:\nНазвание поставки:\nКатегория:\nТип работы:\nПорядковые номера заказов в поставке, по которым вы выполнили работу.</code>")
+                        for key, val in marketplaces.items():
+                            msg = make_delivery_view_message(key, val)
+                            await message.answer(msg)
+                        await state.set_data({"marketplaces": marketplaces})
+                        await state.set_state(WorkDeliveryView.choice_marketplace)
+                        await message.answer(
+                            "️⚠️️⚠️️⚠️\nМеню для <b>УДАЛЕНИЯ</b> работ по поставкам\n️⚠️️⚠️️⚠️\nВыберите маркетплейс:️",
+                            reply_markup=await marketplaces_keyboard(
+                                [key for key in marketplaces.keys()]
+                            ),
+                        )
+                else:
+                    await message.answer("Возникла ошибка, возможно нет связи с сайтом - пожалуйста, подождите немного.")
             elif text == "😵‍💫Нормативы":
                 # обрабатываем команду "Нормативы", достаём нормативы из бд
                 async with async_session() as session:

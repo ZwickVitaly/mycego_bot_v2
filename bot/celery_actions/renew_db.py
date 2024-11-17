@@ -49,7 +49,7 @@ async def renew_users_base():
                 run_fired_survey.delay(
                     {
                         "telegram_id": user.telegram_id,
-                        "username": user.username.replace("_", ""),
+                        "username": user.username.replace("_", " "),
                         "role": user.role,
                         "worked": worked_msg,
                     }

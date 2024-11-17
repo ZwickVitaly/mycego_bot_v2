@@ -464,10 +464,61 @@ async def get_delivery_products(delivery_id, retries=3):
     return None
 
 
+async def post_user_delivery_products(data, retries=3):
+    """
+    Функция для отправки ордеров и работ пользователя по поставкам
+    """
+    url = f"{SITE_DOMAIN}/api-auth/work-delivery/"
+    count = 0
+    while count <= retries:
+        count += 1
+        try:
+            async with ClientSession() as session:
+                async with session.post(url=url, json=data) as response:
+                    if response.status == 200:
+                        return await response.json()
+                    return None
+        except ClientOSError:
+            continue
+    return None
+
+
+async def get_user_delivery_works(user_id, retries=3):
+    """
+    Функция для отправки ордеров и работ пользователя по поставкам
+    """
+    url = f"{SITE_DOMAIN}/api-auth/work-delivery/{user_id}"
+    count = 0
+    while count <= retries:
+        count += 1
+        try:
+            async with ClientSession() as session:
+                async with session.get(url=url) as response:
+                    if response.status == 200:
+                        return await response.json()
+                    return None
+        except ClientOSError:
+            continue
+    return None
+
+
+async def delete_user_delivery_works(data, retries=3):
+    """
+    Функция для отправки ордеров и работ пользователя по поставкам
+    """
+    url = f"{SITE_DOMAIN}/api-auth/work-delivery/delete"
+    count = 0
+    while count <= retries:
+        count += 1
+        try:
+            async with ClientSession() as session:
+                async with session.post(url=url, json=data) as response:
+                    if response.status == 200:
+                        return True
+                    return None
+        except ClientOSError:
+            continue
+    return None
+
 if __name__ == "__main__":
-    # check_user_api('admin', 'fma160392')
-    # print(asyncio.run(get_categories()))
-    # dates = [datetime.fromisoformat(x.get("date_joined")) for x in p]
-    # print(dates)
-    # print(asyncio.run(get_deliveries_in_progress()))
-    print(asyncio.run(get_categories()))
+    print(asyncio.run(delete_user_delivery_works({"user_id": "791", "works": [3274]})))

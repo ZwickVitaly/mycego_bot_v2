@@ -8,6 +8,7 @@ from aiogram.exceptions import TelegramBadRequest
 from aiogram.enums import ParseMode
 
 from FSM import WorkListDelivery
+from api_services import post_user_delivery_products
 from api_services.mycego_site import get_delivery_products, get_categories
 from helpers import (
     aget_user_by_id,
@@ -99,23 +100,11 @@ async def choose_delivery_handler(callback_query: CallbackQuery, state: FSMConte
         delivery_available = dict()
         for product in products:
             product_category = product.get("product_category")
-            c_in_a = delivery_available.get(product_category)
-            if not c_in_a:
-                delivery_available[product_category] = {
-                    "name": categories_standards.get(product_category, {}).get("name"),
-                    "standards": categories_standards.get(product_category, {}).get(
-                        "standards"
-                    ),
-                    "products": {},
-                }
             category_standards = categories_standards.get(product_category, {}).get(
                 "standards", dict()
             )
             product_works = [w.get("standard_id") for w in product.get("works")]
-            if len(category_standards) > len(product_works):
-                delivery_available[product_category]["products"][
-                    product.get("order")
-                ] = {
+            data = {
                     "id": product.get("id"),
                     "name": product.get("product_art"),
                     "available_works": {
@@ -125,6 +114,20 @@ async def choose_delivery_handler(callback_query: CallbackQuery, state: FSMConte
                     },
                     "works_done": {},
                 }
+            if not data.get("available_works"):
+                continue
+            delivery_available.setdefault(
+                product_category,
+                {
+                    "name": categories_standards.get(product_category, {}).get("name"),
+                    "standards": categories_standards.get(product_category, {}).get("standards", []),
+                    "products": {},
+                }
+            )
+            if len(category_standards) > len(product_works):
+                delivery_available[product_category]["products"][
+                    product.get("order")
+                ] = data
         if not delivery_available:
             await callback_query.message.answer(
                 "В поставке нет доступных для работ товаров. Возвращаю главное меню.",
@@ -486,10 +489,25 @@ async def send_works(callback_query: CallbackQuery, state: FSMContext):
             pass
         user = await aget_user_by_id(callback_query.from_user.id)
         payload = {"user_id": int(user.site_user_id), "products": products_works}
-        await callback_query.message.answer(
-            f"<code>{json.dumps(payload, indent=2, ensure_ascii=False)}</code>",
-            parse_mode=ParseMode.HTML,
-        )
+        resp = await post_user_delivery_products(data=payload)
+        if resp:
+            not_created = resp.get('Not created', {})
+            try:
+                not_created_msg = f"\n{'\n'.join([f'{key}:\n{', '.join([w for w in value])}' for key, value in not_created.items()])}"
+            except Exception as e:
+                logger.exception(e)
+                not_created_msg = ""
+            await callback_query.message.answer(
+                f"✅{resp.get('data')}\n\n"
+                f"❌Не принятые работы: {not_created_msg if not_created else '✅все приняты.'}",
+                parse_mode=ParseMode.HTML,
+            )
+        else:
+            await callback_query.message.answer(
+                "Что-то пошло не так, возможно нет связи с сайтом. "
+                "Пожалуйста попробуйте ещё раз заполнить поставку.",
+                reply_markup=menu_keyboard()
+            )
         await state.clear()
 
     except Exception as e:
