@@ -503,7 +503,7 @@ async def send_works(callback_query: CallbackQuery, state: FSMContext):
                 not_created_msg = ""
             await callback_query.message.answer(
                 f"✅{resp.get('data')}\n\n"
-                f"❌Не принятые работы: {not_created_msg if not_created else '✅все приняты.'}",
+                f"{f'❌Не принятые работы:{not_created_msg}' if not_created else ''}",
                 parse_mode=ParseMode.HTML,
             )
         else:
