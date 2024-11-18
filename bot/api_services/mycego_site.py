@@ -521,4 +521,4 @@ async def delete_user_delivery_works(data, retries=3):
     return None
 
 if __name__ == "__main__":
-    print(asyncio.run(delete_user_delivery_works({"user_id": "791", "works": [3274]})))
+    print(asyncio.run(get_user_delivery_works(791)))

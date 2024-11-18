@@ -1,18 +1,17 @@
-def make_delivery_view_message(marketplace_name: str, marketplace_data: dict):
-    msg = f"<b>Маркетплейс</b>: {marketplace_name}\n"
-    for delivery in marketplace_data.values():
-        msg += f"Поставка: {delivery.get('name')}\n"
-        delivery_works = dict()
-        for category in delivery.get("categories").values():
-            cat_name = category.get("name")
-            msg += f"{cat_name}:\n"
-            for product in category.get("products", {}).values():
-                for work in product.get("works", {}).values():
-                    delivery_works.setdefault(cat_name, {})
-                    delivery_works[cat_name].setdefault(work.get("name"), [])
-                    delivery_works[cat_name][work.get("name")].append(str(product.get("order")))
-            msg += f"{'\n'.join([f'<i>{work_type}</i>:\n{', '.join(products)}' for work_type, products in delivery_works[cat_name].items()])}"
-        msg += "\n\n"
+def make_delivery_view_message(marketplace_name: str, delivery_data: dict):
+    msg = f"Маркетплейс:\n<b>{marketplace_name}</b>\n\n"
+    msg += f"Поставка:\n<b>{delivery_data.get('name')}</b>\n\n"
+    delivery_works = dict()
+    for category in delivery_data.get("categories", dict()).values():
+        cat_name = category.get("name")
+        msg += f"<b>{cat_name}:</b>\n"
+        for product in category.get("products", {}).values():
+            for work in product.get("works", {}).values():
+                delivery_works.setdefault(cat_name, {})
+                delivery_works[cat_name].setdefault(work.get("name"), [])
+                delivery_works[cat_name][work.get("name")].append(str(product.get("order")))
+        msg += f"{'\n'.join([f'<i>{work_type}</i>:\n{', '.join(products)}' for work_type, products in delivery_works[cat_name].items()])}"
+    msg += "\n\n"
     return msg
 
 

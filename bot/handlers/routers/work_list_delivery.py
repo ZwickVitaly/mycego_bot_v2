@@ -404,11 +404,11 @@ async def choose_work_handler(callback_query: CallbackQuery, state: FSMContext):
             staged_category["products"] = available_products
             delivery_available[staged_category_id] = staged_category
             data["delivery_available"] = json.dumps(delivery_available)
+            not_accepted_msg = f"{'\n'.join(f'{p_o}. {p.get('name')}\n{'\n'.join(s for s in p.get('works',{}).values())}' for p_o, p in unavailable_works.items())}"
             await callback_query.message.answer(
                 "✅Сохранено✅ заполнение работ по товарам:\n"
                 f"{'\n'.join(f'{p_o}. {p.get('name')}' for p_o, p in available_works.items())}\n\n"
-                f"❌Не приняты❌ работы по товарам:\n"
-                f"{'\n'.join(f'{p_o}. {p.get('name')}\n{'\n'.join(s for s in p.get('works',{}).values())}' for p_o, p in unavailable_works.items())}",
+                f"{f'❌Не приняты❌ работы по товарам:\n{not_accepted_msg}' if not_accepted_msg else ''}",
             )
         products_left = any(
             [

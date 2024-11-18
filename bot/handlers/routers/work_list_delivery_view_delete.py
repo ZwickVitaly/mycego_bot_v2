@@ -7,11 +7,10 @@ from aiogram.exceptions import TelegramBadRequest
 from aiogram.enums import ParseMode
 
 from FSM import WorkDeliveryView
-from api_services import post_user_delivery_products, post_works, delete_user_delivery_works
+from api_services import delete_user_delivery_works
 from helpers import (
     aget_user_by_id,
     anotify_admins,
-    make_delivery_works_done_msg,
     make_delivery_works_staged_msg,
     try_parse_delivery_works_nums, make_confirmed_delete_message,
 )
@@ -338,8 +337,7 @@ async def choose_work_view_handler(callback_query: CallbackQuery, state: FSMCont
             await callback_query.message.answer(
                 "\n✅Принято удаление работ по товарам:✅\n"
                 f"{'\n'.join(f'{p_o}. {p.get('name')}' for p_o, p in available_works.items())}\n\n"
-                f"❌Не принято удаление работ по товарам❌\n"
-                f"{not_accepted_msg or '✅Все приняты✅'}",
+                f"{f'❌Не принято удаление работ по товарам❌\n{not_accepted_msg}' if not_accepted_msg else ''}",
             )
         products_left = any(
             [
@@ -360,8 +358,9 @@ async def choose_work_view_handler(callback_query: CallbackQuery, state: FSMCont
 
         # works_done_msg = make_delivery_works_done_msg(staged_delivery, products_works)
         confirmed_msg = make_confirmed_delete_message(staged_delivery)
+        await callback_query.message.answer(confirmed_msg)
         await callback_query.message.answer(
-            f"{confirmed_msg}\n{'Выберите категорию товаров:' if products_left else 'Не осталось работ по товарам в поставке. Отправьте заполненные работы или нажмите \"Отмена\"'}",
+            f"{'Выберите категорию товаров:' if products_left else 'Не осталось работ по товарам в поставке. Отправьте заполненные работы или нажмите \"Отмена\"'}",
             reply_markup=(
                 await delivery_category_keyboard(staged_delivery.get("categories"))
                 if products_left

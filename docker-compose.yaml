@@ -1,5 +1,8 @@
 services:
 
+#
+#  db:
+#    image:
   redis:
     container_name: ${REDIS_HOST}
     image: redis:latest

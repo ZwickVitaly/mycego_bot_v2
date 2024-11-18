@@ -176,9 +176,10 @@ async def main_menu_message_handler(message: types.Message, state: FSMContext):
                         await message.answer("Не найдено работ по активным поставкам.")
                     else:
                         await message.answer("📦Ваши работы по поставкам📦\n Формат:\n<code>Название маркетплейса:\nНазвание поставки:\nКатегория:\nТип работы:\nПорядковые номера заказов в поставке, по которым вы выполнили работу.</code>")
-                        for key, val in marketplaces.items():
-                            msg = make_delivery_view_message(key, val)
-                            await message.answer(msg)
+                        for mp, mp_data in marketplaces.items():
+                            for delivery in mp_data.values():
+                                msg = make_delivery_view_message(mp, delivery)
+                                await message.answer(msg)
                         await state.set_data({"marketplaces": marketplaces})
                         await state.set_state(WorkDeliveryView.choice_marketplace)
                         await message.answer(
