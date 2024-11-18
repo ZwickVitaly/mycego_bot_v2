@@ -191,8 +191,9 @@ async def choose_category_handler(callback_query: CallbackQuery, state: FSMConte
         )
         works_done = json.loads(works_done) if works_done else dict()
         works_done_msg = make_delivery_works_done_msg(delivery_name, works_done)
+        await callback_query.message.answer(works_done_msg)
         await callback_query.message.answer(
-            f"{works_done_msg}\nВ категории <b>{delivery_available.get(category_id).get('name')}</b> "
+            f"В категории <b>{delivery_available.get(category_id).get('name')}</b> "
             f"доступны товары:\n{available_products_msg}\n"
             f"Напишите номера товаров через запятую или интервал от - до через тире (максимальный 1-99).\n"
             f"<b>Например</b>:\n"
@@ -421,16 +422,19 @@ async def choose_work_handler(callback_query: CallbackQuery, state: FSMContext):
         for c in delivery_available.values():
             c_name = c.get("name")
             products_works[c_name] = dict()
-            for p_o, p in c.get("products").items():
-                for w in p.get("works_done").values():
+            for p_o, p in c.get("products", dict()).items():
+                for w in p.get("works_done", dict()).values():
                     w_list = products_works[c_name].get(w, [])
                     w_list.append(p_o)
                     products_works[c_name][w] = w_list
+            if not products_works[c_name]:
+                products_works.pop(c_name)
         logger.info(products_works)
 
         works_done_msg = make_delivery_works_done_msg(staged_delivery, products_works)
+        await callback_query.message.answer(works_done_msg)
         await callback_query.message.answer(
-            f"{works_done_msg}\n{'Выберите категорию товаров:' if products_left else 'Не осталось работ по товарам в поставке. Отправьте заполненные работы или нажмите \"Отмена\"'}",
+            f"{'Выберите категорию товаров:' if products_left else 'Не осталось работ по товарам в поставке. Отправьте заполненные работы или нажмите \"Отмена\"'}",
             reply_markup=(
                 await delivery_category_keyboard(delivery_available)
                 if products_left
