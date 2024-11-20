@@ -1,8 +1,5 @@
 services:
 
-#
-#  db:
-#    image:
   redis:
     container_name: ${REDIS_HOST}
     image: redis:latest
@@ -10,7 +7,7 @@ services:
     volumes:
       - ./app_data/redis:/data
     networks:
-      - proxy_net
+      - mycego_sites
 
   bot:
     container_name: ${BOT_NAME}
@@ -27,7 +24,7 @@ services:
       redis:
         condition: service_started
     networks:
-      - proxy_net
+      - mycego_sites
 
   celery:
     build:
@@ -42,7 +39,7 @@ services:
     depends_on:
       - redis
     networks:
-      - proxy_net
+      - mycego_sites
 
   celery-beat:
     build:
@@ -57,8 +54,8 @@ services:
     depends_on:
       - redis
     networks:
-      - proxy_net
+      - mycego_sites
 
 networks:
-  proxy_net:
-    name: proxy_net
+  mycego_sites:
+    name: mycego_sites
